@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -144,6 +145,12 @@ const Index = () => {
   const handlePlaceBet = (horseId: string, amount: number) => {
     if (!gameState) return;
     
+    // Check if bet would make player go broke
+    if (gameState.playerMoney - amount < 100) {
+      toast.error("You need to maintain at least $100 after betting!");
+      return;
+    }
+    
     // Update last bet
     const updatedGameState = { 
       ...gameState, 
@@ -167,7 +174,18 @@ const Index = () => {
     // Simulate the racing process with a slight delay
     setTimeout(() => {
       const updatedGameState = simulateRace(gameState);
-      setGameState(updatedGameState);
+      
+      // Check if player went broke (has less than $100)
+      if (updatedGameState.playerMoney < 100) {
+        setGameState({
+          ...updatedGameState,
+          playerMoney: 0 // Set to 0 to avoid negative display
+        });
+        setGameEnded(true);
+      } else {
+        setGameState(updatedGameState);
+      }
+      
       setRaceInProgress(false);
       setShowingResults(true);
       
@@ -177,7 +195,7 @@ const Index = () => {
       setSelectedHorseId(null);
       
       // Check if game is over
-      if (isGameOver(updatedGameState)) {
+      if (isGameOver(updatedGameState) || updatedGameState.playerMoney < 100) {
         setGameEnded(true);
       } else {
         // Generate new random event for the next race
@@ -199,7 +217,17 @@ const Index = () => {
     if (currentEvent.type === "passive") {
       // Apply passive event
       const updatedGameState = applyRandomEvent(gameState, currentEvent);
-      setGameState(updatedGameState);
+      
+      // Check if player went broke after event
+      if (updatedGameState.playerMoney < 100) {
+        setGameState({
+          ...updatedGameState,
+          playerMoney: 0
+        });
+        setGameEnded(true);
+      } else {
+        setGameState(updatedGameState);
+      }
       
       if (currentEvent.moneyEffect) {
         if (currentEvent.moneyEffect > 0) {
@@ -211,7 +239,18 @@ const Index = () => {
     } else if (currentEvent.type === "choice" && currentEvent.acceptEffect) {
       // Apply choice event effect
       const { gameState: updatedGameState, message } = currentEvent.acceptEffect(gameState);
-      setGameState(updatedGameState);
+      
+      // Check if player went broke after event
+      if (updatedGameState.playerMoney < 100) {
+        setGameState({
+          ...updatedGameState,
+          playerMoney: 0
+        });
+        setGameEnded(true);
+      } else {
+        setGameState(updatedGameState);
+      }
+      
       toast.success(`Event: ${message}`);
     }
     
@@ -304,7 +343,7 @@ const Index = () => {
                     Outstanding Loan: ${gameState.loanAmount.toLocaleString()}
                   </p>
                   <p className="text-xs text-red-400">
-                    Net Worth: ${(gameState.playerMoney - (gameState.loanAmount * 1.25)).toLocaleString()}
+                    Net Worth: ${Math.max(0, gameState.playerMoney - (gameState.loanAmount * 1.25)).toLocaleString()}
                   </p>
                 </div>
               )}

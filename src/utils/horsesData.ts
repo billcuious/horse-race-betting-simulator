@@ -35,17 +35,17 @@ export const getVisibleHorseStats = (
     // If never scouted, show initial stats
     return {
       name: horse.name,
-      displayedSpeed: horse.displayedSpeed,
-      control: horse.control,
-      recovery: horse.recovery,
-      endurance: horse.endurance,
+      displayedSpeed: horse.initialStats.displayedSpeed,
+      control: horse.initialStats.control,
+      recovery: horse.initialStats.recovery,
+      endurance: horse.initialStats.endurance,
       lastUpdated: 0,
       revealedAttributes: horse.revealedAttributes.map(attr => attr.name),
       hasMoreAttributes: horse.attributes.length > horse.revealedAttributes.length
     };
   }
   
-  // If scouted before, return stats as of that race
+  // If scouted before, return the current stats (as of the last scouting)
   return {
     name: horse.name,
     displayedSpeed: horse.displayedSpeed,

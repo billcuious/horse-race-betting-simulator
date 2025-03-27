@@ -16,7 +16,7 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
   const trainingOptions = [
     {
       id: "general",
-      name: "General Training",
+      name: "General",
       description: "Slight boost to all stats, but decreases Recovery",
       effects: [
         { stat: "Speed", change: "+3", color: "text-green-500" },
@@ -28,7 +28,7 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
     },
     {
       id: "speed",
-      name: "Speed Training",
+      name: "Speed",
       description: "Major Speed boost with significant Recovery penalty",
       effects: [
         { stat: "Speed", change: "+8", color: "text-green-500" },
@@ -52,7 +52,7 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
     },
     {
       id: "sync",
-      name: "Sync Training",
+      name: "Sync",
       description: "Increases Control, with bonus if horse places in next race",
       effects: [
         { stat: "Control", change: "+7", color: "text-green-500" },
@@ -80,7 +80,7 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
           {trainingOptions.map(option => (
             <TabsContent key={option.id} value={option.id} className="space-y-4">
               <div>
-                <h3 className="font-medium">{option.name} (${option.cost})</h3>
+                <h3 className="font-medium">{option.name} Training (${option.cost})</h3>
                 <p className="text-sm text-muted-foreground">{option.description}</p>
               </div>
               
@@ -99,14 +99,14 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
                     className="w-full"
                     disabled={isDisabled || playerMoney < option.cost}
                   >
-                    Select {option.name}
+                    Select {option.name} Training
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Confirm Training</AlertDialogTitle>
                     <AlertDialogDescription>
-                      You chose {option.name}. This action costs ${option.cost} and will affect your horse's stats. Proceed?
+                      You chose {option.name} Training. This action costs ${option.cost} and will affect your horse's stats. Proceed?
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
