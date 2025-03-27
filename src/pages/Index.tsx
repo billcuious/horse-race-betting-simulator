@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -292,7 +291,7 @@ const Index = () => {
           <CardContent className="space-y-4">
             <div className="text-center space-y-2">
               <div className="flex items-center justify-center gap-2 text-2xl font-bold">
-                <CoinIcon className={`h-6 w-6 ${goalReached ? 'text-racing-gold' : 'text-muted-foreground'}`} />
+                <CoinsIcon className={`h-6 w-6 ${goalReached ? 'text-racing-gold' : 'text-muted-foreground'}`} />
                 <span>${gameState.playerMoney.toLocaleString()}</span>
               </div>
               <p className="text-sm text-muted-foreground">
