@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { CoinIcon, TrophyIcon, InfoIcon } from "lucide-react";
+import { CoinsIcon, TrophyIcon, InfoIcon } from "lucide-react";
 import HorseCard from "@/components/HorseCard";
 import TrainingOptions from "@/components/TrainingOptions";
 import BettingPanel from "@/components/BettingPanel";
