@@ -9,7 +9,11 @@ interface CompetitorsPanelProps {
   selectedHorseId: string | null;
   onSelectHorse: (horseId: string | null) => void;
   onScout: (horseId: string, type: "basic" | "deep") => void;
-  scoutCosts: Record<string, number>;
+  scoutCosts: {
+    basic: number;
+    deep: number;
+    ownHorse: number;
+  };
   isDisabled: boolean;
   playerMoney: number;
 }

@@ -13,7 +13,11 @@ interface HorseManagementProps {
   onSelectTraining: (type: "general" | "speed" | "rest" | "sync") => void;
   trainingsUsed: Record<string, number>;
   onTakeLoan: () => void;
-  scoutCosts: Record<string, number>;
+  scoutCosts: {
+    basic: number;
+    deep: number;
+    ownHorse: number;
+  };
   isTrainingDisabled: boolean;
   isDisabled: boolean;
   playerMoney: number;

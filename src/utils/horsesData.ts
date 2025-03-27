@@ -32,13 +32,13 @@ export const getVisibleHorseStats = (
   
   // For competitors, show only stats as of the last time they were scouted
   if (horse.lastUpdated === 0) {
-    // If never scouted, show starting stats (horses don't have initialStats property)
+    // If never scouted, show initial stats
     return {
       name: horse.name,
-      displayedSpeed: horse.baseSpeed,
-      control: horse.baseControl,
-      recovery: horse.baseRecovery,
-      endurance: horse.baseEndurance,
+      displayedSpeed: horse.displayedSpeed, // Using displayedSpeed instead of non-existent baseSpeed
+      control: horse.control, // Using control instead of non-existent baseControl
+      recovery: horse.recovery, // Using recovery instead of non-existent baseRecovery
+      endurance: horse.endurance, // Using endurance instead of non-existent baseEndurance
       lastUpdated: 0,
       revealedAttributes: horse.revealedAttributes.map(attr => attr.name),
       hasMoreAttributes: horse.attributes.length > horse.revealedAttributes.length
