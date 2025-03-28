@@ -45,10 +45,10 @@ const CompetitorsPanel = ({
         </CardDescription>
       </CardHeader>
       
-      <CardContent>
+      <CardContent className="space-y-4">
         <Sheet>
           <SheetTrigger asChild>
-            <Button className="w-full flex justify-between items-center mb-4" variant="outline">
+            <Button className="w-full flex justify-between items-center" variant="outline">
               <span>View All Competitors</span>
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
@@ -58,7 +58,7 @@ const CompetitorsPanel = ({
               <SheetTitle>All Competitors</SheetTitle>
             </SheetHeader>
             <div className="pr-4 pb-20 max-h-[90vh] overflow-y-auto">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6">
                 {/* Player horse shown among competitors, now selectable for betting and without scouting options */}
                 <HorseCard 
                   key={playerHorse.id}
@@ -87,16 +87,14 @@ const CompetitorsPanel = ({
                   />
                 ))}
               </div>
-              
-              {/* Season History section */}
-              <div className="mt-8">
-                <SeasonHistory raceResults={seasonResults} />
-              </div>
             </div>
           </SheetContent>
         </Sheet>
         
-        {/* Simplified view with just the "View All Competitors" button */}
+        {/* Season History button - now as a separate component */}
+        <SeasonHistory raceResults={seasonResults} />
+        
+        {/* Select competitor instructions */}
         <Button className="w-full text-center" variant="secondary">
           Select a competitor to place a bet
         </Button>

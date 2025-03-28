@@ -1,7 +1,9 @@
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
-type ToasterProps = React.ComponentProps<typeof Sonner>
+interface ToasterProps {
+  theme?: string
+}
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
@@ -21,6 +23,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
             "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
       }}
+      expandByDefault={true}
+      position="bottom-right" 
+      closeButton={true}
+      richColors={true}
+      gap={8}
       {...props}
     />
   )

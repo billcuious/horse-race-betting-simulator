@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -195,18 +194,18 @@ const HorseCard = ({
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="flex-1" 
-                  onClick={() => onScout && onScout(horse.id, "basic")}
-                  disabled={isDisabled || !canAffordBasicScout}
+                  className="flex-1 h-8 text-xs"
+                  onClick={() => onScout(horse.id, "basic")}
+                  disabled={isDisabled || playerMoney < scoutCosts.basic}
                 >
                   Scout (${scoutCosts.basic})
                 </Button>
                 <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex-1" 
-                  onClick={() => onScout && onScout(horse.id, "deep")}
-                  disabled={isDisabled || !canAffordDeepScout || !stats.hasMoreAttributes}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-8 text-xs whitespace-normal"
+                  onClick={() => onScout(horse.id, "deep")}
+                  disabled={isDisabled || playerMoney < scoutCosts.deep}
                 >
                   Deep Scout (${scoutCosts.deep})
                 </Button>
