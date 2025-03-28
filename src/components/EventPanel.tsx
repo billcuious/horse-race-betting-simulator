@@ -20,6 +20,9 @@ const EventPanel = ({ event, onAcceptEvent, onDismissEvent, playerMoney }: Event
     (event.type === "choice" && 
      (!event.choicePrompt || playerMoney >= parseInt(event.choicePrompt.match(/\$(\d+)/) ? event.choicePrompt.match(/\$(\d+)/)![1] : "0")));
   
+  // For passive events, we don't render this component anymore (handled in RandomEventHandler)
+  if (isPassiveEvent) return null;
+  
   return (
     <Card className="w-full">
       <CardHeader className="pb-2">
@@ -28,64 +31,42 @@ const EventPanel = ({ event, onAcceptEvent, onDismissEvent, playerMoney }: Event
       </CardHeader>
       
       <CardContent>
-        {isPassiveEvent ? (
-          <p className="text-lg font-medium">
-            {event.moneyEffect !== undefined && event.moneyEffect > 0 && (
-              <span className="text-green-500">+${event.moneyEffect}</span>
-            )}
-            {event.moneyEffect !== undefined && event.moneyEffect < 0 && (
-              <span className="text-red-500">${event.moneyEffect}</span>
-            )}
-          </p>
-        ) : (
-          <p className="text-sm">{event.choicePrompt}</p>
-        )}
+        <p className="text-sm">{event.choicePrompt}</p>
       </CardContent>
       
       <CardFooter className="flex gap-2">
-        {isPassiveEvent ? (
-          <Button 
-            className="w-full" 
-            onClick={onAcceptEvent}
-          >
-            Continue
-          </Button>
-        ) : (
-          <>
+        <Button 
+          variant="outline" 
+          className="flex-1" 
+          onClick={onDismissEvent}
+        >
+          Decline
+        </Button>
+        
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
             <Button 
-              variant="outline" 
               className="flex-1" 
-              onClick={onDismissEvent}
+              disabled={!canAffordEvent}
             >
-              Decline
+              Accept
             </Button>
-            
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button 
-                  className="flex-1" 
-                  disabled={!canAffordEvent}
-                >
-                  Accept
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Confirm Decision</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {event.choicePrompt}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={onAcceptEvent}>
-                    Confirm
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </>
-        )}
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Decision</AlertDialogTitle>
+              <AlertDialogDescription>
+                {event.choicePrompt}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={onAcceptEvent}>
+                Confirm
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardFooter>
     </Card>
   );

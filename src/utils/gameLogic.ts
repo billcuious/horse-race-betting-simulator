@@ -161,24 +161,24 @@ export const generateRandomHorse = (isPlayerHorse: boolean = false): Horse => {
   
   let totalPoints;
   if (isPlayerHorse) {
-    totalPoints = Math.floor(Math.random() * 21) + 295;
+    totalPoints = Math.floor(Math.random() * 21) + 295; // 295-315
   } else {
-    totalPoints = Math.floor(Math.random() * 51) + 280;
+    totalPoints = Math.floor(Math.random() * 51) + 280; // 280-330
   }
   
-  const speedWeight = Math.random() + 0.5;
-  const enduranceWeight = Math.random();
-  const controlWeight = Math.random();
-  const recoveryWeight = Math.random();
+  const speedWeight = Math.random() * 0.7 + 0.3; // 0.3-1.0 - lower than before
+  const enduranceWeight = Math.random() * 0.8 + 0.2; // 0.2-1.0
+  const controlWeight = Math.random() * 0.8 + 0.2; // 0.2-1.0
+  const recoveryWeight = Math.random() * 0.8 + 0.2; // 0.2-1.0
   
   const totalWeight = speedWeight + enduranceWeight + controlWeight + recoveryWeight;
   
-  let displayedSpeed = Math.floor((speedWeight / totalWeight) * totalPoints * 0.75) + 30;
+  let displayedSpeed = Math.floor((speedWeight / totalWeight) * totalPoints * 0.6) + 25;
   let endurance = Math.floor((enduranceWeight / totalWeight) * totalPoints * 0.8) + 20;
   let control = Math.floor((controlWeight / totalWeight) * totalPoints * 0.8) + 20;
   let recovery = Math.floor((recoveryWeight / totalWeight) * totalPoints * 0.8) + 20;
   
-  displayedSpeed = Math.max(50, Math.min(95, displayedSpeed));
+  displayedSpeed = Math.max(40, Math.min(85, displayedSpeed));
   endurance = Math.max(30, Math.min(90, endurance));
   control = Math.max(30, Math.min(90, control));
   recovery = Math.max(30, Math.min(90, recovery));
@@ -421,10 +421,11 @@ export const calculateOdds = (horse: Horse, allHorses: Horse[]): number => {
 // Update horse stats after a race based on recovery and endurance
 export const updateHorsesAfterRace = (gameState: GameState): GameState => {
   const newState = { ...gameState };
-  const allHorses = [newState.playerHorse, ...newState.competitors];
   
+  // Update player horse
   newState.playerHorse = updateHorseStatsAfterRace(newState.playerHorse);
   
+  // Update all competitors
   newState.competitors = newState.competitors.map(horse => updateHorseStatsAfterRace(horse));
   
   return newState;
@@ -434,9 +435,11 @@ export const updateHorsesAfterRace = (gameState: GameState): GameState => {
 const updateHorseStatsAfterRace = (horse: Horse): Horse => {
   const updatedHorse = { ...horse };
   
+  // How much recovery gets drained is based on endurance (higher endurance = less drain)
   const recoveryLoss = Math.max(1, 10 - Math.floor(horse.endurance / 15));
   updatedHorse.recovery = Math.max(10, updatedHorse.recovery - recoveryLoss);
   
+  // How much other stats degrade is based on recovery (higher recovery = less degradation)
   const statDegradation = Math.max(0, 8 - Math.floor(updatedHorse.recovery / 15));
   
   if (statDegradation > 0) {
@@ -447,6 +450,7 @@ const updateHorseStatsAfterRace = (horse: Horse): Horse => {
     updatedHorse.actualSpeed = updatedHorse.displayedSpeed * (0.8 + 0.2 * updatedHorse.endurance / 100);
   }
   
+  // Handle injury recovery
   if (updatedHorse.hasInjury && updatedHorse.injuryType === "mild") {
     updatedHorse.hasInjury = false;
     updatedHorse.injuryType = "none";

@@ -35,13 +35,13 @@ const CompetitorsPanel = ({
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Competitors</CardTitle>
         <CardDescription>
-          Scout horses to get updated information
+          Stats shown are from last scouting. Scout horses to get updated information.
         </CardDescription>
       </CardHeader>
       
       <CardContent>
         <div className="grid grid-cols-1 gap-4 max-h-[700px] overflow-y-auto pr-2">
-          {/* Player horse shown among competitors */}
+          {/* Player horse shown among competitors, now selectable for betting too */}
           <HorseCard 
             key={playerHorse.id}
             horse={playerHorse}
@@ -50,7 +50,7 @@ const CompetitorsPanel = ({
             onSelect={onSelectHorse}
             isSelected={selectedHorseId === playerHorse.id}
             scoutCosts={scoutCosts}
-            isDisabled={isDisabled}
+            isDisabled={isDisabled || playerHorse.missNextRace}
             playerMoney={playerMoney}
             isPlayerHorse={true}
           />
@@ -63,7 +63,7 @@ const CompetitorsPanel = ({
               onSelect={onSelectHorse}
               isSelected={selectedHorseId === horse.id}
               scoutCosts={scoutCosts}
-              isDisabled={isDisabled}
+              isDisabled={isDisabled || horse.missNextRace}
               playerMoney={playerMoney}
             />
           ))}

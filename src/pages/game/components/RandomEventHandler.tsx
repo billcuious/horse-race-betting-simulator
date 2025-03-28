@@ -1,6 +1,7 @@
 
 import { RandomEvent } from "@/utils/gameLogic";
 import EventPanel from "@/components/EventPanel";
+import { useEffect } from "react";
 
 interface RandomEventHandlerProps {
   event: RandomEvent | null;
@@ -15,7 +16,15 @@ const RandomEventHandler = ({
   onDismissEvent, 
   playerMoney 
 }: RandomEventHandlerProps) => {
-  if (!event) return null;
+  // Auto-apply passive events
+  useEffect(() => {
+    if (event && event.type === "passive") {
+      onAcceptEvent();
+    }
+  }, [event, onAcceptEvent]);
+  
+  // Only show choice events that require user interaction
+  if (!event || event.type === "passive") return null;
   
   return (
     <EventPanel 
