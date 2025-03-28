@@ -46,7 +46,7 @@ const EventPanel = ({ event, onAcceptEvent, onDismissEvent, playerMoney }: Event
         {isPassiveEvent ? (
           <Button 
             className="w-full" 
-            onClick={onDismissEvent}
+            onClick={onAcceptEvent}
           >
             Continue
           </Button>

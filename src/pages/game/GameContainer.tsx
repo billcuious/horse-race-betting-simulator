@@ -24,7 +24,8 @@ import {
   RandomEvent,
   calculateLoanAmount,
   isGameOver,
-  isGameWon
+  isGameWon,
+  updateHorsesAfterRace
 } from "@/utils/gameLogic";
 
 const GameContainer = ({
@@ -145,7 +146,9 @@ const GameContainer = ({
     
     // Simulate the racing process with a slight delay
     setTimeout(() => {
-      const updatedGameState = simulateRace(gameState);
+      const raceResults = simulateRace(gameState);
+      // Update all horses after the race based on their recovery and endurance
+      const updatedGameState = updateHorsesAfterRace(raceResults);
       
       // Check if player went broke (has less than $100)
       if (updatedGameState.playerMoney < 100) {
@@ -247,8 +250,8 @@ const GameContainer = ({
     );
   }
   
-  // Filter out horses that are missing the next race
-  const availableHorses = [
+  // Include all horses for betting, including player's horse
+  const allHorses = [
     gameState.playerHorse,
     ...gameState.competitors
   ].filter(horse => !horse.missNextRace);
@@ -301,6 +304,7 @@ const GameContainer = ({
           {/* Middle Column - Competitors */}
           <CompetitorsPanel 
             competitors={gameState.competitors}
+            playerHorse={gameState.playerHorse}
             currentRace={gameState.currentRace}
             selectedHorseId={selectedHorseId}
             onSelectHorse={setSelectedHorseId}
@@ -313,7 +317,7 @@ const GameContainer = ({
           {/* Right Column - Betting & Race */}
           <BettingAndRacePanel 
             selectedHorseId={selectedHorseId}
-            horses={availableHorses}
+            horses={allHorses}
             onPlaceBet={handlePlaceBet}
             playerMoney={gameState.playerMoney}
             currentRace={gameState.currentRace}

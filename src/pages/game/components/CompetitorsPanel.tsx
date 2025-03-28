@@ -5,6 +5,7 @@ import { Horse } from "@/utils/gameLogic";
 
 interface CompetitorsPanelProps {
   competitors: Horse[];
+  playerHorse: Horse;
   currentRace: number;
   selectedHorseId: string | null;
   onSelectHorse: (horseId: string | null) => void;
@@ -20,6 +21,7 @@ interface CompetitorsPanelProps {
 
 const CompetitorsPanel = ({
   competitors,
+  playerHorse,
   currentRace,
   selectedHorseId,
   onSelectHorse,
@@ -39,6 +41,19 @@ const CompetitorsPanel = ({
       
       <CardContent>
         <div className="grid grid-cols-1 gap-4 max-h-[700px] overflow-y-auto pr-2">
+          {/* Player horse shown among competitors */}
+          <HorseCard 
+            key={playerHorse.id}
+            horse={playerHorse}
+            currentRace={currentRace}
+            onScout={onScout}
+            onSelect={onSelectHorse}
+            isSelected={selectedHorseId === playerHorse.id}
+            scoutCosts={scoutCosts}
+            isDisabled={isDisabled}
+            playerMoney={playerMoney}
+            isPlayerHorse={true}
+          />
           {competitors.map((horse) => (
             <HorseCard 
               key={horse.id}
