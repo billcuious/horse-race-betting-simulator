@@ -453,6 +453,44 @@ export const calculateOdds = (horse: Horse, allHorses: Horse[]): number => {
   return isCrowdFavorite ? oddsMultiplier * 1.2 : oddsMultiplier;
 };
 
+// Apply simulated training to AI horses
+const applySimulatedTraining = (horse: Horse, raceNumber: number, totalRaces: number): Horse => {
+  const updatedHorse = { ...horse };
+  
+  // Chance of AI horses receiving training increases as season progresses
+  const trainingChance = Math.min(0.7, 0.3 + (raceNumber / totalRaces) * 0.4);
+  
+  if (Math.random() < trainingChance) {
+    // Determine which type of training the AI horse receives
+    const trainingType = Math.random();
+    
+    if (trainingType < 0.4) {
+      // General training - balanced improvement
+      updatedHorse.displayedSpeed = Math.min(100, updatedHorse.displayedSpeed + 2);
+      updatedHorse.control = Math.min(100, updatedHorse.control + 1.5);
+      updatedHorse.endurance = Math.min(100, updatedHorse.endurance + 1.5);
+      updatedHorse.recovery = Math.max(10, updatedHorse.recovery - 3);
+    } else if (trainingType < 0.7) {
+      // Speed training - focus on speed
+      updatedHorse.displayedSpeed = Math.min(100, updatedHorse.displayedSpeed + 4);
+      updatedHorse.recovery = Math.max(10, updatedHorse.recovery - 8);
+      updatedHorse.control = Math.max(10, updatedHorse.control - 1);
+    } else if (trainingType < 0.9) {
+      // Recovery training
+      updatedHorse.recovery = Math.min(100, updatedHorse.recovery + 10);
+    } else {
+      // Control training
+      updatedHorse.control = Math.min(100, updatedHorse.control + 5);
+      updatedHorse.displayedSpeed = Math.min(100, updatedHorse.displayedSpeed + 1);
+    }
+    
+    // Update actual speed based on endurance
+    updatedHorse.actualSpeed = updatedHorse.displayedSpeed * (0.8 + 0.2 * updatedHorse.endurance / 100);
+  }
+  
+  return updatedHorse;
+};
+
 // Update horse stats after a race based on recovery and endurance
 export const updateHorsesAfterRace = (gameState: GameState): GameState => {
   const newState = { ...gameState };
@@ -460,8 +498,14 @@ export const updateHorsesAfterRace = (gameState: GameState): GameState => {
   // Update player horse
   newState.playerHorse = updateHorseStatsAfterRace(newState.playerHorse);
   
-  // Update all competitors
-  newState.competitors = newState.competitors.map(horse => updateHorseStatsAfterRace(horse));
+  // Update all competitors with both natural stat changes and simulated training
+  newState.competitors = newState.competitors.map(horse => {
+    // First apply natural race effects
+    const updatedHorse = updateHorseStatsAfterRace(horse);
+    
+    // Then apply simulated training effects to AI horses
+    return applySimulatedTraining(updatedHorse, newState.currentRace, newState.totalRaces);
+  });
   
   return newState;
 };

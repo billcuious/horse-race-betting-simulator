@@ -20,10 +20,10 @@ export const getVisibleHorseStats = (
   if (isPlayerHorse) {
     return {
       name: horse.name,
-      displayedSpeed: horse.displayedSpeed,
-      control: horse.control,
-      recovery: horse.recovery,
-      endurance: horse.endurance,
+      displayedSpeed: Math.round(horse.displayedSpeed * 10) / 10,
+      control: Math.round(horse.control * 10) / 10,
+      recovery: Math.round(horse.recovery * 10) / 10,
+      endurance: Math.round(horse.endurance * 10) / 10,
       lastUpdated: currentRace,
       revealedAttributes: horse.revealedAttributes.map(attr => attr.name),
       hasMoreAttributes: horse.attributes.length > horse.revealedAttributes.length
@@ -35,10 +35,10 @@ export const getVisibleHorseStats = (
     // If never scouted, show initial stats
     return {
       name: horse.name,
-      displayedSpeed: horse.initialDisplayedSpeed, 
-      control: horse.initialControl,
-      recovery: horse.initialRecovery,
-      endurance: horse.initialEndurance,
+      displayedSpeed: Math.round(horse.initialDisplayedSpeed * 10) / 10,
+      control: Math.round(horse.initialControl * 10) / 10,
+      recovery: Math.round(horse.initialRecovery * 10) / 10,
+      endurance: Math.round(horse.initialEndurance * 10) / 10,
       lastUpdated: 0,
       revealedAttributes: horse.revealedAttributes.map(attr => attr.name),
       hasMoreAttributes: horse.attributes.length > horse.revealedAttributes.length
@@ -48,10 +48,10 @@ export const getVisibleHorseStats = (
   // If scouted before, return the stats as they were when last scouted
   return {
     name: horse.name,
-    displayedSpeed: horse.scoutedStats.displayedSpeed,
-    control: horse.scoutedStats.control,
-    recovery: horse.scoutedStats.recovery,
-    endurance: horse.scoutedStats.endurance,
+    displayedSpeed: Math.round(horse.scoutedStats.displayedSpeed * 10) / 10,
+    control: Math.round(horse.scoutedStats.control * 10) / 10,
+    recovery: Math.round(horse.scoutedStats.recovery * 10) / 10,
+    endurance: Math.round(horse.scoutedStats.endurance * 10) / 10,
     lastUpdated: horse.lastUpdated,
     revealedAttributes: horse.revealedAttributes.map(attr => attr.name),
     hasMoreAttributes: horse.attributes.length > horse.revealedAttributes.length
