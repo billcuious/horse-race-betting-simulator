@@ -41,19 +41,20 @@ const CompetitorsPanel = ({
       
       <CardContent>
         <div className="grid grid-cols-1 gap-4 max-h-[700px] overflow-y-auto pr-2">
-          {/* Player horse shown among competitors, now selectable for betting too */}
+          {/* Player horse shown among competitors, now selectable for betting and without scouting options */}
           <HorseCard 
             key={playerHorse.id}
             horse={playerHorse}
             currentRace={currentRace}
-            onScout={onScout}
             onSelect={onSelectHorse}
             isSelected={selectedHorseId === playerHorse.id}
             scoutCosts={scoutCosts}
             isDisabled={isDisabled || playerHorse.missNextRace}
             playerMoney={playerMoney}
             isPlayerHorse={true}
+            showScoutButton={false} // Hide scout button for player's horse in competitors panel
           />
+          
           {competitors.map((horse) => (
             <HorseCard 
               key={horse.id}

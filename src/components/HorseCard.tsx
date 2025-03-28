@@ -21,6 +21,7 @@ interface HorseCardProps {
   };
   isDisabled?: boolean;
   playerMoney: number;
+  showScoutButton?: boolean;
 }
 
 const HorseCard = ({
@@ -32,7 +33,8 @@ const HorseCard = ({
   isSelected = false,
   scoutCosts,
   isDisabled = false,
-  playerMoney
+  playerMoney,
+  showScoutButton = true
 }: HorseCardProps) => {
   const stats = getVisibleHorseStats(horse, currentRace, isPlayerHorse);
   const speedColor = getHorseDisplayColor(stats.displayedSpeed);
@@ -162,15 +164,17 @@ const HorseCard = ({
       <CardFooter className="flex flex-col gap-2">
         {isPlayerHorse ? (
           <div className="flex w-full gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full" 
-              onClick={() => onScout && onScout(horse.id, "deep")}
-              disabled={isDisabled || !canAffordOwnHorseScout || !stats.hasMoreAttributes}
-            >
-              Scout Own Horse (${scoutCosts.ownHorse})
-            </Button>
+            {showScoutButton && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full" 
+                onClick={() => onScout && onScout(horse.id, "deep")}
+                disabled={isDisabled || !canAffordOwnHorseScout || !stats.hasMoreAttributes}
+              >
+                Scout Own Horse (${scoutCosts.ownHorse})
+              </Button>
+            )}
             
             {onSelect && (
               <Button 
@@ -186,26 +190,28 @@ const HorseCard = ({
           </div>
         ) : (
           <>
-            <div className="flex gap-2 w-full">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex-1" 
-                onClick={() => onScout && onScout(horse.id, "basic")}
-                disabled={isDisabled || !canAffordBasicScout}
-              >
-                Scout (${scoutCosts.basic})
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex-1" 
-                onClick={() => onScout && onScout(horse.id, "deep")}
-                disabled={isDisabled || !canAffordDeepScout || !stats.hasMoreAttributes}
-              >
-                Deep Scout (${scoutCosts.deep})
-              </Button>
-            </div>
+            {showScoutButton && (
+              <div className="flex gap-2 w-full">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1" 
+                  onClick={() => onScout && onScout(horse.id, "basic")}
+                  disabled={isDisabled || !canAffordBasicScout}
+                >
+                  Scout (${scoutCosts.basic})
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1" 
+                  onClick={() => onScout && onScout(horse.id, "deep")}
+                  disabled={isDisabled || !canAffordDeepScout || !stats.hasMoreAttributes}
+                >
+                  Deep Scout (${scoutCosts.deep})
+                </Button>
+              </div>
+            )}
             
             {onSelect && (
               <Button 
