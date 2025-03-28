@@ -3,7 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import HorseCard from "@/components/HorseCard";
-import { Horse } from "@/utils/gameLogic";
+import SeasonHistory from "@/components/SeasonHistory";
+import { Horse, RaceResult } from "@/utils/gameLogic";
 import { ChevronRightIcon } from "lucide-react";
 
 interface CompetitorsPanelProps {
@@ -20,6 +21,7 @@ interface CompetitorsPanelProps {
   };
   isDisabled: boolean;
   playerMoney: number;
+  seasonResults: { raceNumber: number; results: RaceResult[] }[];
 }
 
 const CompetitorsPanel = ({
@@ -31,7 +33,8 @@ const CompetitorsPanel = ({
   onScout,
   scoutCosts,
   isDisabled,
-  playerMoney
+  playerMoney,
+  seasonResults
 }: CompetitorsPanelProps) => {
   return (
     <Card className="h-full">
@@ -50,82 +53,53 @@ const CompetitorsPanel = ({
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </SheetTrigger>
-          <SheetContent className="w-full sm:max-w-md md:max-w-2xl overflow-y-auto" side="right">
+          <SheetContent className="w-full overflow-y-auto" side="right">
             <SheetHeader>
               <SheetTitle>All Competitors</SheetTitle>
             </SheetHeader>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pr-4 pb-20 max-h-[90vh] overflow-y-auto">
-              {/* Player horse shown among competitors, now selectable for betting and without scouting options */}
-              <HorseCard 
-                key={playerHorse.id}
-                horse={playerHorse}
-                currentRace={currentRace}
-                onSelect={onSelectHorse}
-                isSelected={selectedHorseId === playerHorse.id}
-                scoutCosts={scoutCosts}
-                isDisabled={isDisabled || playerHorse.missNextRace}
-                playerMoney={playerMoney}
-                isPlayerHorse={true}
-                showScoutButton={false} // Hide scout button for player's horse in competitors panel
-              />
-              
-              {competitors.map((horse) => (
+            <div className="pr-4 pb-20 max-h-[90vh] overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+                {/* Player horse shown among competitors, now selectable for betting and without scouting options */}
                 <HorseCard 
-                  key={horse.id}
-                  horse={horse}
+                  key={playerHorse.id}
+                  horse={playerHorse}
                   currentRace={currentRace}
-                  onScout={onScout}
                   onSelect={onSelectHorse}
-                  isSelected={selectedHorseId === horse.id}
+                  isSelected={selectedHorseId === playerHorse.id}
                   scoutCosts={scoutCosts}
-                  isDisabled={isDisabled || horse.missNextRace}
+                  isDisabled={isDisabled || playerHorse.missNextRace}
                   playerMoney={playerMoney}
+                  isPlayerHorse={true}
+                  showScoutButton={false} // Hide scout button for player's horse in competitors panel
                 />
-              ))}
+                
+                {competitors.map((horse) => (
+                  <HorseCard 
+                    key={horse.id}
+                    horse={horse}
+                    currentRace={currentRace}
+                    onScout={onScout}
+                    onSelect={onSelectHorse}
+                    isSelected={selectedHorseId === horse.id}
+                    scoutCosts={scoutCosts}
+                    isDisabled={isDisabled || horse.missNextRace}
+                    playerMoney={playerMoney}
+                  />
+                ))}
+              </div>
+              
+              {/* Season History section */}
+              <div className="mt-8">
+                <SeasonHistory raceResults={seasonResults} />
+              </div>
             </div>
           </SheetContent>
         </Sheet>
         
-        <div className="grid grid-cols-1 gap-4 max-h-[700px] overflow-y-auto pr-2">
-          {/* Player horse in main panel view */}
-          <HorseCard 
-            key={playerHorse.id}
-            horse={playerHorse}
-            currentRace={currentRace}
-            onSelect={onSelectHorse}
-            isSelected={selectedHorseId === playerHorse.id}
-            scoutCosts={scoutCosts}
-            isDisabled={isDisabled || playerHorse.missNextRace}
-            playerMoney={playerMoney}
-            isPlayerHorse={true}
-            showScoutButton={false} // Hide scout button for player's horse in competitors panel
-          />
-          
-          {/* Show just a few competitors in the main panel */}
-          {competitors.slice(0, 3).map((horse) => (
-            <HorseCard 
-              key={horse.id}
-              horse={horse}
-              currentRace={currentRace}
-              onScout={onScout}
-              onSelect={onSelectHorse}
-              isSelected={selectedHorseId === horse.id}
-              scoutCosts={scoutCosts}
-              isDisabled={isDisabled || horse.missNextRace}
-              playerMoney={playerMoney}
-            />
-          ))}
-          
-          {competitors.length > 3 && (
-            <Card className="p-4 text-center">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="secondary">View All {competitors.length} Competitors</Button>
-                </SheetTrigger>
-              </Sheet>
-            </Card>
-          )}
-        </div>
+        {/* Simplified view with just the "View All Competitors" button */}
+        <Button className="w-full text-center" variant="secondary">
+          Select a competitor to place a bet
+        </Button>
       </CardContent>
     </Card>
   );

@@ -25,7 +25,8 @@ import {
   calculateLoanAmount,
   isGameOver,
   isGameWon,
-  updateHorsesAfterRace
+  updateHorsesAfterRace,
+  RaceResult
 } from "@/utils/gameLogic";
 
 const GameContainer = ({
@@ -44,6 +45,7 @@ const GameContainer = ({
   const [currentEvent, setCurrentEvent] = useState<RandomEvent | null>(null);
   const [eventProcessed, setEventProcessed] = useState<boolean>(false);
   const [gameEnded, setGameEnded] = useState<boolean>(false);
+  const [seasonResults, setSeasonResults] = useState<{raceNumber: number; results: RaceResult[]}[]>([]);
   
   // Initialize game on component mount
   useEffect(() => {
@@ -149,6 +151,15 @@ const GameContainer = ({
       const raceResults = simulateRace(gameState);
       // Update all horses after the race based on their recovery and endurance
       const updatedGameState = updateHorsesAfterRace(raceResults);
+      
+      // Store race results for season history
+      setSeasonResults(prev => [
+        ...prev, 
+        { 
+          raceNumber: gameState.currentRace, 
+          results: updatedGameState.raceResults 
+        }
+      ]);
       
       // Check if player went broke (has less than $100)
       if (updatedGameState.playerMoney < 100) {
@@ -312,6 +323,7 @@ const GameContainer = ({
             scoutCosts={SCOUTING_COSTS}
             isDisabled={raceInProgress || betPlaced}
             playerMoney={gameState.playerMoney}
+            seasonResults={seasonResults}
           />
           
           {/* Right Column - Betting & Race */}

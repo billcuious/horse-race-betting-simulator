@@ -166,6 +166,95 @@ export const HORSE_ATTRIBUTES: HorseAttribute[] = [
     effect: (horse: Horse) => {
       // Logic will be applied during race calculation
     }
+  },
+  {
+    name: "Mud Runner",
+    description: "Performs better in poor conditions",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      // Add a 15% chance to gain 5 speed in each race
+      if (Math.random() < 0.15) {
+        horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 5);
+        horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+      }
+    }
+  },
+  {
+    name: "Sprinter",
+    description: "Performs better in shorter races",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      // Add a random boost at the beginning of races
+      horse.displayedSpeed = Math.min(100, horse.displayedSpeed + Math.random() * 3);
+      horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+    }
+  },
+  {
+    name: "Late Bloomer",
+    description: "Gains +10 to all stats after race 8",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      // Logic will be applied during race calculation
+    }
+  },
+  {
+    name: "Adaptable",
+    description: "Recovery rate increases by +10% after each race",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      horse.recovery = Math.min(100, horse.recovery + horse.recovery * 0.1);
+    }
+  },
+  {
+    name: "Consistent",
+    description: "Maintains stable performance with low variance",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      horse.control = Math.min(100, horse.control + 5);
+    }
+  },
+  {
+    name: "Overachiever",
+    description: "Has a 20% chance to perform significantly above stats",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      // Logic will be applied during race calculation
+    }
+  },
+  {
+    name: "Training Resistant",
+    description: "Gains less from training sessions",
+    isPositive: false,
+    effect: (horse: Horse) => {
+      // Logic will be applied during training
+    }
+  },
+  {
+    name: "Inconsistent",
+    description: "Performance varies widely from race to race",
+    isPositive: false,
+    effect: (horse: Horse) => {
+      // Will be applied during race calculation
+    }
+  },
+  {
+    name: "Temperamental",
+    description: "Occasionally refuses to perform at full capacity",
+    isPositive: false,
+    effect: (horse: Horse) => {
+      if (Math.random() < 0.2) {
+        horse.displayedSpeed = Math.max(40, horse.displayedSpeed * 0.9);
+        horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+      }
+    }
+  },
+  {
+    name: "Spotlight Shy",
+    description: "Performs worse when odds are favorable",
+    isPositive: false,
+    effect: (horse: Horse) => {
+      // Logic will be applied during race calculation
+    }
   }
 ];
 
@@ -581,6 +670,41 @@ export const calculateHorseRacePerformance = (
       const fluctuation = Math.floor(Math.random() * 21) - 10;
       activeHorse.control = Math.max(10, Math.min(100, activeHorse.control + fluctuation));
       activeHorse.recovery = Math.max(10, Math.min(100, activeHorse.recovery + fluctuation));
+    }
+    
+    if (attr.name === "Mud Runner" && Math.random() < 0.15) {
+      activeHorse.displayedSpeed = Math.min(100, activeHorse.displayedSpeed + 5);
+      activeHorse.actualSpeed = activeHorse.displayedSpeed * (0.8 + 0.2 * activeHorse.endurance / 100);
+    }
+    
+    if (attr.name === "Sprinter") {
+      activeHorse.displayedSpeed = Math.min(100, activeHorse.displayedSpeed + Math.random() * 3);
+      activeHorse.actualSpeed = activeHorse.displayedSpeed * (0.8 + 0.2 * activeHorse.endurance / 100);
+    }
+    
+    if (attr.name === "Late Bloomer" && raceNumber > 8) {
+      activeHorse.actualSpeed += 10;
+      activeHorse.control += 10;
+      activeHorse.recovery += 10;
+      activeHorse.endurance += 10;
+    }
+    
+    if (attr.name === "Overachiever" && Math.random() < 0.2) {
+      activeHorse.actualSpeed += 15;
+    }
+    
+    if (attr.name === "Inconsistent") {
+      const variance = Math.random() * 30 - 15; // -15 to +15
+      activeHorse.actualSpeed += variance;
+    }
+    
+    if (attr.name === "Spotlight Shy") {
+      // If horse is in top 3 by displayed speed, reduce performance
+      const position = [...allHorses].sort((a, b) => b.displayedSpeed - a.displayedSpeed)
+        .findIndex(h => h.id === activeHorse.id);
+      if (position < 3) {
+        activeHorse.actualSpeed -= 10;
+      }
     }
   });
   
