@@ -22,6 +22,20 @@ export type Horse = {
   injuryType: "none" | "mild" | "major";
   missNextRace: boolean;
   lastUpdated: number; // The race number when the horse was last scouted
+  
+  // Initial stats for horses (for comparison when scouting)
+  initialDisplayedSpeed: number;
+  initialControl: number;
+  initialRecovery: number;
+  initialEndurance: number;
+  
+  // Scouted stats (what the player sees after scouting)
+  scoutedStats: {
+    displayedSpeed: number;
+    control: number;
+    recovery: number;
+    endurance: number;
+  };
 };
 
 export type RaceResult = {
@@ -237,8 +251,6 @@ export const generateRandomHorse = (isPlayerHorse: boolean = false): Horse => {
     }
   }
   
-  let growthPotential = (330 - totalPoints) / 50;
-  
   return {
     id: Math.random().toString(36).substring(2, 10),
     name: isPlayerHorse ? "Your Horse" : generateHorseName(),
@@ -252,7 +264,21 @@ export const generateRandomHorse = (isPlayerHorse: boolean = false): Horse => {
     hasInjury: false,
     injuryType: "none",
     missNextRace: false,
-    lastUpdated: 0 // Initial stats
+    lastUpdated: 0, // Initial stats
+    
+    // Initialize initial stats with starting values
+    initialDisplayedSpeed: displayedSpeed,
+    initialControl: control,
+    initialRecovery: recovery,
+    initialEndurance: endurance,
+    
+    // Initialize scouted stats with starting values
+    scoutedStats: {
+      displayedSpeed: displayedSpeed,
+      control: control,
+      recovery: recovery,
+      endurance: endurance
+    }
   };
 };
 
@@ -348,26 +374,35 @@ export const scoutHorse = (
   
   if (horseIndex === -1) return newState;
   
-  newState.competitors[horseIndex] = {
+  // Update the horse's lastUpdated to current race
+  const horseToUpdate = { 
     ...newState.competitors[horseIndex],
     lastUpdated: newState.currentRace
   };
   
+  // Update scouted stats to current real stats
+  horseToUpdate.scoutedStats = {
+    displayedSpeed: horseToUpdate.displayedSpeed,
+    control: horseToUpdate.control,
+    recovery: horseToUpdate.recovery,
+    endurance: horseToUpdate.endurance
+  };
+  
   if (scoutType === "deep") {
-    const horse = newState.competitors[horseIndex];
-    const unrevealed = horse.attributes.filter(
-      attr => !horse.revealedAttributes.some(rev => rev.name === attr.name)
+    const unrevealed = horseToUpdate.attributes.filter(
+      attr => !horseToUpdate.revealedAttributes.some(rev => rev.name === attr.name)
     );
     
     if (unrevealed.length > 0) {
       const randomAttr = unrevealed[Math.floor(Math.random() * unrevealed.length)];
-      newState.competitors[horseIndex].revealedAttributes = [
-        ...horse.revealedAttributes,
+      horseToUpdate.revealedAttributes = [
+        ...horseToUpdate.revealedAttributes,
         randomAttr
       ];
     }
   }
   
+  newState.competitors[horseIndex] = horseToUpdate;
   newState.playerMoney -= SCOUTING_COSTS[scoutType];
   
   return newState;
