@@ -9,6 +9,7 @@ import CompetitorsPanel from "./components/CompetitorsPanel";
 import BettingAndRacePanel from "./components/BettingAndRacePanel";
 import RaceResults from "@/components/RaceResults";
 import GameEndScreen from "./GameEndScreen";
+import BetWarningDialog from "@/components/BetWarningDialog";
 import { 
   GameState, 
   Horse, 
@@ -46,6 +47,7 @@ const GameContainer = ({
   const [eventProcessed, setEventProcessed] = useState<boolean>(false);
   const [gameEnded, setGameEnded] = useState<boolean>(false);
   const [seasonResults, setSeasonResults] = useState<{raceNumber: number; results: RaceResult[]}[]>([]);
+  const [showBetWarning, setShowBetWarning] = useState<boolean>(false);
   
   // Initialize game on component mount
   useEffect(() => {
@@ -142,6 +144,19 @@ const GameContainer = ({
   
   // Function to start the race
   const handleStartRace = () => {
+    if (!gameState) return;
+    
+    // Check if a horse is selected but no bet placed
+    if (selectedHorseId && !betPlaced) {
+      setShowBetWarning(true);
+      return;
+    }
+    
+    startRaceSequence();
+  };
+  
+  // Function to start race after confirming no bet
+  const startRaceSequence = () => {
     if (!gameState) return;
     
     setRaceInProgress(true);
@@ -267,6 +282,9 @@ const GameContainer = ({
     ...gameState.competitors
   ].filter(horse => !horse.missNextRace);
   
+  // Find selected horse for the bet warning dialog
+  const selectedHorse = allHorses.find(h => h.id === selectedHorseId) || null;
+  
   return (
     <div className="min-h-screen bg-racing-beige pb-10">
       <GameHeader 
@@ -348,6 +366,17 @@ const GameContainer = ({
         onClose={handleCloseResults}
         results={gameState.raceResults}
         playerHorseId={gameState.playerHorse.id}
+        betHorseId={gameState.lastBet?.horseId || null}
+      />
+      
+      {/* Bet Warning Dialog */}
+      <BetWarningDialog 
+        isOpen={showBetWarning}
+        onClose={() => setShowBetWarning(false)}
+        onPlaceBet={handlePlaceBet}
+        onContinueWithoutBet={startRaceSequence}
+        selectedHorse={selectedHorse}
+        playerMoney={gameState.playerMoney}
       />
     </div>
   );
