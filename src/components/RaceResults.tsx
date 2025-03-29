@@ -22,7 +22,8 @@ const raceEventMessages: Record<string, string> = {
   "perfect": "Ran a perfect race",
   "jockey": "Jockey made a tactical error",
   "weather": "Struggled with weather conditions",
-  "comeback": "Made an impressive comeback"
+  "comeback": "Made an impressive comeback",
+  "nervous": "Showed signs of nervousness"
 };
 
 const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: RaceResultsProps) => {

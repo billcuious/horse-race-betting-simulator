@@ -43,6 +43,7 @@ export type RaceResult = {
   horseName: string;
   finalSpeed: number;
   position: number;
+  raceEvents?: string[]; // Add this new property
 };
 
 export type GameState = {
@@ -750,10 +751,40 @@ export const simulateRace = (gameState: GameState): GameState => {
   const newState = { ...gameState };
   const allHorses = [newState.playerHorse, ...newState.competitors];
   
-  const performances: { horse: Horse; performance: number }[] = [];
+  const performances: { horse: Horse; performance: number; events: string[] }[] = [];
   
   allHorses.forEach(horse => {
     if (horse.missNextRace) return;
+    
+    const events: string[] = [];
+    
+    // Add race events based on horse state and attributes
+    if (horse.injuryType === "none" && Math.random() > 0.92) {
+      events.push("injury");
+    }
+    
+    if (Math.random() > 0.85) {
+      // Random race events
+      const possibleEvents = ["stumble", "burst", "tired", "distracted", "perfect", "jockey", "weather", "comeback"];
+      const event = possibleEvents[Math.floor(Math.random() * possibleEvents.length)];
+      events.push(event);
+    }
+    
+    // Add events based on attributes
+    horse.attributes.forEach(attr => {
+      if (attr.name === "Nervous Runner" && Math.random() > 0.6) {
+        events.push("nervous");
+      }
+      if (attr.name === "Overachiever" && Math.random() > 0.8) {
+        events.push("burst");
+      }
+      if (attr.name === "Inconsistent") {
+        events.push(Math.random() > 0.5 ? "burst" : "tired");
+      }
+      if (attr.name === "Spotlight Shy" && events.length === 0 && Math.random() > 0.7) {
+        events.push("distracted");
+      }
+    });
     
     const performance = calculateHorseRacePerformance(
       horse,
@@ -762,7 +793,7 @@ export const simulateRace = (gameState: GameState): GameState => {
       newState.totalRaces
     );
     
-    performances.push({ horse, performance });
+    performances.push({ horse, performance, events });
   });
   
   performances.sort((a, b) => {
@@ -776,7 +807,8 @@ export const simulateRace = (gameState: GameState): GameState => {
     horseId: perf.horse.id,
     horseName: perf.horse.name,
     finalSpeed: perf.performance,
-    position: index + 1
+    position: index + 1,
+    raceEvents: perf.events.length > 0 ? perf.events : undefined
   }));
   
   if (newState.lastBet && newState.lastBet.amount > 0) {
