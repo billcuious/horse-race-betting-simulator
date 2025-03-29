@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,32 +26,24 @@ interface HorseCardProps {
 
 // Horse trait descriptions
 const traitDescriptions: Record<string, string> = {
-  "Fast Starter": "This horse bursts out of the gate with remarkable speed.",
-  "Endurance": "Can maintain performance over long distances without tiring.",
-  "Unpredictable": "Sometimes brilliant, sometimes disappointing - you never know what you'll get.",
-  "Sprinter": "Excels at short, explosive bursts of speed.",
-  "Consistent": "Rarely has bad races, tends to perform at a steady level.",
-  "Muddy Track Expert": "Performs exceptionally well on wet or muddy tracks.",
-  "Nervous": "Tends to get unsettled by crowds and noise.",
-  "Weather Sensitive": "Performance varies significantly based on weather conditions.",
-  "Injury Prone": "Has a history of getting injured more easily than other horses.",
-  "Late Charger": "Often comes from behind to finish strong.",
-  "Focused": "Maintains concentration throughout the race.",
-  "Easily Distracted": "Can lose focus during critical moments.",
-  "Track Memorizer": "Performs better on familiar tracks.",
-  "Recovery Expert": "Bounces back quickly after races.",
-  "Slow Starter": "Takes time to reach full speed.",
-  "Crowd Pleaser": "Performs better when there's a large audience.",
-  "Stamina": "Can maintain high performance for longer periods.",
-  "Adaptable": "Quickly adjusts to changing race conditions.",
-  "Competitive": "Performs better when racing neck-to-neck with others.",
-  "Temperature Sensitive": "Performance varies based on temperature.",
-  "Lucky": "Sometimes defies the odds in surprising ways.",
-  "Fast Finisher": "Has an impressive final sprint capability.",
-  "Tactical": "Seems to make smart positioning decisions during races.",
-  "Fragile": "More susceptible to injuries and fatigue.",
-  "Champion Blood": "Descends from a line of winning racehorses.",
-  "Underdog": "Often performs better than statistics would predict.",
+  "Dark Horse": "Has a reputation for surprising everyone when least expected.",
+  "Strong Finisher": "Known for finding extra reserves of energy in the later parts of the season.",
+  "Crowd Favorite": "The audience goes wild whenever this horse races, boosting its confidence.",
+  "Iron Horse": "Built like a tank - can take hits that would sideline other horses.",
+  "Nervous Runner": "Gets anxious before and during races, sometimes affecting performance.",
+  "Fragile": "Has a delicate constitution and requires extra care to stay healthy.",
+  "Poor Starter": "Takes a while to hit stride, especially early in the racing season.",
+  "Unpredictable": "Even the jockey never knows what to expect from this mercurial runner.",
+  "Mud Runner": "Seems to thrive when conditions are less than ideal.",
+  "Sprinter": "Born with natural acceleration that can leave others in the dust.",
+  "Late Bloomer": "Takes longer to reach peak performance than most horses.",
+  "Adaptable": "Quickly adjusts to changing circumstances and conditions.",
+  "Consistent": "What you see is what you get - rarely deviates from expected performance.",
+  "Overachiever": "Has a habit of exceeding expectations when it really counts.",
+  "Training Resistant": "Has its own ideas about how training should go.",
+  "Inconsistent": "Performance varies wildly from one race to the next.",
+  "Temperamental": "Mood affects performance significantly - and moods change frequently.",
+  "Spotlight Shy": "Performs better when nobody expects anything special."
 };
 
 const HorseCard = ({
@@ -177,13 +168,13 @@ const HorseCard = ({
           <div className="mt-4">
             <h4 className="text-sm font-medium mb-2">Traits</h4>
             <div className="flex flex-wrap gap-1">
-              {stats.revealedAttributes.map((trait) => (
-                <Popover key={trait}>
+              {stats.revealedAttributes.map((attr) => (
+                <Popover key={attr.name}>
                   <PopoverTrigger asChild>
-                    <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80">{trait}</Badge>
+                    <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80">{attr.name}</Badge>
                   </PopoverTrigger>
                   <PopoverContent className="w-60 p-4">
-                    <p className="text-sm">{traitDescriptions[trait] || `${trait} affects this horse's performance.`}</p>
+                    <p className="text-sm">{traitDescriptions[attr.name] || `${attr.name} affects this horse's performance.`}</p>
                   </PopoverContent>
                 </Popover>
               ))}

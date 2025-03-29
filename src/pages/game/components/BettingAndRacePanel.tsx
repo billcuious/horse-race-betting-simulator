@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import BettingPanel from "@/components/BettingPanel";
-import { Horse, RaceResult } from "@/utils/gameLogic";
+import { Horse, RaceResult, calculateOdds } from "@/utils/gameLogic";
 
 interface BettingAndRacePanelProps {
   selectedHorseId: string | null;
@@ -30,6 +30,10 @@ const BettingAndRacePanel = ({
   playerHorseId,
   onViewResults
 }: BettingAndRacePanelProps) => {
+  // Calculate and display odds for the selected horse
+  const selectedHorse = horses.find(h => h.id === selectedHorseId);
+  const odds = selectedHorse ? calculateOdds(selectedHorse, horses, currentRace) : 0;
+  
   return (
     <div className="space-y-6">
       {/* Betting Panel */}
@@ -41,6 +45,7 @@ const BettingAndRacePanel = ({
         currentRace={currentRace}
         onStartRace={onStartRace}
         betInProgress={raceInProgress}
+        odds={odds}
       />
       
       {/* Previous Race Result Summary */}
