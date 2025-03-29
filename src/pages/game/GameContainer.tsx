@@ -286,7 +286,7 @@ const GameContainer = ({
   const selectedHorse = allHorses.find(h => h.id === selectedHorseId) || null;
   
   return (
-    <div className="min-h-screen bg-racing-beige pb-10">
+    <div className="min-h-screen bg-racing-beige pb-10 relative">
       <GameHeader 
         currentRace={gameState.currentRace}
         totalRaces={gameState.totalRaces}
@@ -359,6 +359,20 @@ const GameContainer = ({
           />
         </div>
       </main>
+      
+      {/* Centered Race Progress Overlay */}
+      {raceInProgress && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/30 z-50">
+          <div className="bg-white rounded-lg p-8 shadow-lg text-center animate-pulse max-w-md mx-4">
+            <div className="text-2xl font-bold mb-4 animate-gallop">
+              Race in Progress...
+            </div>
+            <p className="text-lg text-muted-foreground">
+              The horses are thundering down the track!
+            </p>
+          </div>
+        </div>
+      )}
       
       {/* Race Results Dialog */}
       <RaceResults 

@@ -2,7 +2,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RaceResult, Horse } from "@/utils/gameLogic";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Coins } from "lucide-react";
+import { Trophy, Coins, AlertCircle, Zap } from "lucide-react";
 
 interface RaceResultsProps {
   isOpen: boolean;
@@ -11,6 +11,19 @@ interface RaceResultsProps {
   playerHorseId: string;
   betHorseId: string | null;
 }
+
+// Define race events display
+const raceEventMessages: Record<string, string> = {
+  "injury": "Suffered an injury during the race",
+  "stumble": "Stumbled at the start",
+  "burst": "Had an incredible burst of speed",
+  "tired": "Tired quickly in the final stretch",
+  "distracted": "Got distracted during a critical moment",
+  "perfect": "Ran a perfect race",
+  "jockey": "Jockey made a tactical error",
+  "weather": "Struggled with weather conditions",
+  "comeback": "Made an impressive comeback"
+};
 
 const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: RaceResultsProps) => {
   // Sort results by position (should already be sorted, but just in case)
@@ -59,6 +72,26 @@ const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: Ra
                   <div className="text-sm text-muted-foreground">
                     Speed: {result.finalSpeed.toFixed(1)}
                   </div>
+                  
+                  {/* Display race events */}
+                  {result.raceEvents && result.raceEvents.length > 0 && (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {result.raceEvents.map((event, idx) => {
+                        if (event === "injury") {
+                          return (
+                            <Badge key={idx} variant="destructive" className="text-xs flex items-center gap-1">
+                              <AlertCircle className="h-3 w-3" /> Injured
+                            </Badge>
+                          );
+                        }
+                        return (
+                          <Badge key={idx} variant="outline" className="text-xs flex items-center gap-1">
+                            <Zap className="h-3 w-3" /> {raceEventMessages[event] || event}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             );

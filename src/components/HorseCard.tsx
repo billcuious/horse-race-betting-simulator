@@ -1,7 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Horse } from "@/utils/gameLogic";
 import { getVisibleHorseStats, getHorseDisplayColor } from "@/utils/horsesData";
 import { InfoIcon, AlertCircleIcon } from "lucide-react";
@@ -22,6 +24,36 @@ interface HorseCardProps {
   playerMoney: number;
   showScoutButton?: boolean;
 }
+
+// Horse trait descriptions
+const traitDescriptions: Record<string, string> = {
+  "Fast Starter": "This horse bursts out of the gate with remarkable speed.",
+  "Endurance": "Can maintain performance over long distances without tiring.",
+  "Unpredictable": "Sometimes brilliant, sometimes disappointing - you never know what you'll get.",
+  "Sprinter": "Excels at short, explosive bursts of speed.",
+  "Consistent": "Rarely has bad races, tends to perform at a steady level.",
+  "Muddy Track Expert": "Performs exceptionally well on wet or muddy tracks.",
+  "Nervous": "Tends to get unsettled by crowds and noise.",
+  "Weather Sensitive": "Performance varies significantly based on weather conditions.",
+  "Injury Prone": "Has a history of getting injured more easily than other horses.",
+  "Late Charger": "Often comes from behind to finish strong.",
+  "Focused": "Maintains concentration throughout the race.",
+  "Easily Distracted": "Can lose focus during critical moments.",
+  "Track Memorizer": "Performs better on familiar tracks.",
+  "Recovery Expert": "Bounces back quickly after races.",
+  "Slow Starter": "Takes time to reach full speed.",
+  "Crowd Pleaser": "Performs better when there's a large audience.",
+  "Stamina": "Can maintain high performance for longer periods.",
+  "Adaptable": "Quickly adjusts to changing race conditions.",
+  "Competitive": "Performs better when racing neck-to-neck with others.",
+  "Temperature Sensitive": "Performance varies based on temperature.",
+  "Lucky": "Sometimes defies the odds in surprising ways.",
+  "Fast Finisher": "Has an impressive final sprint capability.",
+  "Tactical": "Seems to make smart positioning decisions during races.",
+  "Fragile": "More susceptible to injuries and fatigue.",
+  "Champion Blood": "Descends from a line of winning racehorses.",
+  "Underdog": "Often performs better than statistics would predict.",
+};
 
 const HorseCard = ({
   horse,
@@ -146,7 +178,14 @@ const HorseCard = ({
             <h4 className="text-sm font-medium mb-2">Traits</h4>
             <div className="flex flex-wrap gap-1">
               {stats.revealedAttributes.map((trait) => (
-                <Badge key={trait} variant="secondary" className="text-xs">{trait}</Badge>
+                <Popover key={trait}>
+                  <PopoverTrigger asChild>
+                    <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80">{trait}</Badge>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-60 p-4">
+                    <p className="text-sm">{traitDescriptions[trait] || `${trait} affects this horse's performance.`}</p>
+                  </PopoverContent>
+                </Popover>
               ))}
             </div>
           </div>
@@ -203,7 +242,7 @@ const HorseCard = ({
                 <Button 
                   variant="outline"
                   size="sm"
-                  className="flex-1 h-8 text-xs whitespace-normal"
+                  className="flex-1 h-8 text-xs"
                   onClick={() => onScout(horse.id, "deep")}
                   disabled={isDisabled || playerMoney < scoutCosts.deep}
                 >

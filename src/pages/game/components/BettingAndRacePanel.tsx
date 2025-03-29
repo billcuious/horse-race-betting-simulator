@@ -43,22 +43,6 @@ const BettingAndRacePanel = ({
         betInProgress={raceInProgress}
       />
       
-      {/* Race Status */}
-      {raceInProgress && (
-        <Card>
-          <CardContent className="flex items-center justify-center p-6">
-            <div className="text-center">
-              <div className="text-lg font-bold mb-2 animate-gallop">
-                Race in Progress...
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Hold your breath!
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
       {/* Previous Race Result Summary */}
       {raceResults.length > 0 && !raceInProgress && (
         <Card>

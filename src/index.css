@@ -108,4 +108,15 @@
   .stat-bar-fill-endurance {
     @apply bg-purple-500;
   }
+  
+  /* Race animation */
+  @keyframes gallop {
+    0% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    100% { transform: translateX(-5px); }
+  }
+  
+  .animate-gallop {
+    animation: gallop 0.8s ease-in-out infinite;
+  }
 }
