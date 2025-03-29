@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import GameHeader from "./components/GameHeader";
@@ -49,14 +48,12 @@ const GameContainer = ({
   const [seasonResults, setSeasonResults] = useState<{raceNumber: number; results: RaceResult[]}[]>([]);
   const [showBetWarning, setShowBetWarning] = useState<boolean>(false);
   
-  // Initialize game on component mount
   useEffect(() => {
     const newGame = initializeGame(playerName || "Player");
     setGameState(newGame);
     setCurrentEvent(getRandomEvent());
   }, [playerName]);
   
-  // Function to handle training selection
   const handleTrainingSelection = (type: "general" | "speed" | "rest" | "sync") => {
     if (!gameState) return;
     
@@ -67,12 +64,10 @@ const GameContainer = ({
     toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} training applied!`);
   };
   
-  // Function to handle scouting
   const handleScout = (horseId: string, type: "basic" | "deep") => {
     if (!gameState) return;
     
     if (horseId === gameState.playerHorse.id) {
-      // Scouting own horse
       const updatedGameState = scoutOwnHorse(gameState);
       setGameState(updatedGameState);
       
@@ -86,7 +81,6 @@ const GameContainer = ({
         toast.info("No new traits discovered");
       }
     } else {
-      // Scouting competitor
       const updatedGameState = scoutHorse(gameState, horseId, type);
       setGameState(updatedGameState);
       
@@ -107,7 +101,6 @@ const GameContainer = ({
     }
   };
   
-  // Function to handle taking a loan
   const handleTakeLoan = () => {
     if (!gameState) return;
     
@@ -118,17 +111,14 @@ const GameContainer = ({
     toast.success(`Loan of $${loanAmount} received!`);
   };
   
-  // Function to handle placing a bet
   const handlePlaceBet = (horseId: string, amount: number) => {
     if (!gameState) return;
     
-    // Check if bet would make player go broke
     if (gameState.playerMoney - amount < 100) {
       toast.error("You need to maintain at least $100 after betting!");
       return;
     }
     
-    // Update last bet
     const updatedGameState = { 
       ...gameState, 
       lastBet: { horseId, amount },
@@ -142,11 +132,9 @@ const GameContainer = ({
     toast.success(`Bet $${amount} on ${horse?.name}`);
   };
   
-  // Function to start the race
   const handleStartRace = () => {
     if (!gameState) return;
     
-    // Check if a horse is selected but no bet placed
     if (selectedHorseId && !betPlaced) {
       setShowBetWarning(true);
       return;
@@ -155,19 +143,15 @@ const GameContainer = ({
     startRaceSequence();
   };
   
-  // Function to start race after confirming no bet
   const startRaceSequence = () => {
     if (!gameState) return;
     
     setRaceInProgress(true);
     
-    // Simulate the racing process with a slight delay
     setTimeout(() => {
       const raceResults = simulateRace(gameState);
-      // Update all horses after the race based on their recovery and endurance
       const updatedGameState = updateHorsesAfterRace(raceResults);
       
-      // Store race results for season history
       setSeasonResults(prev => [
         ...prev, 
         { 
@@ -176,11 +160,10 @@ const GameContainer = ({
         }
       ]);
       
-      // Check if player went broke (has less than $100)
       if (updatedGameState.playerMoney < 100) {
         setGameState({
           ...updatedGameState,
-          playerMoney: 0 // Set to 0 to avoid negative display
+          playerMoney: 0
         });
         setGameEnded(true);
       } else {
@@ -190,36 +173,29 @@ const GameContainer = ({
       setRaceInProgress(false);
       setShowingResults(true);
       
-      // Reset for next race
       setTrainingSelected(false);
       setBetPlaced(false);
       setSelectedHorseId(null);
       
-      // Check if game is over
       if (isGameOver(updatedGameState) || updatedGameState.playerMoney < 100) {
         setGameEnded(true);
       } else {
-        // Generate new random event for the next race
         setCurrentEvent(getRandomEvent());
         setEventProcessed(false);
       }
     }, 3000);
   };
   
-  // Function to close the results dialog
   const handleCloseResults = () => {
     setShowingResults(false);
   };
   
-  // Function to accept a random event
   const handleAcceptEvent = () => {
     if (!gameState || !currentEvent) return;
     
     if (currentEvent.type === "passive") {
-      // Apply passive event
       const updatedGameState = applyRandomEvent(gameState, currentEvent);
       
-      // Check if player went broke after event
       if (updatedGameState.playerMoney < 100) {
         setGameState({
           ...updatedGameState,
@@ -238,10 +214,8 @@ const GameContainer = ({
         }
       }
     } else if (currentEvent.type === "choice" && currentEvent.acceptEffect) {
-      // Apply choice event effect
       const { gameState: updatedGameState, message } = currentEvent.acceptEffect(gameState);
       
-      // Check if player went broke after event
       if (updatedGameState.playerMoney < 100) {
         setGameState({
           ...updatedGameState,
@@ -259,7 +233,6 @@ const GameContainer = ({
     setEventProcessed(true);
   };
   
-  // Function to dismiss an event
   const handleDismissEvent = () => {
     setCurrentEvent(null);
     setEventProcessed(true);
@@ -276,13 +249,11 @@ const GameContainer = ({
     );
   }
   
-  // Include all horses for betting, including player's horse
   const allHorses = [
     gameState.playerHorse,
     ...gameState.competitors
   ].filter(horse => !horse.missNextRace);
   
-  // Find selected horse for the bet warning dialog
   const selectedHorse = allHorses.find(h => h.id === selectedHorseId) || null;
   
   return (
@@ -295,7 +266,6 @@ const GameContainer = ({
       />
       
       <main className="container mx-auto p-4">
-        {/* Show random event if not processed */}
         {!eventProcessed && currentEvent && (
           <div className="mb-6">
             <RandomEventHandler 
@@ -313,24 +283,19 @@ const GameContainer = ({
         />
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left Column - Your Horse & Training */}
           <div className="space-y-6">
             <HorseManagement 
               playerHorse={gameState.playerHorse}
               currentRace={gameState.currentRace}
               onScout={handleScout}
-              onSelectTraining={handleTrainingSelection}
-              trainingsUsed={gameState.trainingsUsed}
               onTakeLoan={handleTakeLoan}
               scoutCosts={SCOUTING_COSTS}
-              isTrainingDisabled={trainingSelected || raceInProgress}
               isDisabled={raceInProgress}
               playerMoney={gameState.playerMoney}
               loanAmount={gameState.loanAmount}
             />
           </div>
           
-          {/* Middle Column - Competitors */}
           <CompetitorsPanel 
             competitors={gameState.competitors}
             playerHorse={gameState.playerHorse}
@@ -338,13 +303,15 @@ const GameContainer = ({
             selectedHorseId={selectedHorseId}
             onSelectHorse={setSelectedHorseId}
             onScout={handleScout}
+            onSelectTraining={handleTrainingSelection}
+            trainingsUsed={gameState.trainingsUsed}
             scoutCosts={SCOUTING_COSTS}
             isDisabled={raceInProgress || betPlaced}
+            isTrainingDisabled={trainingSelected || raceInProgress}
             playerMoney={gameState.playerMoney}
             seasonResults={seasonResults}
           />
           
-          {/* Right Column - Betting & Race */}
           <BettingAndRacePanel 
             selectedHorseId={selectedHorseId}
             horses={allHorses}
@@ -356,11 +323,12 @@ const GameContainer = ({
             raceResults={gameState.raceResults}
             playerHorseId={gameState.playerHorse.id}
             onViewResults={() => setShowingResults(true)}
+            betHorseId={gameState.lastBet?.horseId}
+            betPlaced={betPlaced}
           />
         </div>
       </main>
       
-      {/* Centered Race Progress Overlay */}
       {raceInProgress && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/30 z-50">
           <div className="bg-white rounded-lg p-8 shadow-lg text-center animate-pulse max-w-md mx-4">
@@ -374,7 +342,6 @@ const GameContainer = ({
         </div>
       )}
       
-      {/* Race Results Dialog */}
       <RaceResults 
         isOpen={showingResults}
         onClose={handleCloseResults}
@@ -383,7 +350,6 @@ const GameContainer = ({
         betHorseId={gameState.lastBet?.horseId || null}
       />
       
-      {/* Bet Warning Dialog */}
       <BetWarningDialog 
         isOpen={showBetWarning}
         onClose={() => setShowBetWarning(false)}

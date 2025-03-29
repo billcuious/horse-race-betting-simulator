@@ -16,6 +16,7 @@ interface BettingPanelProps {
   onStartRace: () => void;
   betInProgress: boolean;
   odds?: number;
+  betPlaced?: boolean;
 }
 
 const BettingPanel = ({
@@ -26,7 +27,8 @@ const BettingPanel = ({
   currentRace,
   onStartRace,
   betInProgress,
-  odds = 2.0
+  odds = 2.0,
+  betPlaced = false
 }: BettingPanelProps) => {
   const [betAmount, setBetAmount] = useState(100);
   const [potentialWinnings, setPotentialWinnings] = useState(0);
@@ -98,7 +100,7 @@ const BettingPanel = ({
               variant="outline" 
               className="text-xs h-7 px-1.5 flex-1" 
               onClick={() => handleQuickBet(5)}
-              disabled={!selectedHorseId || betInProgress}
+              disabled={!selectedHorseId || betInProgress || betPlaced}
             >
               5%
             </Button>
@@ -106,7 +108,7 @@ const BettingPanel = ({
               variant="outline" 
               className="text-xs h-7 px-1.5 flex-1" 
               onClick={() => handleQuickBet(10)}
-              disabled={!selectedHorseId || betInProgress}
+              disabled={!selectedHorseId || betInProgress || betPlaced}
             >
               10%
             </Button>
@@ -114,7 +116,7 @@ const BettingPanel = ({
               variant="outline" 
               className="text-xs h-7 px-1.5 flex-1" 
               onClick={() => handleQuickBet(25)}
-              disabled={!selectedHorseId || betInProgress}
+              disabled={!selectedHorseId || betInProgress || betPlaced}
             >
               25%
             </Button>
@@ -122,7 +124,7 @@ const BettingPanel = ({
               variant="outline" 
               className="text-xs h-7 px-1.5 flex-1" 
               onClick={() => handleQuickBet(50)}
-              disabled={!selectedHorseId || betInProgress}
+              disabled={!selectedHorseId || betInProgress || betPlaced}
             >
               50%
             </Button>
@@ -130,7 +132,7 @@ const BettingPanel = ({
               variant="outline" 
               className="text-xs h-7 px-1.5 flex-1" 
               onClick={() => handleQuickBet(100)}
-              disabled={!selectedHorseId || betInProgress}
+              disabled={!selectedHorseId || betInProgress || betPlaced}
             >
               All
             </Button>
@@ -143,7 +145,7 @@ const BettingPanel = ({
               max={playerMoney}
               step={10}
               onValueChange={handleSliderChange}
-              disabled={!selectedHorseId || betInProgress}
+              disabled={!selectedHorseId || betInProgress || betPlaced}
             />
           </div>
           
@@ -153,11 +155,11 @@ const BettingPanel = ({
               value={betAmount}
               onChange={handleInputChange}
               className="w-24"
-              disabled={!selectedHorseId || betInProgress}
+              disabled={!selectedHorseId || betInProgress || betPlaced}
             />
             <Button 
               onClick={() => onPlaceBet(selectedHorseId!, betAmount)} 
-              disabled={!selectedHorseId || betAmount <= 0 || betInProgress}
+              disabled={!selectedHorseId || betAmount <= 0 || betInProgress || betPlaced}
               variant="secondary"
               className="flex-1"
             >

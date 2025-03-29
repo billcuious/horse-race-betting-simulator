@@ -15,11 +15,17 @@ interface HorseCardProps {
   showAttributes?: boolean;
   currentRace: number;
   onScout?: (horseId: string, type: "basic" | "deep") => void;
+  onSelectHorse?: (horseId: string) => void;
+  scoutCosts: {
+    basic: number;
+    deep: number;
+    ownHorse: number;
+  };
   playerMoney: number;
   showControls?: boolean;
-  onSelectHorse?: (horseId: string) => void;
-  selectedHorseId?: string | null;
-  betPlaced?: boolean;
+  isSelected?: boolean;
+  isDisabled?: boolean;
+  showScoutButton?: boolean;
 }
 
 const formatTrait = (trait: string): string => {
@@ -136,10 +142,10 @@ const HorseCard: React.FC<HorseCardProps> = ({
   playerMoney,
   showControls = true,
   onSelectHorse,
-  selectedHorseId,
-  betPlaced = false
+  isSelected = false,
+  isDisabled = false,
+  showScoutButton = true
 }) => {
-  const isSelected = selectedHorseId === horse.id;
   const isOutdated = horse.lastUpdated < currentRace - 1;
   const statsToShow = isPlayerHorse || horse.lastUpdated > 0 ? horse.scoutedStats : { 
     displayedSpeed: "??", 
@@ -149,7 +155,7 @@ const HorseCard: React.FC<HorseCardProps> = ({
   };
   
   const handleSelectHorse = () => {
-    if (onSelectHorse && !betPlaced) {
+    if (onSelectHorse && !isDisabled) {
       onSelectHorse(horse.id);
     }
   };
@@ -183,7 +189,7 @@ const HorseCard: React.FC<HorseCardProps> = ({
       } ${
         horse.hasInjury ? "bg-red-50" : ""
       } ${
-        betPlaced ? "cursor-not-allowed opacity-70" : "cursor-pointer hover:shadow-md"
+        isDisabled ? "cursor-not-allowed opacity-70" : "cursor-pointer hover:shadow-md"
       }`}
       onClick={handleSelectHorse}
     >
@@ -266,7 +272,7 @@ const HorseCard: React.FC<HorseCardProps> = ({
         </div>
       </CardContent>
       
-      {showControls && !isPlayerHorse && onScout && (
+      {showControls && showScoutButton && onScout && (
         <CardFooter className="flex flex-col space-y-2">
           <div className="flex space-x-2 w-full">
             <Button
@@ -277,7 +283,7 @@ const HorseCard: React.FC<HorseCardProps> = ({
                 e.stopPropagation();
                 onScout(horse.id, "basic");
               }}
-              disabled={playerMoney < 300}
+              disabled={playerMoney < 300 || isDisabled}
             >
               <Eye className="w-4 h-4 mr-1" /> Basic Scout ($300)
             </Button>
@@ -289,7 +295,7 @@ const HorseCard: React.FC<HorseCardProps> = ({
                 e.stopPropagation();
                 onScout(horse.id, "deep");
               }}
-              disabled={playerMoney < 700}
+              disabled={playerMoney < 700 || isDisabled}
             >
               <Plus className="w-4 h-4 mr-1" /> Deep Scout ($700)
             </Button>

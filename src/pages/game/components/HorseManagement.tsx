@@ -3,22 +3,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import HorseCard from "@/components/HorseCard";
-import TrainingOptions from "@/components/TrainingOptions";
 import { Horse, calculateLoanAmount } from "@/utils/gameLogic";
 
 interface HorseManagementProps {
   playerHorse: Horse;
   currentRace: number;
   onScout: (horseId: string, type: "basic" | "deep") => void;
-  onSelectTraining: (type: "general" | "speed" | "rest" | "sync") => void;
-  trainingsUsed: Record<string, number>;
   onTakeLoan: () => void;
   scoutCosts: {
     basic: number;
     deep: number;
     ownHorse: number;
   };
-  isTrainingDisabled: boolean;
   isDisabled: boolean;
   playerMoney: number;
   loanAmount: number;
@@ -28,11 +24,8 @@ const HorseManagement = ({
   playerHorse,
   currentRace,
   onScout,
-  onSelectTraining,
-  trainingsUsed,
   onTakeLoan,
   scoutCosts,
-  isTrainingDisabled,
   isDisabled,
   playerMoney,
   loanAmount
@@ -59,14 +52,6 @@ const HorseManagement = ({
           />
         </CardContent>
       </Card>
-      
-      {/* Training Options */}
-      <TrainingOptions 
-        onSelectTraining={onSelectTraining}
-        trainingsUsed={trainingsUsed}
-        playerMoney={playerMoney}
-        isDisabled={isTrainingDisabled}
-      />
       
       {/* Loan Options */}
       <Card>
