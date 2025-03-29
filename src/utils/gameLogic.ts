@@ -540,7 +540,7 @@ export const takeLoan = (gameState: GameState): GameState => {
 
 // Calculate betting odds for a horse based on past performance
 export const calculateOdds = (horse: Horse, allHorses: Horse[], currentRace: number): number => {
-  const baseOdds = 2.0;
+  let baseOdds = 2.0;
   
   if (horse.raceHistory.length > 0) {
     const recentHistory = horse.raceHistory
