@@ -4,6 +4,12 @@ import { Toaster as Sonner } from "sonner"
 
 interface ToasterProps {
   theme?: "system" | "light" | "dark"
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "top-center" | "bottom-center"
+  richColors?: boolean
+  expand?: boolean
+  closeButton?: boolean
+  offset?: number | string
+  gap?: number
 }
 
 const Toaster = ({ ...props }: ToasterProps) => {
@@ -24,7 +30,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
             "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
       }}
-      expandByDefault={true}
+      expand={true}
       position="bottom-right" 
       closeButton={true}
       richColors={true}
