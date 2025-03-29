@@ -67,7 +67,7 @@ const CompetitorsPanel = ({
               </SheetHeader>
               <div className="pr-4 pb-20 max-h-[90vh] overflow-y-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6">
-                  {/* Player horse shown among competitors, now selectable for betting and without scouting options */}
+                  {/* Player horse shown among competitors for betting */}
                   <HorseCard 
                     key={playerHorse.id}
                     horse={playerHorse}
@@ -103,19 +103,28 @@ const CompetitorsPanel = ({
           <SeasonHistory raceResults={seasonResults} />
           
           {/* Select competitor instructions */}
-          <Button className="w-full text-center" variant="secondary">
+          <Button 
+            className="w-full text-center" 
+            variant="secondary" 
+            onClick={() => {
+              const sheet = document.querySelector('[data-radix-trigger-for]');
+              if (sheet) {
+                (sheet as HTMLButtonElement).click();
+              }
+            }}
+          >
             Select a competitor to place a bet
           </Button>
+          
+          {/* Training Options - moved here from HorseManagement */}
+          <TrainingOptions 
+            onSelectTraining={onSelectTraining}
+            trainingsUsed={trainingsUsed}
+            playerMoney={playerMoney}
+            isDisabled={isTrainingDisabled}
+          />
         </CardContent>
       </Card>
-
-      {/* Training Options - moved here from HorseManagement */}
-      <TrainingOptions 
-        onSelectTraining={onSelectTraining}
-        trainingsUsed={trainingsUsed}
-        playerMoney={playerMoney}
-        isDisabled={isTrainingDisabled}
-      />
     </div>
   );
 };

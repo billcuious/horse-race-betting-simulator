@@ -540,7 +540,7 @@ export const takeLoan = (gameState: GameState): GameState => {
 
 // Calculate betting odds for a horse based on past performance
 export const calculateOdds = (horse: Horse, allHorses: Horse[], currentRace: number): number => {
-  let odds = 2.0; // Changed from const to let so we can modify it
+  let baseOdds = 2.0;
   
   if (horse.raceHistory.length > 0) {
     const recentHistory = horse.raceHistory
@@ -551,24 +551,24 @@ export const calculateOdds = (horse: Horse, allHorses: Horse[], currentRace: num
     if (recentHistory.length > 0) {
       const avgPosition = recentHistory.reduce((sum, r) => sum + r.position, 0) / recentHistory.length;
       
-      odds = 1.5 + (avgPosition / 2.5);
+      baseOdds = 1.5 + (avgPosition / 2.5);
       
       if (recentHistory[0].position <= 3) {
-        odds *= 0.85;
+        baseOdds *= 0.85;
       } else if (recentHistory[0].position >= 7) {
-        odds *= 1.2;
+        baseOdds *= 1.2;
       }
     }
   } else {
-    odds = 3.0;
+    baseOdds = 3.0;
   }
   
   const randomFactor = 0.9 + (Math.random() * 0.2);
-  odds *= randomFactor;
+  baseOdds *= randomFactor;
   
   const isCrowdFavorite = horse.revealedAttributes.some(attr => attr.name === "Crowd Favorite");
   
-  return isCrowdFavorite ? odds * 0.8 : odds;
+  return isCrowdFavorite ? baseOdds * 0.8 : baseOdds;
 };
 
 // Apply simulated training to AI horses
