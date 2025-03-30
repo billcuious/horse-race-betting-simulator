@@ -71,7 +71,11 @@ const traitDescriptions: Record<string, string> = {
   "Heart of Gold": "Shows incredible determination in the face of challenges.",
   "Soul Bond": "Forms a deep connection with its jockey, enhancing performance.",
   "Time Dilation": "Appears to enter a state where time itself slows down during critical moments.",
-  "Miracle Worker": "Known to achieve the impossible when all hope seems lost."
+  "Miracle Worker": "Known to achieve the impossible when all hope seems lost.",
+  "Risk Taker": "This horse thrives on danger and takes chances other horses wouldn't dare.",
+  "Uninjurable": "This horse has a remarkable constitution, able to avoid injuries that would stop others.",
+  "Extreme Training": "This horse undergoes intense training that pushes the limits of equine performance.",
+  "Veteran Tactics": "Years of experience have taught this horse to navigate even the most challenging races."
 };
 
 const HorseCard = ({
@@ -197,14 +201,18 @@ const HorseCard = ({
             <h4 className="text-sm font-medium mb-2">Traits</h4>
             <div className="flex flex-wrap gap-1">
               {stats.revealedAttributes.map((trait) => (
-                <HoverCard key={trait}>
-                  <HoverCardTrigger asChild>
-                    <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80">{trait}</Badge>
-                  </HoverCardTrigger>
-                  <HoverCardContent className="w-72 p-4">
-                    <p className="text-sm">{traitDescriptions[trait] || `${trait} affects this horse's performance.`}</p>
-                  </HoverCardContent>
-                </HoverCard>
+                <TooltipProvider key={trait}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="secondary" className="text-xs cursor-help hover:bg-secondary/80">
+                        {trait}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent className="w-72 p-4">
+                      <p className="text-sm">{traitDescriptions[trait] || `${trait} affects this horse's performance.`}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               ))}
             </div>
           </div>

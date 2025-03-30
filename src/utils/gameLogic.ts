@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 // Types
@@ -62,6 +61,7 @@ export type GameState = {
   loanAmount: number;
   trainingsUsed: Record<string, number>;
   selectedJockeyId: string;
+  hasUsedLoanThisRace: boolean; // Add this new field
 };
 
 // Constants
@@ -422,7 +422,8 @@ export const initializeGame = (playerName: string, jockeyId: string = ""): GameS
       rest: 0,
       sync: 0
     },
-    selectedJockeyId: jockeyId
+    selectedJockeyId: jockeyId,
+    hasUsedLoanThisRace: false // Add this new field to track loan usage
   };
 };
 
@@ -489,14 +490,11 @@ const applyJockeyEffects = (horse: Horse, jockeyId: string): void => {
       break;
       
     case "risk":
-      // The Risk Taker: +12 Speed, -10 Control, chance for temporary speed boost
-      horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 12);
-      horse.control = Math.max(10, horse.control - 10);
-      horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
-      
+      // The Risk Taker: 15% chance for speed boost, 1.5x injury risk
+      // No longer modifies starting stats, just adds a special trait
       const riskTakerTrait: HorseAttribute = {
         name: "Risk Taker",
-        description: "This horse has a chance for a massive speed boost in each race.",
+        description: "This horse has a chance for a massive speed boost in each race but is more prone to injuries.",
         isPositive: true,
         effect: (h: Horse) => {
           // 15% chance for a speed boost during race
@@ -703,13 +701,19 @@ export const scoutOwnHorse = (gameState: GameState): GameState => {
   return newState;
 };
 
-// Take a loan 
+// Take a loan - updated to track loan usage per race
 export const takeLoan = (gameState: GameState): GameState => {
+  // Check if a loan has already been taken this race
+  if (gameState.hasUsedLoanThisRace) {
+    return gameState; // Don't allow another loan this race
+  }
+  
   const newState = { ...gameState };
   const loanAmount = calculateLoanAmount(newState.playerMoney);
   
   newState.playerMoney += loanAmount;
   newState.loanAmount += loanAmount;
+  newState.hasUsedLoanThisRace = true; // Mark that a loan has been used this race
   
   return newState;
 };
@@ -832,6 +836,9 @@ export const updateHorsesAfterRace = (gameState: GameState): GameState => {
     // Then apply simulated training effects to AI horses
     return applySimulatedTraining(updatedHorse, newState.currentRace, newState.totalRaces);
   });
+  
+  // Reset the loan usage tracker for the next race
+  newState.hasUsedLoanThisRace = false;
   
   return newState;
 };
@@ -1015,17 +1022,22 @@ export const calculateHorseRacePerformance = (
     
     const isIronHorse = activeHorse.attributes.some(attr => attr.name === "Iron Horse");
     const isFragile = activeHorse.attributes.some(attr => attr.name === "Fragile");
+    const isRiskTaker = activeHorse.attributes.some(attr => attr.name === "Risk Taker");
     
     let injuryThreshold = 90;
     
     if (isIronHorse) injuryThreshold = 95;
     if (isFragile) injuryThreshold = 85;
+    if (isRiskTaker) injuryThreshold = 85; // Risk Taker has higher injury risk (90 -> 85)
     
     if (injuryChance > injuryThreshold) {
       activeHorse.hasInjury = true;
       events.push("injury");
       
-      if (injuryChance > 97) {
+      // Determine if it's a major injury - Risk Taker has higher risk of major injury
+      const majorInjuryThreshold = isRiskTaker ? 95 : 97;
+      
+      if (injuryChance > majorInjuryThreshold) {
         activeHorse.injuryType = "major";
         activeHorse.missNextRace = true;
         performanceMultiplier = 0.5;
@@ -1494,3 +1506,19 @@ export const isGameWon = (gameState: GameState): boolean => {
   return gameState.playerMoney >= gameState.seasonGoal;
 };
 
+// Export all needed functions
+export {
+  takeLoan,
+  calculateLoanAmount,
+  applyTraining,
+  scoutHorse,
+  scoutOwnHorse,
+  updateHorsesAfterRace,
+  simulateRace,
+  applyRandomEvent,
+  isGameOver,
+  isGameWon,
+  initializeGame,
+  getRandomEvent,
+  calculateOdds
+};

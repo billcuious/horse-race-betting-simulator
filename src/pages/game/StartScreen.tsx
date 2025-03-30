@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ChevronRight } from "lucide-react";
+import { Check, ChevronRight, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface JockeyOption {
   id: string;
@@ -49,7 +50,7 @@ const JOCKEY_OPTIONS: JockeyOption[] = [
     name: "Sophia Chen",
     title: "The Risk Taker",
     description: "Lives for the thrill of pushing boundaries, sometimes with spectacular results.",
-    effect: "Your horse starts with +12 Speed but -10 Control. Has a 15% chance per race to unlock a temporary massive speed boost.",
+    effect: "Your horse has a 15% chance per race to unlock a temporary massive speed boost, but injury risk is increased by 1.5x.",
     traits: ["Fearless", "Unpredictable", "Aggressive"]
   }
 ];
@@ -133,7 +134,20 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
               <li>Bet on races to earn money</li>
               <li>Your goal is to reach the season target money</li>
               <li>The season consists of {15} races</li>
-              <li>You can take loans if needed</li>
+              <li>
+                You can take loans if needed
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 inline-block ml-1 cursor-help text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent className="w-80 p-3">
+                      <p>You can take one loan between each race. The amount depends on your current money.</p>
+                      <p className="mt-2">Loans will be automatically deducted from your earnings at the end of the season.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </li>
               <li>Each horse has unique stats and hidden traits</li>
               <li>Your choice of jockey will affect your horse's starting stats and abilities</li>
             </ul>
