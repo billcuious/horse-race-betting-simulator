@@ -1505,20 +1505,3 @@ export const isGameOver = (gameState: GameState): boolean => {
 export const isGameWon = (gameState: GameState): boolean => {
   return gameState.playerMoney >= gameState.seasonGoal;
 };
-
-// Export all needed functions
-export {
-  takeLoan,
-  calculateLoanAmount,
-  applyTraining,
-  scoutHorse,
-  scoutOwnHorse,
-  updateHorsesAfterRace,
-  simulateRace,
-  applyRandomEvent,
-  isGameOver,
-  isGameWon,
-  initializeGame,
-  getRandomEvent,
-  calculateOdds
-};
