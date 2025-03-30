@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Horse } from "@/utils/gameLogic";
 import { getVisibleHorseStats, getHorseDisplayColor } from "@/utils/horsesData";
 import { InfoIcon, AlertCircleIcon } from "lucide-react";
@@ -61,12 +61,17 @@ const traitDescriptions: Record<string, string> = {
   "Poor Starter": "Takes longer than most to hit stride after the gate opens.",
   "Mud Runner": "Performs better in poor weather and muddy track conditions.",
   "Late Bloomer": "Develops strength and speed later in the season.",
-  "Adaptable": "Adjusts quickly to different racing conditions.",
-  "Overachiever": "Frequently performs beyond expectations.",
   "Training Resistant": "Doesn't always respond well to intensive training regimens.",
   "Inconsistent": "Performance varies unpredictably from race to race.",
   "Temperamental": "Mood can greatly affect race performance.",
-  "Spotlight Shy": "Doesn't perform well when favored to win."
+  "Spotlight Shy": "Doesn't perform well when favored to win.",
+  "Legendary Bloodline": "Descended from the greatest champions in racing history. A rare gift indeed.",
+  "Sixth Sense": "This horse seems to anticipate obstacles before they appear. Truly extraordinary.",
+  "Phoenix Spirit": "Can rise from the depths of exhaustion in miraculous fashion.",
+  "Heart of Gold": "Shows incredible determination in the face of challenges.",
+  "Soul Bond": "Forms a deep connection with its jockey, enhancing performance.",
+  "Time Dilation": "Appears to enter a state where time itself slows down during critical moments.",
+  "Miracle Worker": "Known to achieve the impossible when all hope seems lost."
 };
 
 const HorseCard = ({
@@ -192,14 +197,14 @@ const HorseCard = ({
             <h4 className="text-sm font-medium mb-2">Traits</h4>
             <div className="flex flex-wrap gap-1">
               {stats.revealedAttributes.map((trait) => (
-                <Popover key={trait}>
-                  <PopoverTrigger asChild>
+                <HoverCard key={trait}>
+                  <HoverCardTrigger asChild>
                     <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80">{trait}</Badge>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-60 p-4">
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-72 p-4">
                     <p className="text-sm">{traitDescriptions[trait] || `${trait} affects this horse's performance.`}</p>
-                  </PopoverContent>
-                </Popover>
+                  </HoverCardContent>
+                </HoverCard>
               ))}
             </div>
           </div>
@@ -248,7 +253,7 @@ const HorseCard = ({
                   variant="outline" 
                   size="sm" 
                   className="flex-1 h-8 text-xs"
-                  onClick={() => onScout(horse.id, "basic")}
+                  onClick={() => onScout && onScout(horse.id, "basic")}
                   disabled={isDisabled || playerMoney < scoutCosts.basic}
                 >
                   Scout (${scoutCosts.basic})
@@ -257,7 +262,7 @@ const HorseCard = ({
                   variant="outline"
                   size="sm"
                   className="flex-1 h-8 text-xs"
-                  onClick={() => onScout(horse.id, "deep")}
+                  onClick={() => onScout && onScout(horse.id, "deep")}
                   disabled={isDisabled || playerMoney < scoutCosts.deep}
                 >
                   Deep Scout (${scoutCosts.deep})

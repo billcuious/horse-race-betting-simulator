@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import HorseCard from "@/components/HorseCard";
 import SeasonHistory from "@/components/SeasonHistory";
+import TrainingOptions from "@/components/TrainingOptions";
 import { Horse, RaceResult } from "@/utils/gameLogic";
 import { ChevronRightIcon } from "lucide-react";
 
@@ -14,6 +15,9 @@ interface CompetitorsPanelProps {
   selectedHorseId: string | null;
   onSelectHorse: (horseId: string | null) => void;
   onScout: (horseId: string, type: "basic" | "deep") => void;
+  onSelectTraining: (type: "general" | "speed" | "rest" | "sync") => void;
+  trainingsUsed: Record<string, number>;
+  isTrainingDisabled: boolean;
   scoutCosts: {
     basic: number;
     deep: number;
@@ -31,6 +35,9 @@ const CompetitorsPanel = ({
   selectedHorseId,
   onSelectHorse,
   onScout,
+  onSelectTraining,
+  trainingsUsed,
+  isTrainingDisabled,
   scoutCosts,
   isDisabled,
   playerMoney,
@@ -98,6 +105,16 @@ const CompetitorsPanel = ({
         <Button className="w-full text-center" variant="secondary">
           Select a competitor to place a bet
         </Button>
+        
+        {/* Training options moved here from left column */}
+        <div className="mt-6">
+          <TrainingOptions 
+            onSelectTraining={onSelectTraining}
+            trainingsUsed={trainingsUsed}
+            playerMoney={playerMoney}
+            isDisabled={isTrainingDisabled}
+          />
+        </div>
       </CardContent>
     </Card>
   );

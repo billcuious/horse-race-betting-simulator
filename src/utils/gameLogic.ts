@@ -57,6 +57,7 @@ export type GameState = {
   lastBet: { horseId: string; amount: number } | null;
   loanAmount: number;
   trainingsUsed: Record<string, number>;
+  selectedJockeyId: string;
 };
 
 // Constants
@@ -306,6 +307,13 @@ export const generateRandomHorse = (isPlayerHorse: boolean = false): Horse => {
   
   const availableAttributes = [...HORSE_ATTRIBUTES];
   
+  // Add rare trait chance (1% chance)
+  if (Math.random() < 0.01 || isPlayerHorse) {
+    const rareAttribute = RARE_HORSE_ATTRIBUTES[Math.floor(Math.random() * RARE_HORSE_ATTRIBUTES.length)];
+    attributes.push(rareAttribute);
+    numAttributes--; // Reduce normal attributes by 1 since we've added a rare one
+  }
+  
   for (let i = 0; i < numAttributes; i++) {
     if (availableAttributes.length === 0) break;
     
@@ -368,15 +376,23 @@ export const generateRandomHorse = (isPlayerHorse: boolean = false): Horse => {
       control: control,
       recovery: recovery,
       endurance: endurance
-    }
+    },
+    
+    // For jockey effects (extreme trainer)
+    traitRevealRace: 0
   };
 };
 
-// Initialize a new game
-export const initializeGame = (playerName: string): GameState => {
+// Initialize a new game with jockey selection
+export const initializeGame = (playerName: string, jockeyId: string = ""): GameState => {
   const totalRaces = 15; // Total races in the season
   const playerHorse = generateRandomHorse(true);
   playerHorse.name = `${playerName}'s ${generateHorseName()}`;
+  
+  // Apply jockey effects to the player's horse
+  if (jockeyId) {
+    applyJockeyEffects(playerHorse, jockeyId);
+  }
   
   const competitors: Horse[] = [];
   for (let i = 0; i < 9; i++) {
@@ -401,212 +417,212 @@ export const initializeGame = (playerName: string): GameState => {
       speed: 0,
       rest: 0,
       sync: 0
-    }
+    },
+    selectedJockeyId: jockeyId
   };
 };
 
-// Apply training to player's horse
-export const applyTraining = (
-  gameState: GameState,
-  trainingType: "general" | "speed" | "rest" | "sync"
-): GameState => {
-  const newState = { ...gameState };
-  const horse = { ...newState.playerHorse };
-  
-  newState.trainingsUsed[trainingType] = (newState.trainingsUsed[trainingType] || 0) + 1;
-  
-  const cost = getTrainingCost(trainingType, (newState.trainingsUsed[trainingType] || 1) - 1);
-  
-  switch (trainingType) {
-    case "general":
-      horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 3);
-      horse.control = Math.min(100, horse.control + 2);
-      horse.endurance = Math.min(100, horse.endurance + 2);
-      horse.recovery = Math.max(10, horse.recovery - 5);
+// Apply jockey effects to the player's horse
+const applyJockeyEffects = (horse: Horse, jockeyId: string): void => {
+  switch (jockeyId) {
+    case "composed":
+      // The Composed Jockey: -7 Speed, +10 Control, never gets injured
+      horse.displayedSpeed = Math.max(40, horse.displayedSpeed - 7);
+      horse.control = Math.min(100, horse.control + 10);
+      horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+      
+      // Add the uninjurable trait
+      const uninjurableTrait: HorseAttribute = {
+        name: "Uninjurable",
+        description: "This horse cannot be injured due to its composed jockey.",
+        isPositive: true,
+        effect: (h: Horse) => {
+          // Effect is handled in injury calculation
+        }
+      };
+      
+      horse.attributes.push(uninjurableTrait);
+      horse.revealedAttributes.push(uninjurableTrait);
       break;
       
-    case "speed":
+    case "extreme":
+      // The Extreme Trainer: Will gain a new positive trait after 4-8 races, faster endurance depletion
+      const extremeTrainerTrait: HorseAttribute = {
+        name: "Extreme Training",
+        description: "This horse will gain a new positive trait after 4-8 races, but loses endurance faster.",
+        isPositive: true,
+        effect: (h: Horse) => {
+          // Effect is handled in updateHorsesAfterRace
+        }
+      };
+      
+      horse.attributes.push(extremeTrainerTrait);
+      horse.revealedAttributes.push(extremeTrainerTrait);
+      
+      // Set a random race number when the new trait will be added (between 4-8)
+      horse.traitRevealRace = Math.floor(Math.random() * 5) + 4;
+      break;
+      
+    case "veteran":
+      // The Veteran Jockey: +15 Control, +10 Recovery, -5 Speed, -5 Endurance
+      horse.control = Math.min(100, horse.control + 15);
+      horse.recovery = Math.min(100, horse.recovery + 10);
+      horse.displayedSpeed = Math.max(40, horse.displayedSpeed - 5);
+      horse.endurance = Math.max(10, horse.endurance - 5);
+      horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+      
+      const veteranTrait: HorseAttribute = {
+        name: "Veteran Tactics",
+        description: "This horse benefits from a veteran jockey's experience.",
+        isPositive: true,
+        effect: (h: Horse) => {
+          // Effect already applied to base stats
+        }
+      };
+      
+      horse.attributes.push(veteranTrait);
+      horse.revealedAttributes.push(veteranTrait);
+      break;
+      
+    case "risk":
+      // The Risk Taker: +12 Speed, -10 Control, chance for temporary speed boost
+      horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 12);
+      horse.control = Math.max(10, horse.control - 10);
+      horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+      
+      const riskTakerTrait: HorseAttribute = {
+        name: "Risk Taker",
+        description: "This horse has a chance for a massive speed boost in each race.",
+        isPositive: true,
+        effect: (h: Horse) => {
+          // 15% chance for a speed boost during race
+          if (Math.random() < 0.15) {
+            h.displayedSpeed = Math.min(100, h.displayedSpeed * 1.2);
+            h.actualSpeed = h.displayedSpeed * (0.8 + 0.2 * h.endurance / 100);
+          }
+        }
+      };
+      
+      horse.attributes.push(riskTakerTrait);
+      horse.revealedAttributes.push(riskTakerTrait);
+      break;
+  }
+};
+
+// Add new rare traits
+export const RARE_HORSE_ATTRIBUTES: HorseAttribute[] = [
+  {
+    name: "Legendary Bloodline",
+    description: "Descended from the greatest champions in racing history. A rare gift indeed.",
+    isPositive: true,
+    effect: (horse: Horse) => {
       horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 8);
-      horse.recovery = Math.max(10, horse.recovery - 15);
-      horse.endurance = Math.max(10, horse.endurance - 3);
-      horse.control = Math.max(10, horse.control - 3);
-      break;
-      
-    case "rest":
-      horse.recovery = Math.min(100, horse.recovery + 15);
-      horse.displayedSpeed = Math.max(40, horse.displayedSpeed - 1);
-      horse.control = Math.max(10, horse.control - 1);
-      horse.endurance = Math.max(10, horse.endurance - 1);
-      break;
-      
-    case "sync":
-      horse.control = Math.min(100, horse.control + 7);
-      break;
-  }
-  
-  horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
-  
-  newState.playerMoney -= cost;
-  
-  newState.playerHorse = horse;
-  
-  return newState;
-};
-
-// Scout a competitor horse to update its known stats
-export const scoutHorse = (
-  gameState: GameState,
-  horseId: string,
-  scoutType: "basic" | "deep"
-): GameState => {
-  const newState = { ...gameState };
-  const horseIndex = newState.competitors.findIndex(h => h.id === horseId);
-  
-  if (horseIndex === -1) return newState;
-  
-  // Update the horse's lastUpdated to current race
-  const horseToUpdate = { 
-    ...newState.competitors[horseIndex],
-    lastUpdated: newState.currentRace
-  };
-  
-  // Update scouted stats to current real stats
-  horseToUpdate.scoutedStats = {
-    displayedSpeed: horseToUpdate.displayedSpeed,
-    control: horseToUpdate.control,
-    recovery: horseToUpdate.recovery,
-    endurance: horseToUpdate.endurance
-  };
-  
-  if (scoutType === "deep") {
-    const unrevealed = horseToUpdate.attributes.filter(
-      attr => !horseToUpdate.revealedAttributes.some(rev => rev.name === attr.name)
-    );
-    
-    if (unrevealed.length > 0) {
-      const randomAttr = unrevealed[Math.floor(Math.random() * unrevealed.length)];
-      horseToUpdate.revealedAttributes = [
-        ...horseToUpdate.revealedAttributes,
-        randomAttr
-      ];
+      horse.control = Math.min(100, horse.control + 5);
+      horse.endurance = Math.min(100, horse.endurance + 5);
+      horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+    }
+  },
+  {
+    name: "Sixth Sense",
+    description: "This horse seems to anticipate obstacles before they appear. Truly extraordinary.",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      horse.control = Math.min(100, horse.control + 15);
+    }
+  },
+  {
+    name: "Phoenix Spirit",
+    description: "Can rise from the depths of exhaustion in miraculous fashion.",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      // Will activate when recovery is low during racing
+      if (horse.recovery < 30) {
+        horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 15);
+        horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+      }
+    }
+  },
+  {
+    name: "Heart of Gold",
+    description: "Shows incredible determination in the face of challenges.",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      // Will provide a final burst when the horse is falling behind
+      // Applied during race calculation
+    }
+  },
+  {
+    name: "Soul Bond",
+    description: "Forms a deep connection with its jockey, enhancing performance.",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      horse.control = Math.min(100, horse.control + 8);
+      horse.recovery = Math.min(100, horse.recovery + 8);
+    }
+  },
+  {
+    name: "Time Dilation",
+    description: "Appears to enter a state where time itself slows down during critical moments.",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      // Has a small chance to trigger a massive speed boost during races
+      if (Math.random() < 0.05) {
+        horse.displayedSpeed = Math.min(100, horse.displayedSpeed * 1.3);
+        horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+      }
+    }
+  },
+  {
+    name: "Miracle Worker",
+    description: "Known to achieve the impossible when all hope seems lost.",
+    isPositive: true,
+    effect: (horse: Horse) => {
+      // Has a small chance to recover from injuries instantly
+      if (horse.hasInjury && Math.random() < 0.1) {
+        horse.hasInjury = false;
+        horse.injuryType = "none";
+        horse.missNextRace = false;
+      }
     }
   }
-  
-  newState.competitors[horseIndex] = horseToUpdate;
-  newState.playerMoney -= SCOUTING_COSTS[scoutType];
-  
-  return newState;
-};
-
-// Scout the player's own horse
-export const scoutOwnHorse = (gameState: GameState): GameState => {
-  const newState = { ...gameState };
-  const horse = { ...newState.playerHorse };
-  
-  horse.recovery = Math.max(10, horse.recovery - 5);
-  
-  const unrevealed = horse.attributes.filter(
-    attr => !horse.revealedAttributes.some(rev => rev.name === attr.name)
-  );
-  
-  if (unrevealed.length > 0) {
-    const randomAttr = unrevealed[Math.floor(Math.random() * unrevealed.length)];
-    horse.revealedAttributes = [...horse.revealedAttributes, randomAttr];
-  }
-  
-  newState.playerHorse = horse;
-  
-  newState.playerMoney -= SCOUTING_COSTS.ownHorse;
-  
-  return newState;
-};
-
-// Take out a loan
-export const takeLoan = (gameState: GameState): GameState => {
-  const newState = { ...gameState };
-  const loanAmount = calculateLoanAmount(newState.playerMoney);
-  
-  newState.playerMoney += loanAmount;
-  newState.loanAmount += loanAmount;
-  
-  return newState;
-};
-
-// Calculate betting odds for a horse
-export const calculateOdds = (horse: Horse, allHorses: Horse[]): number => {
-  const averageSpeed = allHorses.reduce((sum, h) => sum + h.displayedSpeed, 0) / allHorses.length;
-  
-  const oddsMultiplier = 1 + Math.pow(averageSpeed / horse.displayedSpeed, 3);
-  
-  const isCrowdFavorite = horse.revealedAttributes.some(attr => attr.name === "Crowd Favorite");
-  
-  return isCrowdFavorite ? oddsMultiplier * 1.2 : oddsMultiplier;
-};
-
-// Apply simulated training to AI horses
-const applySimulatedTraining = (horse: Horse, raceNumber: number, totalRaces: number): Horse => {
-  const updatedHorse = { ...horse };
-  
-  // Chance of AI horses receiving training increases as season progresses
-  const trainingChance = Math.min(0.7, 0.3 + (raceNumber / totalRaces) * 0.4);
-  
-  if (Math.random() < trainingChance) {
-    // Determine which type of training the AI horse receives
-    const trainingType = Math.random();
-    
-    if (trainingType < 0.4) {
-      // General training - balanced improvement
-      updatedHorse.displayedSpeed = Math.min(100, updatedHorse.displayedSpeed + 2);
-      updatedHorse.control = Math.min(100, updatedHorse.control + 1.5);
-      updatedHorse.endurance = Math.min(100, updatedHorse.endurance + 1.5);
-      updatedHorse.recovery = Math.max(10, updatedHorse.recovery - 3);
-    } else if (trainingType < 0.7) {
-      // Speed training - focus on speed
-      updatedHorse.displayedSpeed = Math.min(100, updatedHorse.displayedSpeed + 4);
-      updatedHorse.recovery = Math.max(10, updatedHorse.recovery - 8);
-      updatedHorse.control = Math.max(10, updatedHorse.control - 1);
-    } else if (trainingType < 0.9) {
-      // Recovery training
-      updatedHorse.recovery = Math.min(100, updatedHorse.recovery + 10);
-    } else {
-      // Control training
-      updatedHorse.control = Math.min(100, updatedHorse.control + 5);
-      updatedHorse.displayedSpeed = Math.min(100, updatedHorse.displayedSpeed + 1);
-    }
-    
-    // Update actual speed based on endurance
-    updatedHorse.actualSpeed = updatedHorse.displayedSpeed * (0.8 + 0.2 * updatedHorse.endurance / 100);
-  }
-  
-  return updatedHorse;
-};
-
-// Update horse stats after a race based on recovery and endurance
-export const updateHorsesAfterRace = (gameState: GameState): GameState => {
-  const newState = { ...gameState };
-  
-  // Update player horse
-  newState.playerHorse = updateHorseStatsAfterRace(newState.playerHorse);
-  
-  // Update all competitors with both natural stat changes and simulated training
-  newState.competitors = newState.competitors.map(horse => {
-    // First apply natural race effects
-    const updatedHorse = updateHorseStatsAfterRace(horse);
-    
-    // Then apply simulated training effects to AI horses
-    return applySimulatedTraining(updatedHorse, newState.currentRace, newState.totalRaces);
-  });
-  
-  return newState;
-};
+];
 
 // Helper function to update a single horse's stats after a race
-const updateHorseStatsAfterRace = (horse: Horse): Horse => {
+const updateHorseStatsAfterRace = (horse: Horse, currentRace: number, totalRaces: number): Horse => {
   const updatedHorse = { ...horse };
   
   // How much recovery gets drained is based on endurance (higher endurance = less drain)
   const recoveryLoss = Math.max(1, 10 - Math.floor(horse.endurance / 15));
   updatedHorse.recovery = Math.max(10, updatedHorse.recovery - recoveryLoss);
+  
+  // Check for Extreme Trainer jockey effect - increased endurance loss
+  const hasExtremeTraining = updatedHorse.attributes.some(attr => attr.name === "Extreme Training");
+  if (hasExtremeTraining) {
+    // 1.4x more endurance loss
+    const additionalEnduranceLoss = Math.floor(statDegradation * 0.4);
+    updatedHorse.endurance = Math.max(10, updatedHorse.endurance - additionalEnduranceLoss);
+    
+    // Check if it's time to reveal a new trait
+    if (updatedHorse.traitRevealRace && currentRace >= updatedHorse.traitRevealRace) {
+      // Add a new positive trait
+      const existingTraitNames = updatedHorse.attributes.map(attr => attr.name);
+      const availablePositiveTraits = HORSE_ATTRIBUTES.filter(
+        attr => attr.isPositive && !existingTraitNames.includes(attr.name)
+      );
+      
+      if (availablePositiveTraits.length > 0) {
+        const newTrait = availablePositiveTraits[Math.floor(Math.random() * availablePositiveTraits.length)];
+        updatedHorse.attributes.push(newTrait);
+        updatedHorse.revealedAttributes.push(newTrait);
+        
+        // Show toast notification for new trait (this will be shown in GameContainer)
+        toast.success(`Extreme Training paid off! Your horse gained a new trait: ${newTrait.name}`);
+      }
+      
+      // Reset the trait reveal race to 0 so it doesn't keep adding traits
+      updatedHorse.traitRevealRace = 0;
+    }
+  }
   
   // How much other stats degrade is based on recovery (higher recovery = less degradation)
   const statDegradation = Math.max(0, 8 - Math.floor(updatedHorse.recovery / 15));
@@ -633,19 +649,42 @@ const updateHorseStatsAfterRace = (horse: Horse): Horse => {
   return updatedHorse;
 };
 
+// Update horse stats after a race based on recovery and endurance
+export const updateHorsesAfterRace = (gameState: GameState): GameState => {
+  const newState = { ...gameState };
+  
+  // Update player horse
+  newState.playerHorse = updateHorseStatsAfterRace(
+    newState.playerHorse, 
+    newState.currentRace,
+    newState.totalRaces
+  );
+  
+  // Update all competitors with both natural stat changes and simulated training
+  newState.competitors = newState.competitors.map(horse => {
+    // First apply natural race effects
+    const updatedHorse = updateHorseStatsAfterRace(
+      horse,
+      newState.currentRace,
+      newState.totalRaces
+    );
+    
+    // Then apply simulated training effects to AI horses
+    return applySimulatedTraining(updatedHorse, newState.currentRace, newState.totalRaces);
+  });
+  
+  return newState;
+};
+
 // Calculate a horse's performance in a race
 export const calculateHorseRacePerformance = (
   horse: Horse,
   allHorses: Horse[],
   raceNumber: number,
   totalRaces: number
-): number => {
+): { performance: number, events: string[] } => {
   const activeHorse = { ...horse };
-  
-  let minSpeed, maxSpeed;
-  
-  const topCompetitors = [...allHorses].sort((a, b) => b.actualSpeed - a.actualSpeed).slice(0, 3);
-  const avgTopSpeed = topCompetitors.reduce((sum, h) => sum + h.actualSpeed, 0) / topCompetitors.length;
+  const events: string[] = [];
   
   // Apply attribute effects
   activeHorse.attributes.forEach(attr => {
@@ -708,9 +747,54 @@ export const calculateHorseRacePerformance = (
         activeHorse.actualSpeed -= 10;
       }
     }
+    
+    // Handle rare trait effects
+    if (attr.name === "Legendary Bloodline") {
+      activeHorse.actualSpeed += 3;
+      activeHorse.control += 2;
+      if (Math.random() > 0.7) events.push("miracle");
+    }
+    
+    if (attr.name === "Sixth Sense" && Math.random() > 0.8) {
+      activeHorse.control += 10;
+      events.push("perfect");
+    }
+    
+    if (attr.name === "Phoenix Spirit" && activeHorse.recovery < 30) {
+      activeHorse.actualSpeed += 15;
+      events.push("comeback");
+    }
+    
+    if (attr.name === "Heart of Gold" && Math.random() > 0.85) {
+      activeHorse.actualSpeed += 8;
+      activeHorse.control += 5;
+      events.push("burst");
+    }
+    
+    if (attr.name === "Soul Bond" && Math.random() > 0.7) {
+      activeHorse.control += 5;
+      events.push("perfect");
+    }
+    
+    if (attr.name === "Time Dilation" && Math.random() > 0.95) {
+      activeHorse.actualSpeed *= 1.3;
+      events.push("miracle");
+    }
+    
+    if (attr.name === "Miracle Worker" && activeHorse.hasInjury && Math.random() > 0.9) {
+      activeHorse.hasInjury = false;
+      activeHorse.injuryType = "none";
+      events.push("miracle");
+    }
+    
+    // Handle risk taker jockey effect
+    if (attr.name === "Risk Taker" && Math.random() < 0.15) {
+      activeHorse.actualSpeed += 15;
+      events.push("burst");
+    }
   });
   
-  // Apply existing injury penalties (this is the fix)
+  // Apply existing injury penalties
   if (activeHorse.hasInjury) {
     if (activeHorse.injuryType === "mild") {
       // 30% decrease in speed for mild injury
@@ -730,32 +814,52 @@ export const calculateHorseRacePerformance = (
   maxSpeed = Math.max(minSpeed + 1, maxSpeed);
   
   let performanceMultiplier = 1;
-  const injuryChance = Math.random() * 100;
   
-  const isIronHorse = activeHorse.attributes.some(attr => attr.name === "Iron Horse");
-  const isFragile = activeHorse.attributes.some(attr => attr.name === "Fragile");
-  
-  let injuryThreshold = 90;
-  
-  if (isIronHorse) injuryThreshold = 95;
-  if (isFragile) injuryThreshold = 85;
-  
-  if (injuryChance > injuryThreshold) {
-    activeHorse.hasInjury = true;
+  // Injury check - skip for uninjurable horses
+  if (!isUninjurable) {
+    const injuryChance = Math.random() * 100;
     
-    if (injuryChance > 97) {
-      activeHorse.injuryType = "major";
-      activeHorse.missNextRace = true;
-      performanceMultiplier = 0.5;
+    const isIronHorse = activeHorse.attributes.some(attr => attr.name === "Iron Horse");
+    const isFragile = activeHorse.attributes.some(attr => attr.name === "Fragile");
+    
+    let injuryThreshold = 90;
+    
+    if (isIronHorse) injuryThreshold = 95;
+    if (isFragile) injuryThreshold = 85;
+    
+    if (injuryChance > injuryThreshold) {
+      activeHorse.hasInjury = true;
+      events.push("injury");
+      
+      if (injuryChance > 97) {
+        activeHorse.injuryType = "major";
+        activeHorse.missNextRace = true;
+        performanceMultiplier = 0.5;
+      } else {
+        activeHorse.injuryType = "mild";
+        performanceMultiplier = 0.7;
+      }
+    }
+  }
+  
+  // Add random race events with low probability
+  if (events.length === 0 && Math.random() > 0.85) {
+    // Standard race events
+    const possibleEvents = ["stumble", "burst", "tired", "distracted", "perfect", "jockey", "weather", "comeback", "nervous"];
+    // Add new rare events
+    const rareEvents = ["collision", "crowd"];
+    
+    // 5% chance of rare event
+    if (Math.random() > 0.95) {
+      events.push(rareEvents[Math.floor(Math.random() * rareEvents.length)]);
     } else {
-      activeHorse.injuryType = "mild";
-      performanceMultiplier = 0.7;
+      events.push(possibleEvents[Math.floor(Math.random() * possibleEvents.length)]);
     }
   }
   
   const finalPerformance = (Math.random() * (maxSpeed - minSpeed) + minSpeed) * performanceMultiplier;
   
-  return finalPerformance;
+  return { performance: finalPerformance, events };
 };
 
 // Simulate and resolve a race
@@ -768,64 +872,12 @@ export const simulateRace = (gameState: GameState): GameState => {
   allHorses.forEach(horse => {
     if (horse.missNextRace) return;
     
-    const events: string[] = [];
-    
-    // Add race events based on horse state and attributes
-    const performance = calculateHorseRacePerformance(
+    const { performance, events } = calculateHorseRacePerformance(
       horse,
       allHorses,
       newState.currentRace,
       newState.totalRaces
     );
-    
-    // Injury check
-    const injuryChance = Math.random() * 100;
-    
-    const isIronHorse = horse.attributes.some(attr => attr.name === "Iron Horse");
-    const isFragile = horse.attributes.some(attr => attr.name === "Fragile");
-    
-    let injuryThreshold = 90;
-    
-    if (isIronHorse) injuryThreshold = 95;
-    if (isFragile) injuryThreshold = 85;
-    
-    if (injuryChance > injuryThreshold) {
-      events.push("injury");
-      
-      if (injuryChance > 97) {
-        // Major injury - horse misses next race
-        horse.hasInjury = true;
-        horse.injuryType = "major";
-        horse.missNextRace = true;
-      } else {
-        // Mild injury - horse has performance penalty
-        horse.hasInjury = true;
-        horse.injuryType = "mild";
-      }
-    }
-    
-    if (Math.random() > 0.85) {
-      // Random race events
-      const possibleEvents = ["stumble", "burst", "tired", "distracted", "perfect", "jockey", "weather", "comeback"];
-      const event = possibleEvents[Math.floor(Math.random() * possibleEvents.length)];
-      events.push(event);
-    }
-    
-    // Add events based on attributes
-    horse.attributes.forEach(attr => {
-      if (attr.name === "Nervous Runner" && Math.random() > 0.6) {
-        events.push("nervous");
-      }
-      if (attr.name === "Overachiever" && Math.random() > 0.8) {
-        events.push("burst");
-      }
-      if (attr.name === "Inconsistent") {
-        events.push(Math.random() > 0.5 ? "burst" : "tired");
-      }
-      if (attr.name === "Spotlight Shy" && events.length === 0 && Math.random() > 0.7) {
-        events.push("distracted");
-      }
-    });
     
     performances.push({ horse, performance, events });
   });
