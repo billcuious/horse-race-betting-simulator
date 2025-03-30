@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 // Types
@@ -36,6 +37,9 @@ export type Horse = {
     recovery: number;
     endurance: number;
   };
+  
+  // For jockey effects (extreme trainer)
+  traitRevealRace?: number;
 };
 
 export type RaceResult = {
@@ -587,6 +591,162 @@ export const RARE_HORSE_ATTRIBUTES: HorseAttribute[] = [
   }
 ];
 
+// Helper function to apply training to a horse
+export const applyTraining = (gameState: GameState, trainingType: "general" | "speed" | "rest" | "sync"): GameState => {
+  const newState = { ...gameState };
+  const horse = { ...newState.playerHorse };
+  
+  // Calculate cost and update player money
+  const timesUsed = newState.trainingsUsed[trainingType] || 0;
+  const cost = getTrainingCost(trainingType, timesUsed);
+  newState.playerMoney -= cost;
+  
+  // Update trainings used counter
+  newState.trainingsUsed = {
+    ...newState.trainingsUsed,
+    [trainingType]: timesUsed + 1
+  };
+  
+  // Check for training resistant trait
+  const isTrainingResistant = horse.attributes.some(attr => attr.name === "Training Resistant");
+  const effectMultiplier = isTrainingResistant ? 0.5 : 1.0;
+  
+  // Apply training effects
+  switch (trainingType) {
+    case "general":
+      horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 3 * effectMultiplier);
+      horse.control = Math.min(100, horse.control + 2 * effectMultiplier);
+      horse.recovery = Math.min(100, horse.recovery + 3 * effectMultiplier);
+      break;
+    case "speed":
+      horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 6 * effectMultiplier);
+      break;
+    case "rest":
+      horse.recovery = Math.min(100, horse.recovery + 15 * effectMultiplier);
+      horse.endurance = Math.min(100, horse.endurance + 3 * effectMultiplier);
+      break;
+    case "sync":
+      horse.control = Math.min(100, horse.control + 7 * effectMultiplier);
+      horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 1 * effectMultiplier);
+      break;
+  }
+  
+  // Update actual speed based on displayed speed and endurance
+  horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+  
+  newState.playerHorse = horse;
+  return newState;
+};
+
+// Scout a competitor's horse
+export const scoutHorse = (gameState: GameState, horseId: string, scoutType: "basic" | "deep"): GameState => {
+  const newState = { ...gameState };
+  const horseIndex = newState.competitors.findIndex(h => h.id === horseId);
+  
+  if (horseIndex === -1) return gameState;
+  
+  const horse = { ...newState.competitors[horseIndex] };
+  
+  // Calculate cost and update player money
+  const cost = SCOUTING_COSTS[scoutType];
+  newState.playerMoney -= cost;
+  
+  // Update lastUpdated to current race number
+  horse.lastUpdated = newState.currentRace;
+  
+  // Update scouted stats to actual stats
+  horse.scoutedStats = {
+    displayedSpeed: horse.displayedSpeed,
+    control: horse.control,
+    recovery: horse.recovery,
+    endurance: horse.endurance
+  };
+  
+  // For deep scouting, reveal a trait if available
+  if (scoutType === "deep" && horse.attributes.length > horse.revealedAttributes.length) {
+    const unrevealedAttributes = horse.attributes.filter(
+      attr => !horse.revealedAttributes.some(revealed => revealed.name === attr.name)
+    );
+    
+    if (unrevealedAttributes.length > 0) {
+      const attributeToReveal = unrevealedAttributes[0];
+      horse.revealedAttributes.push(attributeToReveal);
+    }
+  }
+  
+  newState.competitors[horseIndex] = horse;
+  return newState;
+};
+
+// Scout player's own horse
+export const scoutOwnHorse = (gameState: GameState): GameState => {
+  const newState = { ...gameState };
+  const horse = { ...newState.playerHorse };
+  
+  // Calculate cost and update player money
+  const cost = SCOUTING_COSTS.ownHorse;
+  newState.playerMoney -= cost;
+  
+  // If there are any unrevealed attributes, reveal one
+  if (horse.attributes.length > horse.revealedAttributes.length) {
+    const unrevealedAttributes = horse.attributes.filter(
+      attr => !horse.revealedAttributes.some(revealed => revealed.name === attr.name)
+    );
+    
+    if (unrevealedAttributes.length > 0) {
+      const attributeToReveal = unrevealedAttributes[0];
+      horse.revealedAttributes.push(attributeToReveal);
+    }
+  }
+  
+  newState.playerHorse = horse;
+  return newState;
+};
+
+// Take a loan 
+export const takeLoan = (gameState: GameState): GameState => {
+  const newState = { ...gameState };
+  const loanAmount = calculateLoanAmount(newState.playerMoney);
+  
+  newState.playerMoney += loanAmount;
+  newState.loanAmount += loanAmount;
+  
+  return newState;
+};
+
+// Apply simulated training to AI horses
+const applySimulatedTraining = (horse: Horse, currentRace: number, totalRaces: number): Horse => {
+  const updatedHorse = { ...horse };
+  
+  // AI horses get small stat improvements each race to remain competitive
+  const improvementChance = 0.7;
+  const midSeasonBoost = currentRace >= totalRaces / 2;
+  
+  if (Math.random() < improvementChance) {
+    // Random stat boost
+    const statToImprove = Math.floor(Math.random() * 4);
+    
+    switch (statToImprove) {
+      case 0: // Speed
+        updatedHorse.displayedSpeed = Math.min(100, updatedHorse.displayedSpeed + (midSeasonBoost ? 2 : 1));
+        updatedHorse.actualSpeed = updatedHorse.displayedSpeed * (0.8 + 0.2 * updatedHorse.endurance / 100);
+        break;
+      case 1: // Control
+        updatedHorse.control = Math.min(100, updatedHorse.control + (midSeasonBoost ? 3 : 1.5));
+        break;
+      case 2: // Recovery
+        updatedHorse.recovery = Math.min(100, updatedHorse.recovery + (midSeasonBoost ? 2.5 : 1.2));
+        break;
+      case 3: // Endurance
+        updatedHorse.endurance = Math.min(100, updatedHorse.endurance + (midSeasonBoost ? 2 : 1));
+        updatedHorse.actualSpeed = updatedHorse.displayedSpeed * (0.8 + 0.2 * updatedHorse.endurance / 100);
+        break;
+    }
+  }
+  
+  return updatedHorse;
+};
+
 // Helper function to update a single horse's stats after a race
 const updateHorseStatsAfterRace = (horse: Horse, currentRace: number, totalRaces: number): Horse => {
   const updatedHorse = { ...horse };
@@ -594,6 +754,9 @@ const updateHorseStatsAfterRace = (horse: Horse, currentRace: number, totalRaces
   // How much recovery gets drained is based on endurance (higher endurance = less drain)
   const recoveryLoss = Math.max(1, 10 - Math.floor(horse.endurance / 15));
   updatedHorse.recovery = Math.max(10, updatedHorse.recovery - recoveryLoss);
+  
+  // How much other stats degrade is based on recovery (higher recovery = less degradation)
+  const statDegradation = Math.max(0, 8 - Math.floor(updatedHorse.recovery / 15));
   
   // Check for Extreme Trainer jockey effect - increased endurance loss
   const hasExtremeTraining = updatedHorse.attributes.some(attr => attr.name === "Extreme Training");
@@ -623,9 +786,6 @@ const updateHorseStatsAfterRace = (horse: Horse, currentRace: number, totalRaces
       updatedHorse.traitRevealRace = 0;
     }
   }
-  
-  // How much other stats degrade is based on recovery (higher recovery = less degradation)
-  const statDegradation = Math.max(0, 8 - Math.floor(updatedHorse.recovery / 15));
   
   if (statDegradation > 0) {
     updatedHorse.displayedSpeed = Math.max(40, updatedHorse.displayedSpeed - statDegradation * 0.5);
@@ -676,6 +836,33 @@ export const updateHorsesAfterRace = (gameState: GameState): GameState => {
   return newState;
 };
 
+// Calculate betting odds for a horse
+export const calculateOdds = (horse: Horse, allHorses: Horse[]): number => {
+  // Calculate average top speed of all horses
+  const avgTopSpeed = allHorses.reduce((sum, h) => sum + h.actualSpeed, 0) / allHorses.length;
+  
+  // Horse's performance chance is based on its speed relative to the average
+  const performanceRatio = horse.actualSpeed / avgTopSpeed;
+  
+  // Base odds calculation: lower means more likely to win
+  let baseOdds = (1 / performanceRatio) * 2;
+  
+  // Adjust for control - better control reduces variance
+  baseOdds -= (horse.control / 100) * 0.5;
+  
+  // Adjust for recovery - better recovery improves consistency
+  baseOdds -= (horse.recovery / 100) * 0.3;
+  
+  // Check for crowd favorite trait
+  const isCrowdFavorite = horse.attributes.some(attr => attr.name === "Crowd Favorite");
+  if (isCrowdFavorite) {
+    baseOdds *= 0.8; // 20% better odds for crowd favorites
+  }
+  
+  // Ensure minimum odds of 1.2
+  return Math.max(1.2, Math.min(15, baseOdds));
+};
+
 // Calculate a horse's performance in a race
 export const calculateHorseRacePerformance = (
   horse: Horse,
@@ -685,6 +872,9 @@ export const calculateHorseRacePerformance = (
 ): { performance: number, events: string[] } => {
   const activeHorse = { ...horse };
   const events: string[] = [];
+  
+  // Calculate average top speed of all horses for Dark Horse trait
+  const avgTopSpeed = allHorses.reduce((sum, h) => sum + h.actualSpeed, 0) / allHorses.length;
   
   // Apply attribute effects
   activeHorse.attributes.forEach(attr => {
@@ -805,8 +995,9 @@ export const calculateHorseRacePerformance = (
     }
   }
   
-  minSpeed = activeHorse.actualSpeed - (60 - activeHorse.control / 2);
-  maxSpeed = activeHorse.actualSpeed + (activeHorse.control / 10);
+  // Calculate min and max speed based on control and recovery
+  let minSpeed = activeHorse.actualSpeed - (60 - activeHorse.control / 2);
+  let maxSpeed = activeHorse.actualSpeed + (activeHorse.control / 10);
   
   minSpeed += activeHorse.recovery / 10;
   
@@ -814,6 +1005,9 @@ export const calculateHorseRacePerformance = (
   maxSpeed = Math.max(minSpeed + 1, maxSpeed);
   
   let performanceMultiplier = 1;
+  
+  // Check for uninjurable trait
+  const isUninjurable = activeHorse.attributes.some(attr => attr.name === "Uninjurable");
   
   // Injury check - skip for uninjurable horses
   if (!isUninjurable) {
@@ -1299,3 +1493,4 @@ export const isGameOver = (gameState: GameState): boolean => {
 export const isGameWon = (gameState: GameState): boolean => {
   return gameState.playerMoney >= gameState.seasonGoal;
 };
+

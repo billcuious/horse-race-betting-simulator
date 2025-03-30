@@ -10,7 +10,7 @@ import RaceResults from "@/components/RaceResults";
 import GameEndScreen from "./GameEndScreen";
 import BetWarningDialog from "@/components/BetWarningDialog";
 import { 
-  GameState, 
+  GameState,
   Horse, 
   initializeGame,
   applyTraining,
