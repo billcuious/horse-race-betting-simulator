@@ -53,6 +53,20 @@ const traitDescriptions: Record<string, string> = {
   "Fragile": "More susceptible to injuries and fatigue.",
   "Champion Blood": "Descends from a line of winning racehorses.",
   "Underdog": "Often performs better than statistics would predict.",
+  "Dark Horse": "Tends to surprise competitors when least expected.",
+  "Strong Finisher": "Has incredible endurance in the final stretch.",
+  "Crowd Favorite": "The audience loves this horse, boosting its confidence.",
+  "Iron Horse": "Known for remarkable resilience and stamina.",
+  "Nervous Runner": "Gets anxious before and during races.",
+  "Poor Starter": "Takes longer than most to hit stride after the gate opens.",
+  "Mud Runner": "Performs better in poor weather and muddy track conditions.",
+  "Late Bloomer": "Develops strength and speed later in the season.",
+  "Adaptable": "Adjusts quickly to different racing conditions.",
+  "Overachiever": "Frequently performs beyond expectations.",
+  "Training Resistant": "Doesn't always respond well to intensive training regimens.",
+  "Inconsistent": "Performance varies unpredictably from race to race.",
+  "Temperamental": "Mood can greatly affect race performance.",
+  "Spotlight Shy": "Doesn't perform well when favored to win."
 };
 
 const HorseCard = ({

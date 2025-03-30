@@ -647,6 +647,7 @@ export const calculateHorseRacePerformance = (
   const topCompetitors = [...allHorses].sort((a, b) => b.actualSpeed - a.actualSpeed).slice(0, 3);
   const avgTopSpeed = topCompetitors.reduce((sum, h) => sum + h.actualSpeed, 0) / topCompetitors.length;
   
+  // Apply attribute effects
   activeHorse.attributes.forEach(attr => {
     if (attr.name === "Strong Finisher" && raceNumber > totalRaces / 2) {
       activeHorse.actualSpeed += 5;
@@ -709,6 +710,17 @@ export const calculateHorseRacePerformance = (
     }
   });
   
+  // Apply existing injury penalties (this is the fix)
+  if (activeHorse.hasInjury) {
+    if (activeHorse.injuryType === "mild") {
+      // 30% decrease in speed for mild injury
+      activeHorse.actualSpeed = activeHorse.actualSpeed * 0.7;
+    } else if (activeHorse.injuryType === "major") {
+      // 50% decrease in speed for major injury
+      activeHorse.actualSpeed = activeHorse.actualSpeed * 0.5;
+    }
+  }
+  
   minSpeed = activeHorse.actualSpeed - (60 - activeHorse.control / 2);
   maxSpeed = activeHorse.actualSpeed + (activeHorse.control / 10);
   
@@ -759,8 +771,37 @@ export const simulateRace = (gameState: GameState): GameState => {
     const events: string[] = [];
     
     // Add race events based on horse state and attributes
-    if (horse.injuryType === "none" && Math.random() > 0.92) {
+    const performance = calculateHorseRacePerformance(
+      horse,
+      allHorses,
+      newState.currentRace,
+      newState.totalRaces
+    );
+    
+    // Injury check
+    const injuryChance = Math.random() * 100;
+    
+    const isIronHorse = horse.attributes.some(attr => attr.name === "Iron Horse");
+    const isFragile = horse.attributes.some(attr => attr.name === "Fragile");
+    
+    let injuryThreshold = 90;
+    
+    if (isIronHorse) injuryThreshold = 95;
+    if (isFragile) injuryThreshold = 85;
+    
+    if (injuryChance > injuryThreshold) {
       events.push("injury");
+      
+      if (injuryChance > 97) {
+        // Major injury - horse misses next race
+        horse.hasInjury = true;
+        horse.injuryType = "major";
+        horse.missNextRace = true;
+      } else {
+        // Mild injury - horse has performance penalty
+        horse.hasInjury = true;
+        horse.injuryType = "mild";
+      }
     }
     
     if (Math.random() > 0.85) {
@@ -785,13 +826,6 @@ export const simulateRace = (gameState: GameState): GameState => {
         events.push("distracted");
       }
     });
-    
-    const performance = calculateHorseRacePerformance(
-      horse,
-      allHorses,
-      newState.currentRace,
-      newState.totalRaces
-    );
     
     performances.push({ horse, performance, events });
   });

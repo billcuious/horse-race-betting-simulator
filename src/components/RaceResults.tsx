@@ -13,17 +13,17 @@ interface RaceResultsProps {
 }
 
 // Define race events display
-const raceEventMessages: Record<string, string> = {
-  "injury": "Suffered an injury during the race",
-  "stumble": "Stumbled at the start",
-  "burst": "Had an incredible burst of speed",
-  "tired": "Tired quickly in the final stretch",
-  "distracted": "Got distracted during a critical moment",
-  "perfect": "Ran a perfect race",
-  "jockey": "Jockey made a tactical error",
-  "weather": "Struggled with weather conditions",
-  "comeback": "Made an impressive comeback",
-  "nervous": "Showed signs of nervousness"
+const raceEventMessages: Record<string, (position: number) => string> = {
+  "injury": () => "Suffered an injury during the race",
+  "stumble": (position) => position <= 3 ? "Recovered well from an early stumble" : "Stumbled at the start",
+  "burst": (position) => position <= 3 ? "Had an incredible burst of speed" : "Had a brief burst of speed but couldn't maintain it",
+  "tired": (position) => position >= 6 ? "Tired quickly in the final stretch" : "Showed signs of fatigue but pushed through",
+  "distracted": () => "Got distracted during a critical moment",
+  "perfect": (position) => position <= 3 ? "Ran a perfect race" : "Started perfectly but couldn't maintain pace",
+  "jockey": () => "Jockey made a tactical error",
+  "weather": () => "Struggled with weather conditions",
+  "comeback": (position) => position <= 4 ? "Made an impressive comeback" : "Attempted to comeback but fell short",
+  "nervous": () => "Showed signs of nervousness"
 };
 
 const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: RaceResultsProps) => {
@@ -87,7 +87,7 @@ const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: Ra
                         }
                         return (
                           <Badge key={idx} variant="outline" className="text-xs flex items-center gap-1">
-                            <Zap className="h-3 w-3" /> {raceEventMessages[event] || event}
+                            <Zap className="h-3 w-3" /> {raceEventMessages[event] ? raceEventMessages[event](result.position) : event}
                           </Badge>
                         );
                       })}
