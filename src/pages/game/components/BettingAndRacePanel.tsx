@@ -3,8 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import BettingPanel from "@/components/BettingPanel";
-import { Horse, RaceResult, calculateOdds } from "@/utils/gameLogic";
-import { formatCurrency } from "@/utils/formatters";
+import { Horse, RaceResult } from "@/utils/gameLogic";
 
 interface BettingAndRacePanelProps {
   selectedHorseId: string | null;
@@ -17,7 +16,6 @@ interface BettingAndRacePanelProps {
   raceResults: RaceResult[];
   playerHorseId: string;
   onViewResults: () => void;
-  betHorseId?: string | null;
 }
 
 const BettingAndRacePanel = ({
@@ -30,13 +28,8 @@ const BettingAndRacePanel = ({
   raceInProgress,
   raceResults,
   playerHorseId,
-  onViewResults,
-  betHorseId
+  onViewResults
 }: BettingAndRacePanelProps) => {
-  // Calculate and display odds for the selected horse
-  const selectedHorse = horses.find(h => h.id === selectedHorseId);
-  const odds = selectedHorse ? calculateOdds(selectedHorse, horses, currentRace) : 0;
-  
   return (
     <div className="space-y-6">
       {/* Betting Panel */}
@@ -48,7 +41,6 @@ const BettingAndRacePanel = ({
         currentRace={currentRace}
         onStartRace={onStartRace}
         betInProgress={raceInProgress}
-        odds={odds}
       />
       
       {/* Previous Race Result Summary */}
@@ -68,14 +60,11 @@ const BettingAndRacePanel = ({
                 .slice(0, 3)
                 .map((result) => {
                   const isPlayerHorse = result.horseId === playerHorseId;
-                  const isBetHorse = result.horseId === betHorseId;
                   return (
                     <div 
                       key={result.horseId}
                       className={`p-2 border rounded-md flex items-center ${
                         isPlayerHorse ? "bg-muted/40" : ""
-                      } ${
-                        isBetHorse ? "border-amber-300" : ""
                       }`}
                     >
                       <div className="w-8 text-center font-bold">
@@ -92,10 +81,7 @@ const BettingAndRacePanel = ({
                       <div className="ml-2">
                         {result.horseName}
                         {isPlayerHorse && (
-                          <span className="text-xs ml-1 text-muted-foreground">(Your Horse)</span>
-                        )}
-                        {isBetHorse && !isPlayerHorse && (
-                          <span className="text-xs ml-1 text-amber-600">(Your Bet)</span>
+                          <span className="text-xs ml-1 text-muted-foreground">(You)</span>
                         )}
                       </div>
                     </div>

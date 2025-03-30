@@ -1,301 +1,270 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Horse, HorseAttribute } from "@/utils/gameLogic";
-import { Plus, Minus, Eye, AlertTriangle } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Horse } from "@/utils/gameLogic";
+import { getVisibleHorseStats, getHorseDisplayColor } from "@/utils/horsesData";
+import { InfoIcon, AlertCircleIcon } from "lucide-react";
 
 interface HorseCardProps {
   horse: Horse;
-  isPlayerHorse?: boolean;
-  showAttributes?: boolean;
   currentRace: number;
+  isPlayerHorse?: boolean;
   onScout?: (horseId: string, type: "basic" | "deep") => void;
+  onSelect?: (horseId: string) => void;
+  isSelected?: boolean;
+  scoutCosts: {
+    basic: number;
+    deep: number;
+    ownHorse: number;
+  };
+  isDisabled?: boolean;
   playerMoney: number;
-  showControls?: boolean;
-  onSelectHorse?: (horseId: string) => void;
-  selectedHorseId?: string | null;
-  betPlaced?: boolean;
+  showScoutButton?: boolean;
 }
 
-const formatTrait = (trait: string): string => {
-  switch (trait) {
-    case "injury":
-      return "Injured";
-    case "stumble":
-      return "Stumbled";
-    case "burst":
-      return "Sudden Burst";
-    case "tired":
-      return "Tired";
-    case "distracted":
-      return "Distracted";
-    case "perfect":
-      return "Perfect Run";
-    case "jockey":
-      return "Jockey Error";
-    case "weather":
-      return "Weather Advantage";
-    case "comeback":
-      return "Comeback";
-    case "nervous":
-      return "Nervous";
-    default:
-      return trait;
-  }
+// Horse trait descriptions
+const traitDescriptions: Record<string, string> = {
+  "Fast Starter": "This horse bursts out of the gate with remarkable speed.",
+  "Endurance": "Can maintain performance over long distances without tiring.",
+  "Unpredictable": "Sometimes brilliant, sometimes disappointing - you never know what you'll get.",
+  "Sprinter": "Excels at short, explosive bursts of speed.",
+  "Consistent": "Rarely has bad races, tends to perform at a steady level.",
+  "Muddy Track Expert": "Performs exceptionally well on wet or muddy tracks.",
+  "Nervous": "Tends to get unsettled by crowds and noise.",
+  "Weather Sensitive": "Performance varies significantly based on weather conditions.",
+  "Injury Prone": "Has a history of getting injured more easily than other horses.",
+  "Late Charger": "Often comes from behind to finish strong.",
+  "Focused": "Maintains concentration throughout the race.",
+  "Easily Distracted": "Can lose focus during critical moments.",
+  "Track Memorizer": "Performs better on familiar tracks.",
+  "Recovery Expert": "Bounces back quickly after races.",
+  "Slow Starter": "Takes time to reach full speed.",
+  "Crowd Pleaser": "Performs better when there's a large audience.",
+  "Stamina": "Can maintain high performance for longer periods.",
+  "Adaptable": "Quickly adjusts to changing race conditions.",
+  "Competitive": "Performs better when racing neck-to-neck with others.",
+  "Temperature Sensitive": "Performance varies based on temperature.",
+  "Lucky": "Sometimes defies the odds in surprising ways.",
+  "Fast Finisher": "Has an impressive final sprint capability.",
+  "Tactical": "Seems to make smart positioning decisions during races.",
+  "Fragile": "More susceptible to injuries and fatigue.",
+  "Champion Blood": "Descends from a line of winning racehorses.",
+  "Underdog": "Often performs better than statistics would predict.",
 };
 
-const getEventFlavorText = (event: string, position: number): string => {
-  switch (event) {
-    case "injury":
-      return "Suffered an injury during the race";
-    case "stumble":
-      return "Stumbled at a crucial moment";
-    case "burst":
-      return position <= 3 
-        ? "Made an impressive burst of speed" 
-        : "Had a brief burst of speed but couldn't maintain it";
-    case "tired":
-      return "Showed signs of fatigue during the race";
-    case "distracted":
-      return "Got distracted by the crowd or other horses";
-    case "perfect":
-      return position <= 3
-        ? "Had a perfect, flawless run"
-        : "Started with perfect form but couldn't maintain it";
-    case "jockey":
-      return "The jockey made a questionable decision";
-    case "weather":
-      return position <= 4
-        ? "Handled the weather conditions exceptionally well"
-        : "Struggled with the weather conditions";
-    case "comeback":
-      return position <= 4
-        ? "Made an impressive comeback"
-        : "Attempted a comeback but fell short";
-    case "nervous":
-      return "Showed signs of nervousness at the starting gate";
-    default:
-      return "Experienced an unusual event during the race";
-  }
-};
-
-const getTraitFlavorText = (traitName: string): string => {
-  switch (traitName) {
-    case "Dark Horse":
-      return "This horse performs better when underestimated and thrives as an underdog.";
-    case "Strong Finisher":
-      return "Known for getting stronger as the season progresses, this horse peaks later than others.";
-    case "Crowd Favorite":
-      return "The crowd goes wild for this charismatic horse, boosting its confidence.";
-    case "Iron Horse":
-      return "Built like a tank, this horse rarely gets injured and recovers quickly.";
-    case "Nervous Runner":
-      return "This horse gets anxious before races, sometimes affecting its performance.";
-    case "Fragile":
-      return "This horse has a delicate constitution and requires careful handling.";
-    case "Poor Starter":
-      return "Takes time to reach peak form, often underperforming early in the season.";
-    case "Unpredictable":
-      return "You never know what you're going to get with this horse - brilliant one day, disappointing the next.";
-    case "Mud Runner":
-      return "Performs exceptionally well in poor track conditions where others struggle.";
-    case "Sprinter":
-      return "Excels in shorter races with quick bursts of speed rather than endurance races.";
-    case "Late Bloomer":
-      return "This horse develops its potential later than most, surprising everyone mid-season.";
-    case "Adaptable":
-      return "Quickly adapts to changing conditions and learns from each race.";
-    case "Consistent":
-      return "Rarely has bad races, maintaining reliable performance throughout the season.";
-    case "Overachiever":
-      return "Occasionally performs far beyond expectations, surprising everyone including its trainers.";
-    case "Training Resistant":
-      return "Stubbornly resists standard training methods, making improvement challenging.";
-    case "Inconsistent":
-      return "Performance varies wildly from race to race with little predictability.";
-    case "Temperamental":
-      return "Has a mind of its own and sometimes decides not to give full effort.";
-    case "Spotlight Shy":
-      return "Performs worse when all eyes are on it as the favorite.";
-    default:
-      return "A unique characteristic that affects performance in various ways.";
-  }
-};
-
-const HorseCard: React.FC<HorseCardProps> = ({
+const HorseCard = ({
   horse,
-  isPlayerHorse = false,
-  showAttributes = true,
   currentRace,
+  isPlayerHorse = false,
   onScout,
+  onSelect,
+  isSelected = false,
+  scoutCosts,
+  isDisabled = false,
   playerMoney,
-  showControls = true,
-  onSelectHorse,
-  selectedHorseId,
-  betPlaced = false
-}) => {
-  const isSelected = selectedHorseId === horse.id;
-  const isOutdated = horse.lastUpdated < currentRace - 1;
-  const statsToShow = isPlayerHorse || horse.lastUpdated > 0 ? horse.scoutedStats : { 
-    displayedSpeed: "??", 
-    control: "??", 
-    recovery: "??", 
-    endurance: "??" 
-  };
+  showScoutButton = true
+}: HorseCardProps) => {
+  const stats = getVisibleHorseStats(horse, currentRace, isPlayerHorse);
+  const speedColor = getHorseDisplayColor(stats.displayedSpeed);
   
-  const handleSelectHorse = () => {
-    if (onSelectHorse && !betPlaced) {
-      onSelectHorse(horse.id);
-    }
-  };
+  const canAffordBasicScout = playerMoney >= scoutCosts.basic;
+  const canAffordDeepScout = playerMoney >= scoutCosts.deep;
+  const canAffordOwnHorseScout = playerMoney >= scoutCosts.ownHorse;
   
-  const renderTraitBadge = (trait: HorseAttribute) => (
-    <TooltipProvider key={trait.name}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Badge
-            className={`mr-1 mb-1 cursor-help ${
-              trait.isPositive 
-                ? "bg-green-100 text-green-800 hover:bg-green-200" 
-                : "bg-red-100 text-red-800 hover:bg-red-200"
-            }`}
-            variant="outline"
-          >
-            {trait.name}
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent className="max-w-xs p-4">
-          <p>{getTraitFlavorText(trait.name)}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
+  // Determine if stats are outdated
+  const statsAreOutdated = !isPlayerHorse && stats.lastUpdated < currentRace && stats.lastUpdated > 0;
   
   return (
-    <Card 
-      className={`horse-card transition-all duration-200 ${
-        isSelected ? "ring-2 ring-primary" : ""
-      } ${
-        horse.hasInjury ? "bg-red-50" : ""
-      } ${
-        betPlaced ? "cursor-not-allowed opacity-70" : "cursor-pointer hover:shadow-md"
-      }`}
-      onClick={handleSelectHorse}
-    >
+    <Card className={`w-full transition-all ${isSelected ? 'border-racing-gold border-2' : ''} ${isDisabled ? 'opacity-50' : ''}`}>
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="flex items-center">
-              {horse.name}
-              {isPlayerHorse && <Badge className="ml-2 bg-blue-600">Your Horse</Badge>}
-            </CardTitle>
-            <CardDescription>
-              {isOutdated && !isPlayerHorse && (
-                <div className="flex items-center text-amber-600 mt-1">
-                  <AlertTriangle className="w-3 h-3 mr-1" />
-                  Outdated Info
-                </div>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-lg">{stats.name}</CardTitle>
+          {stats.lastUpdated > 0 && !isPlayerHorse && (
+            <Badge variant="outline" className={`text-xs ${statsAreOutdated ? 'text-yellow-600' : ''}`}>
+              {statsAreOutdated ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center">
+                        <AlertCircleIcon className="h-3 w-3 mr-1 text-yellow-600" />
+                        Last Scouted: Race {stats.lastUpdated}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">Stats may be outdated</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <>Last Scouted: Race {stats.lastUpdated}</>
               )}
-            </CardDescription>
-          </div>
-          
-          {horse.hasInjury && (
-            <Badge variant="outline" className="bg-red-100 text-red-800">
-              {horse.injuryType === "mild" ? "Injured" : "Severely Injured"}
             </Badge>
           )}
         </div>
+        {horse.hasInjury && (
+          <Badge variant="destructive" className="self-start">
+            {horse.injuryType === "mild" ? "Mild Injury" : "Major Injury"}
+          </Badge>
+        )}
       </CardHeader>
       
-      <CardContent>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Speed</span>
-              <span>{typeof statsToShow.displayedSpeed === "number" ? statsToShow.displayedSpeed : statsToShow.displayedSpeed}</span>
+      <CardContent className="pb-2">
+        <div className="space-y-3">
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium">Speed</span>
+              <span className="text-sm">{stats.displayedSpeed}</span>
             </div>
-            <Progress value={typeof statsToShow.displayedSpeed === "number" ? statsToShow.displayedSpeed : 0} className="h-2" />
-            
-            <div className="flex justify-between text-sm">
-              <span>Control</span>
-              <span>{typeof statsToShow.control === "number" ? statsToShow.control : statsToShow.control}</span>
+            <div className="stat-bar">
+              <div 
+                className={`stat-bar-fill stat-bar-fill-speed`} 
+                style={{ width: `${stats.displayedSpeed}%` }}
+              />
             </div>
-            <Progress value={typeof statsToShow.control === "number" ? statsToShow.control : 0} className="h-2" />
-            
-            <div className="flex justify-between text-sm">
-              <span>Recovery</span>
-              <span>{typeof statsToShow.recovery === "number" ? statsToShow.recovery : statsToShow.recovery}</span>
-            </div>
-            <Progress value={typeof statsToShow.recovery === "number" ? statsToShow.recovery : 0} className="h-2" />
-            
-            <div className="flex justify-between text-sm">
-              <span>Endurance</span>
-              <span>{typeof statsToShow.endurance === "number" ? statsToShow.endurance : statsToShow.endurance}</span>
-            </div>
-            <Progress value={typeof statsToShow.endurance === "number" ? statsToShow.endurance : 0} className="h-2" />
           </div>
           
-          {showAttributes && (
-            <>
-              <Separator />
-              <div>
-                <h4 className="text-sm font-medium mb-2">Traits</h4>
-                <div className="flex flex-wrap">
-                  {isPlayerHorse ? (
-                    horse.revealedAttributes.length > 0 ? (
-                      horse.revealedAttributes.map(trait => renderTraitBadge(trait))
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No traits discovered yet. Scout your horse to reveal traits.</p>
-                    )
-                  ) : (
-                    horse.revealedAttributes.length > 0 ? (
-                      horse.revealedAttributes.map(trait => renderTraitBadge(trait))
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No traits discovered yet. Scout this horse to reveal traits.</p>
-                    )
-                  )}
-                </div>
-              </div>
-            </>
-          )}
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium">Control</span>
+              <span className="text-sm">{stats.control}</span>
+            </div>
+            <div className="stat-bar">
+              <div 
+                className="stat-bar-fill stat-bar-fill-control" 
+                style={{ width: `${stats.control}%` }}
+              />
+            </div>
+          </div>
+          
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium">Recovery</span>
+              <span className="text-sm">{stats.recovery}</span>
+            </div>
+            <div className="stat-bar">
+              <div 
+                className="stat-bar-fill stat-bar-fill-recovery" 
+                style={{ width: `${stats.recovery}%` }}
+              />
+            </div>
+          </div>
+          
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium">Endurance</span>
+              <span className="text-sm">{stats.endurance}</span>
+            </div>
+            <div className="stat-bar">
+              <div 
+                className="stat-bar-fill stat-bar-fill-endurance" 
+                style={{ width: `${stats.endurance}%` }}
+              />
+            </div>
+          </div>
         </div>
+        
+        {statsAreOutdated && !isPlayerHorse && (
+          <div className="mt-3 text-xs text-yellow-600 flex items-center">
+            <AlertCircleIcon className="h-3 w-3 mr-1" />
+            Stats may have changed since last scouted
+          </div>
+        )}
+        
+        {stats.revealedAttributes.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium mb-2">Traits</h4>
+            <div className="flex flex-wrap gap-1">
+              {stats.revealedAttributes.map((trait) => (
+                <Popover key={trait}>
+                  <PopoverTrigger asChild>
+                    <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80">{trait}</Badge>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-60 p-4">
+                    <p className="text-sm">{traitDescriptions[trait] || `${trait} affects this horse's performance.`}</p>
+                  </PopoverContent>
+                </Popover>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {stats.hasMoreAttributes && (
+          <div className="mt-2 text-xs text-muted-foreground flex items-center">
+            <InfoIcon className="h-3 w-3 mr-1" />
+            More traits to discover
+          </div>
+        )}
       </CardContent>
       
-      {showControls && !isPlayerHorse && onScout && (
-        <CardFooter className="flex flex-col space-y-2">
-          <div className="flex space-x-2 w-full">
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                onScout(horse.id, "basic");
-              }}
-              disabled={playerMoney < 300}
-            >
-              <Eye className="w-4 h-4 mr-1" /> Basic Scout ($300)
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                onScout(horse.id, "deep");
-              }}
-              disabled={playerMoney < 700}
-            >
-              <Plus className="w-4 h-4 mr-1" /> Deep Scout ($700)
-            </Button>
+      <CardFooter className="flex flex-col gap-2">
+        {isPlayerHorse ? (
+          <div className="flex w-full gap-2">
+            {showScoutButton && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full" 
+                onClick={() => onScout && onScout(horse.id, "deep")}
+                disabled={isDisabled || !canAffordOwnHorseScout || !stats.hasMoreAttributes}
+              >
+                Scout Own Horse (${scoutCosts.ownHorse})
+              </Button>
+            )}
+            
+            {onSelect && (
+              <Button 
+                variant={isSelected ? "default" : "secondary"} 
+                size="sm" 
+                className="w-full" 
+                onClick={() => onSelect(horse.id)}
+                disabled={isDisabled || horse.missNextRace}
+              >
+                {isSelected ? "Selected" : "Select for Bet"}
+              </Button>
+            )}
           </div>
-        </CardFooter>
-      )}
+        ) : (
+          <>
+            {showScoutButton && (
+              <div className="flex gap-2 w-full">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 h-8 text-xs"
+                  onClick={() => onScout(horse.id, "basic")}
+                  disabled={isDisabled || playerMoney < scoutCosts.basic}
+                >
+                  Scout (${scoutCosts.basic})
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-8 text-xs"
+                  onClick={() => onScout(horse.id, "deep")}
+                  disabled={isDisabled || playerMoney < scoutCosts.deep}
+                >
+                  Deep Scout (${scoutCosts.deep})
+                </Button>
+              </div>
+            )}
+            
+            {onSelect && (
+              <Button 
+                variant={isSelected ? "default" : "secondary"} 
+                size="sm" 
+                className="w-full" 
+                onClick={() => onSelect(horse.id)}
+                disabled={isDisabled || horse.missNextRace}
+              >
+                {isSelected ? "Selected" : "Select for Bet"}
+              </Button>
+            )}
+          </>
+        )}
+      </CardFooter>
     </Card>
   );
 };

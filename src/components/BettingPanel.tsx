@@ -1,11 +1,12 @@
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
+import { MinusIcon, PlusIcon } from "lucide-react";
 import { Horse } from "@/utils/gameLogic";
-import { formatCurrency } from "@/utils/formatters";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { getVisibleHorseStats } from "@/utils/horsesData";
 
 interface BettingPanelProps {
   selectedHorseId: string | null;
@@ -15,7 +16,6 @@ interface BettingPanelProps {
   currentRace: number;
   onStartRace: () => void;
   betInProgress: boolean;
-  odds?: number;
 }
 
 const BettingPanel = ({
@@ -25,161 +25,150 @@ const BettingPanel = ({
   playerMoney,
   currentRace,
   onStartRace,
-  betInProgress,
-  odds = 2.0
+  betInProgress
 }: BettingPanelProps) => {
   const [betAmount, setBetAmount] = useState(100);
-  const [potentialWinnings, setPotentialWinnings] = useState(0);
-  
-  // Get selected horse name
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
-  const horseName = selectedHorse?.name || "No horse selected";
   
-  // Update potential winnings when bet amount or odds change
-  useEffect(() => {
-    if (selectedHorseId) {
-      setPotentialWinnings(Math.floor(betAmount * odds));
-    } else {
-      setPotentialWinnings(0);
-    }
-  }, [betAmount, selectedHorseId, odds]);
-  
-  // Handle bet amount change from slider
-  const handleSliderChange = (value: number[]) => {
-    setBetAmount(value[0]);
-  };
-  
-  // Handle bet amount change from input
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value) && value >= 0 && value <= playerMoney) {
-      setBetAmount(value);
+  const increaseBet = (amount: number) => {
+    if (betAmount + amount <= playerMoney) {
+      setBetAmount(prev => prev + amount);
     }
   };
   
-  // Handle quick bet options
-  const handleQuickBet = (percentage: number) => {
-    const amount = Math.floor(playerMoney * (percentage / 100));
-    setBetAmount(amount);
+  const decreaseBet = (amount: number) => {
+    if (betAmount - amount >= 100) {
+      setBetAmount(prev => prev - amount);
+    }
+  };
+  
+  const handleManualInput = (value: string) => {
+    const numValue = parseInt(value);
+    if (!isNaN(numValue)) {
+      if (numValue < 100) {
+        setBetAmount(100);
+      } else if (numValue > playerMoney) {
+        setBetAmount(playerMoney);
+      } else {
+        setBetAmount(numValue);
+      }
+    }
   };
   
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle className="flex justify-between items-center">
-          <span>Place Your Bet</span>
-          <span className="text-sm font-normal">Race {currentRace}</span>
-        </CardTitle>
+        <CardTitle className="text-lg">Place Your Bet</CardTitle>
+        <CardDescription>Race {currentRace} - Select a horse and bet amount</CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-4">
-        <div className="p-3 border rounded-md">
-          <p className="text-sm mb-1 font-medium">Selected Horse:</p>
-          <div className="flex justify-between items-center">
-            <p className={`text-lg ${!selectedHorseId ? "text-muted-foreground" : ""}`}>
-              {horseName}
-            </p>
-            {selectedHorseId && odds > 0 && (
-              <span className="text-sm bg-amber-100 text-amber-800 px-2 py-1 rounded-full font-medium">
-                {odds.toFixed(1)}x odds
-              </span>
-            )}
-          </div>
+        <div>
+          <h3 className="font-medium mb-2">Selected Horse</h3>
+          {selectedHorse ? (
+            <div className="p-3 border rounded-md">
+              <p className="font-medium">{selectedHorse.name}</p>
+              <div className="flex gap-2 mt-1 text-sm">
+                <span>Speed: {getVisibleHorseStats(selectedHorse, currentRace).displayedSpeed}</span>
+                <span>•</span>
+                <span>Control: {getVisibleHorseStats(selectedHorse, currentRace).control}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="p-3 border rounded-md text-muted-foreground">
+              No horse selected
+            </div>
+          )}
         </div>
         
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">Bet Amount: ${betAmount}</span>
-            <span className="text-sm text-muted-foreground">Balance: ${playerMoney}</span>
-          </div>
-          
-          <div className="flex gap-2 mb-4">
-            <Button 
-              variant="outline" 
-              className="text-xs h-7 px-1.5 flex-1" 
-              onClick={() => handleQuickBet(5)}
-              disabled={!selectedHorseId || betInProgress}
-            >
-              5%
-            </Button>
-            <Button 
-              variant="outline" 
-              className="text-xs h-7 px-1.5 flex-1" 
-              onClick={() => handleQuickBet(10)}
-              disabled={!selectedHorseId || betInProgress}
-            >
-              10%
-            </Button>
-            <Button 
-              variant="outline" 
-              className="text-xs h-7 px-1.5 flex-1" 
-              onClick={() => handleQuickBet(25)}
-              disabled={!selectedHorseId || betInProgress}
-            >
-              25%
-            </Button>
-            <Button 
-              variant="outline" 
-              className="text-xs h-7 px-1.5 flex-1" 
-              onClick={() => handleQuickBet(50)}
-              disabled={!selectedHorseId || betInProgress}
-            >
-              50%
-            </Button>
-            <Button 
-              variant="outline" 
-              className="text-xs h-7 px-1.5 flex-1" 
-              onClick={() => handleQuickBet(100)}
-              disabled={!selectedHorseId || betInProgress}
-            >
-              All
-            </Button>
-          </div>
-          
-          <div className="mb-4">
-            <Slider
-              value={[betAmount]}
-              min={0}
-              max={playerMoney}
-              step={10}
-              onValueChange={handleSliderChange}
-              disabled={!selectedHorseId || betInProgress}
-            />
-          </div>
-          
+          <h3 className="font-medium mb-2">Bet Amount: ${betAmount}</h3>
           <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={() => decreaseBet(100)}
+              disabled={betAmount <= 100 || betInProgress}
+            >
+              <MinusIcon className="h-4 w-4" />
+            </Button>
+            
             <Input
               type="number"
+              min={100}
+              max={playerMoney}
               value={betAmount}
-              onChange={handleInputChange}
-              className="w-24"
-              disabled={!selectedHorseId || betInProgress}
+              onChange={(e) => handleManualInput(e.target.value)}
+              disabled={betInProgress}
+              className="text-center"
             />
+            
             <Button 
-              onClick={() => onPlaceBet(selectedHorseId!, betAmount)} 
-              disabled={!selectedHorseId || betAmount <= 0 || betInProgress}
-              variant="secondary"
-              className="flex-1"
+              variant="outline" 
+              size="icon" 
+              onClick={() => increaseBet(100)}
+              disabled={betAmount + 100 > playerMoney || betInProgress}
             >
-              Place Bet
+              <PlusIcon className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <Button 
+              variant="outline" 
+              onClick={() => increaseBet(1000)}
+              disabled={betAmount + 1000 > playerMoney || betInProgress}
+            >
+              +$1,000
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => decreaseBet(1000)}
+              disabled={betAmount - 1000 < 100 || betInProgress}
+            >
+              -$1,000
             </Button>
           </div>
         </div>
-        
-        {selectedHorseId && (
-          <div className="text-sm text-center mt-2">
-            Potential Winnings: <span className="font-bold text-green-600">${potentialWinnings}</span>
-          </div>
-        )}
       </CardContent>
       
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-2">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button 
+              className="w-full" 
+              disabled={!selectedHorseId || betInProgress}
+            >
+              Place Bet
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Bet</AlertDialogTitle>
+              <AlertDialogDescription>
+                {selectedHorse 
+                  ? `Bet $${betAmount} on ${selectedHorse.name}?` 
+                  : "Please select a horse first"}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => selectedHorseId && onPlaceBet(selectedHorseId, betAmount)}
+              >
+                Confirm Bet
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        
         <Button 
+          variant="default" 
           className="w-full" 
           onClick={onStartRace}
           disabled={betInProgress}
         >
-          {betInProgress ? "Race in Progress..." : "Start Race"}
+          Start Race
         </Button>
       </CardFooter>
     </Card>

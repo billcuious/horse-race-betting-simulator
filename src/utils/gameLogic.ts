@@ -36,9 +36,6 @@ export type Horse = {
     recovery: number;
     endurance: number;
   };
-  
-  // Racing history for odds calculation
-  raceHistory: Array<{position: number, raceNumber: number}>;
 };
 
 export type RaceResult = {
@@ -46,7 +43,7 @@ export type RaceResult = {
   horseName: string;
   finalSpeed: number;
   position: number;
-  raceEvents?: string[]; // Race events that occurred
+  raceEvents?: string[]; // Add this new property
 };
 
 export type GameState = {
@@ -371,10 +368,7 @@ export const generateRandomHorse = (isPlayerHorse: boolean = false): Horse => {
       control: control,
       recovery: recovery,
       endurance: endurance
-    },
-    
-    // Initialize race history
-    raceHistory: []
+    }
   };
 };
 
@@ -538,64 +532,49 @@ export const takeLoan = (gameState: GameState): GameState => {
   return newState;
 };
 
-// Calculate betting odds for a horse based on past performance
-export const calculateOdds = (horse: Horse, allHorses: Horse[], currentRace: number): number => {
-  let baseOdds = 2.0;
+// Calculate betting odds for a horse
+export const calculateOdds = (horse: Horse, allHorses: Horse[]): number => {
+  const averageSpeed = allHorses.reduce((sum, h) => sum + h.displayedSpeed, 0) / allHorses.length;
   
-  if (horse.raceHistory.length > 0) {
-    const recentHistory = horse.raceHistory
-      .filter(r => r.raceNumber < currentRace)
-      .sort((a, b) => b.raceNumber - a.raceNumber)
-      .slice(0, 3);
-    
-    if (recentHistory.length > 0) {
-      const avgPosition = recentHistory.reduce((sum, r) => sum + r.position, 0) / recentHistory.length;
-      
-      baseOdds = 1.5 + (avgPosition / 2.5);
-      
-      if (recentHistory[0].position <= 3) {
-        baseOdds *= 0.85;
-      } else if (recentHistory[0].position >= 7) {
-        baseOdds *= 1.2;
-      }
-    }
-  } else {
-    baseOdds = 3.0;
-  }
-  
-  const randomFactor = 0.9 + (Math.random() * 0.2);
-  baseOdds *= randomFactor;
+  const oddsMultiplier = 1 + Math.pow(averageSpeed / horse.displayedSpeed, 3);
   
   const isCrowdFavorite = horse.revealedAttributes.some(attr => attr.name === "Crowd Favorite");
   
-  return isCrowdFavorite ? baseOdds * 0.8 : baseOdds;
+  return isCrowdFavorite ? oddsMultiplier * 1.2 : oddsMultiplier;
 };
 
 // Apply simulated training to AI horses
 const applySimulatedTraining = (horse: Horse, raceNumber: number, totalRaces: number): Horse => {
   const updatedHorse = { ...horse };
   
+  // Chance of AI horses receiving training increases as season progresses
   const trainingChance = Math.min(0.7, 0.3 + (raceNumber / totalRaces) * 0.4);
   
   if (Math.random() < trainingChance) {
+    // Determine which type of training the AI horse receives
     const trainingType = Math.random();
     
     if (trainingType < 0.4) {
+      // General training - balanced improvement
       updatedHorse.displayedSpeed = Math.min(100, updatedHorse.displayedSpeed + 2);
       updatedHorse.control = Math.min(100, updatedHorse.control + 1.5);
       updatedHorse.endurance = Math.min(100, updatedHorse.endurance + 1.5);
       updatedHorse.recovery = Math.max(10, updatedHorse.recovery - 3);
     } else if (trainingType < 0.7) {
+      // Speed training - focus on speed
       updatedHorse.displayedSpeed = Math.min(100, updatedHorse.displayedSpeed + 4);
       updatedHorse.recovery = Math.max(10, updatedHorse.recovery - 8);
       updatedHorse.control = Math.max(10, updatedHorse.control - 1);
     } else if (trainingType < 0.9) {
+      // Recovery training
       updatedHorse.recovery = Math.min(100, updatedHorse.recovery + 10);
     } else {
+      // Control training
       updatedHorse.control = Math.min(100, updatedHorse.control + 5);
       updatedHorse.displayedSpeed = Math.min(100, updatedHorse.displayedSpeed + 1);
     }
     
+    // Update actual speed based on endurance
     updatedHorse.actualSpeed = updatedHorse.displayedSpeed * (0.8 + 0.2 * updatedHorse.endurance / 100);
   }
   
@@ -606,11 +585,15 @@ const applySimulatedTraining = (horse: Horse, raceNumber: number, totalRaces: nu
 export const updateHorsesAfterRace = (gameState: GameState): GameState => {
   const newState = { ...gameState };
   
+  // Update player horse
   newState.playerHorse = updateHorseStatsAfterRace(newState.playerHorse);
   
+  // Update all competitors with both natural stat changes and simulated training
   newState.competitors = newState.competitors.map(horse => {
+    // First apply natural race effects
     const updatedHorse = updateHorseStatsAfterRace(horse);
     
+    // Then apply simulated training effects to AI horses
     return applySimulatedTraining(updatedHorse, newState.currentRace, newState.totalRaces);
   });
   
@@ -621,9 +604,11 @@ export const updateHorsesAfterRace = (gameState: GameState): GameState => {
 const updateHorseStatsAfterRace = (horse: Horse): Horse => {
   const updatedHorse = { ...horse };
   
+  // How much recovery gets drained is based on endurance (higher endurance = less drain)
   const recoveryLoss = Math.max(1, 10 - Math.floor(horse.endurance / 15));
   updatedHorse.recovery = Math.max(10, updatedHorse.recovery - recoveryLoss);
   
+  // How much other stats degrade is based on recovery (higher recovery = less degradation)
   const statDegradation = Math.max(0, 8 - Math.floor(updatedHorse.recovery / 15));
   
   if (statDegradation > 0) {
@@ -634,6 +619,7 @@ const updateHorseStatsAfterRace = (horse: Horse): Horse => {
     updatedHorse.actualSpeed = updatedHorse.displayedSpeed * (0.8 + 0.2 * updatedHorse.endurance / 100);
   }
   
+  // Handle injury recovery
   if (updatedHorse.hasInjury && updatedHorse.injuryType === "mild") {
     updatedHorse.hasInjury = false;
     updatedHorse.injuryType = "none";
@@ -653,7 +639,7 @@ export const calculateHorseRacePerformance = (
   allHorses: Horse[],
   raceNumber: number,
   totalRaces: number
-): { performance: number, injured: boolean, injuryType: "none" | "mild" | "major" } => {
+): number => {
   const activeHorse = { ...horse };
   
   let minSpeed, maxSpeed;
@@ -714,6 +700,7 @@ export const calculateHorseRacePerformance = (
     }
     
     if (attr.name === "Spotlight Shy") {
+      // If horse is in top 3 by displayed speed, reduce performance
       const position = [...allHorses].sort((a, b) => b.displayedSpeed - a.displayedSpeed)
         .findIndex(h => h.id === activeHorse.id);
       if (position < 3) {
@@ -731,9 +718,6 @@ export const calculateHorseRacePerformance = (
   maxSpeed = Math.max(minSpeed + 1, maxSpeed);
   
   let performanceMultiplier = 1;
-  let injured = false;
-  let injuryType: "none" | "mild" | "major" = "none";
-  
   const injuryChance = Math.random() * 100;
   
   const isIronHorse = activeHorse.attributes.some(attr => attr.name === "Iron Horse");
@@ -745,20 +729,21 @@ export const calculateHorseRacePerformance = (
   if (isFragile) injuryThreshold = 85;
   
   if (injuryChance > injuryThreshold) {
-    injured = true;
+    activeHorse.hasInjury = true;
     
     if (injuryChance > 97) {
-      injuryType = "major";
+      activeHorse.injuryType = "major";
+      activeHorse.missNextRace = true;
       performanceMultiplier = 0.5;
     } else {
-      injuryType = "mild";
+      activeHorse.injuryType = "mild";
       performanceMultiplier = 0.7;
     }
   }
   
   const finalPerformance = (Math.random() * (maxSpeed - minSpeed) + minSpeed) * performanceMultiplier;
   
-  return { performance: finalPerformance, injured, injuryType };
+  return finalPerformance;
 };
 
 // Simulate and resolve a race
@@ -773,32 +758,19 @@ export const simulateRace = (gameState: GameState): GameState => {
     
     const events: string[] = [];
     
-    const { performance, injured, injuryType } = calculateHorseRacePerformance(
-      horse,
-      allHorses,
-      newState.currentRace,
-      newState.totalRaces
-    );
-    
-    if (injured) {
+    // Add race events based on horse state and attributes
+    if (horse.injuryType === "none" && Math.random() > 0.92) {
       events.push("injury");
-      
-      if (injuryType === "mild") {
-        horse.hasInjury = true;
-        horse.injuryType = "mild";
-      } else if (injuryType === "major") {
-        horse.hasInjury = true;
-        horse.injuryType = "major";
-        horse.missNextRace = true;
-      }
     }
     
     if (Math.random() > 0.85) {
-      const possibleEvents = ["stumble", "burst", "tired", "distracted", "perfect", "jockey", "weather", "comeback", "nervous"];
+      // Random race events
+      const possibleEvents = ["stumble", "burst", "tired", "distracted", "perfect", "jockey", "weather", "comeback"];
       const event = possibleEvents[Math.floor(Math.random() * possibleEvents.length)];
       events.push(event);
     }
     
+    // Add events based on attributes
     horse.attributes.forEach(attr => {
       if (attr.name === "Nervous Runner" && Math.random() > 0.6) {
         events.push("nervous");
@@ -813,6 +785,13 @@ export const simulateRace = (gameState: GameState): GameState => {
         events.push("distracted");
       }
     });
+    
+    const performance = calculateHorseRacePerformance(
+      horse,
+      allHorses,
+      newState.currentRace,
+      newState.totalRaces
+    );
     
     performances.push({ horse, performance, events });
   });
@@ -832,27 +811,17 @@ export const simulateRace = (gameState: GameState): GameState => {
     raceEvents: perf.events.length > 0 ? perf.events : undefined
   }));
   
-  performances.forEach((perf, index) => {
-    const horse = allHorses.find(h => h.id === perf.horse.id);
-    if (horse) {
-      horse.raceHistory.push({
-        position: index + 1,
-        raceNumber: newState.currentRace
-      });
-    }
-  });
-  
   if (newState.lastBet && newState.lastBet.amount > 0) {
     const betHorse = allHorses.find(h => h.id === newState.lastBet?.horseId);
     const betHorseResult = results.find(r => r.horseId === newState.lastBet?.horseId);
     
     if (betHorse && betHorseResult) {
-      const odds = calculateOdds(betHorse, allHorses, newState.currentRace);
+      const odds = calculateOdds(betHorse, allHorses);
       
       if (betHorseResult.position === 1) {
         const winnings = Math.floor(newState.lastBet.amount * odds);
         newState.playerMoney += winnings;
-        toast.success(`Your bet on ${betHorse.name} won! You earned $${winnings} (${odds.toFixed(1)}x odds)`);
+        toast.success(`Your bet on ${betHorse.name} won! You earned $${winnings}`);
       } else if (betHorseResult.position === 2) {
         const consolation = Math.floor(newState.lastBet.amount * 0.5);
         newState.playerMoney += consolation;
@@ -888,6 +857,17 @@ export const simulateRace = (gameState: GameState): GameState => {
       }
     }
   }
+  
+  allHorses.forEach(horse => {
+    const horseResult = results.find(r => r.horseId === horse.id);
+    
+    if (!horseResult) return;
+    
+    if (horse.injuryType !== "major") {
+      horse.injuryType = "none";
+      horse.hasInjury = false;
+    }
+  });
   
   newState.raceResults = results;
   

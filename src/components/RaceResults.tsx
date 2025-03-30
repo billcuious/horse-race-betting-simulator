@@ -26,34 +26,6 @@ const raceEventMessages: Record<string, string> = {
   "nervous": "Showed signs of nervousness"
 };
 
-// Function to determine if an event makes sense for a position
-const isEventValidForPosition = (event: string, position: number): boolean => {
-  switch (event) {
-    case "perfect":
-      return position <= 3; // Perfect race only makes sense for top 3
-    case "comeback":
-      return position <= 5; // Comeback only makes sense for top 5
-    case "burst":
-      return position <= 4; // Burst of speed only makes sense for top 4
-    case "injury":
-      return position > 3; // Injuries should result in worse positions
-    case "stumble":
-      return position > 3; // Stumbles should result in worse positions
-    case "tired":
-      return position > 2; // Tired horses shouldn't be in top 2
-    case "distracted":
-      return position > 2; // Distracted horses shouldn't be in top 2
-    case "jockey":
-      return position > 3; // Jockey errors shouldn't result in top 3
-    case "weather":
-      return true; // Weather can affect any position
-    case "nervous":
-      return position > 2; // Nervous horses shouldn't be in top 2
-    default:
-      return true;
-  }
-};
-
 const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: RaceResultsProps) => {
   // Sort results by position (should already be sorted, but just in case)
   const sortedResults = [...results].sort((a, b) => a.position - b.position);
@@ -105,22 +77,20 @@ const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: Ra
                   {/* Display race events */}
                   {result.raceEvents && result.raceEvents.length > 0 && (
                     <div className="mt-1 flex flex-wrap gap-1">
-                      {result.raceEvents
-                        .filter(event => isEventValidForPosition(event, result.position))
-                        .map((event, idx) => {
-                          if (event === "injury") {
-                            return (
-                              <Badge key={idx} variant="destructive" className="text-xs flex items-center gap-1">
-                                <AlertCircle className="h-3 w-3" /> Injured
-                              </Badge>
-                            );
-                          }
+                      {result.raceEvents.map((event, idx) => {
+                        if (event === "injury") {
                           return (
-                            <Badge key={idx} variant="outline" className="text-xs flex items-center gap-1">
-                              <Zap className="h-3 w-3" /> {raceEventMessages[event] || event}
+                            <Badge key={idx} variant="destructive" className="text-xs flex items-center gap-1">
+                              <AlertCircle className="h-3 w-3" /> Injured
                             </Badge>
                           );
-                        })}
+                        }
+                        return (
+                          <Badge key={idx} variant="outline" className="text-xs flex items-center gap-1">
+                            <Zap className="h-3 w-3" /> {raceEventMessages[event] || event}
+                          </Badge>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
