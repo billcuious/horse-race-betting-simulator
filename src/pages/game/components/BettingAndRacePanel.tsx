@@ -18,7 +18,6 @@ interface BettingAndRacePanelProps {
   playerHorseId: string;
   onViewResults: () => void;
   betHorseId?: string | null;
-  betPlaced?: boolean;
 }
 
 const BettingAndRacePanel = ({
@@ -32,8 +31,7 @@ const BettingAndRacePanel = ({
   raceResults,
   playerHorseId,
   onViewResults,
-  betHorseId,
-  betPlaced = false
+  betHorseId
 }: BettingAndRacePanelProps) => {
   // Calculate and display odds for the selected horse
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
@@ -51,7 +49,6 @@ const BettingAndRacePanel = ({
         onStartRace={onStartRace}
         betInProgress={raceInProgress}
         odds={odds}
-        betPlaced={betPlaced}
       />
       
       {/* Previous Race Result Summary */}
