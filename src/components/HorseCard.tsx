@@ -1,9 +1,9 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Horse } from "@/utils/gameLogic";
 import { getVisibleHorseStats, getHorseDisplayColor } from "@/utils/horsesData";
 import { InfoIcon, AlertCircleIcon } from "lucide-react";
@@ -201,18 +201,16 @@ const HorseCard = ({
             <h4 className="text-sm font-medium mb-2">Traits</h4>
             <div className="flex flex-wrap gap-1">
               {stats.revealedAttributes.map((trait) => (
-                <TooltipProvider key={trait}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Badge variant="secondary" className="text-xs cursor-help hover:bg-secondary/80">
-                        {trait}
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent className="w-72 p-4">
-                      <p className="text-sm">{traitDescriptions[trait] || `${trait} affects this horse's performance.`}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Popover key={trait}>
+                  <PopoverTrigger asChild>
+                    <Badge variant="secondary" className="text-xs cursor-help hover:bg-secondary/80">
+                      {trait}
+                    </Badge>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 p-4">
+                    <p className="text-sm">{traitDescriptions[trait] || `${trait} affects this horse's performance.`}</p>
+                  </PopoverContent>
+                </Popover>
               ))}
             </div>
           </div>
