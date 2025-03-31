@@ -25,7 +25,6 @@ interface HorseCardProps {
   showScoutButton?: boolean;
 }
 
-// Horse trait descriptions
 const traitDescriptions: Record<string, string> = {
   "Fast Starter": "This horse bursts out of the gate with remarkable speed.",
   "Endurance": "Can maintain performance over long distances without tiring.",
@@ -97,7 +96,6 @@ const HorseCard = ({
   const canAffordDeepScout = playerMoney >= scoutCosts.deep;
   const canAffordOwnHorseScout = playerMoney >= scoutCosts.ownHorse;
   
-  // Determine if stats are outdated
   const statsAreOutdated = !isPlayerHorse && stats.lastUpdated < currentRace && stats.lastUpdated > 0;
   
   return (
@@ -201,16 +199,16 @@ const HorseCard = ({
             <h4 className="text-sm font-medium mb-2">Traits</h4>
             <div className="flex flex-wrap gap-1">
               {stats.revealedAttributes.map((trait) => (
-                <Popover key={trait}>
-                  <PopoverTrigger asChild>
+                <HoverCard key={trait} openDelay={100} closeDelay={200}>
+                  <HoverCardTrigger asChild>
                     <Badge variant="secondary" className="text-xs cursor-help hover:bg-secondary/80">
                       {trait}
                     </Badge>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72 p-4">
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-72 p-4">
                     <p className="text-sm">{traitDescriptions[trait] || `${trait} affects this horse's performance.`}</p>
-                  </PopoverContent>
-                </Popover>
+                  </HoverCardContent>
+                </HoverCard>
               ))}
             </div>
           </div>
