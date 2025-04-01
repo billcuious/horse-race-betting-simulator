@@ -74,63 +74,65 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
       
       <CardContent>
         <Tabs defaultValue="general" className="w-full">
-          {/* Changed to a 2x2 grid layout */}
-          <TabsList className="grid grid-cols-2 gap-1 w-full">
+          {/* Improved 2x2 grid layout with proper spacing */}
+          <TabsList className="grid grid-cols-2 gap-2 w-full">
             {trainingOptions.map(option => (
               <TabsTrigger 
                 key={option.id} 
                 value={option.id}
-                className="px-2 py-1.5 whitespace-nowrap text-sm"
+                className="px-2 py-2 text-sm font-medium"
               >
                 {option.name}
               </TabsTrigger>
             ))}
           </TabsList>
           
-          {trainingOptions.map(option => (
-            <TabsContent key={option.id} value={option.id} className="space-y-4">
-              <div>
-                <h3 className="font-medium">{option.name} {t("training.training")} (${option.cost})</h3>
-                <p className="text-sm text-muted-foreground">{option.description}</p>
-              </div>
-              
-              <div className="space-y-2">
-                {option.effects.map((effect, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <span className="text-sm">{effect.stat}</span>
-                    <span className={`text-sm font-medium ${effect.color}`}>{effect.change}</span>
-                  </div>
-                ))}
-              </div>
-              
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button 
-                    className="w-full"
-                    disabled={isDisabled || playerMoney < option.cost}
-                  >
-                    {t("training.select")} {option.name}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{t("training.confirm")}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t("training.confirmation").replace("{{type}}", option.name).replace("{{cost}}", option.cost.toString())}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
-                    <AlertDialogAction 
-                      onClick={() => onSelectTraining(option.id as any)}
+          <div className="mt-4">
+            {trainingOptions.map(option => (
+              <TabsContent key={option.id} value={option.id} className="space-y-4">
+                <div>
+                  <h3 className="font-medium">{option.name} {t("training.training")} (${option.cost})</h3>
+                  <p className="text-sm text-muted-foreground">{option.description}</p>
+                </div>
+                
+                <div className="space-y-2">
+                  {option.effects.map((effect, index) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <span className="text-sm">{effect.stat}</span>
+                      <span className={`text-sm font-medium ${effect.color}`}>{effect.change}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      className="w-full"
+                      disabled={isDisabled || playerMoney < option.cost}
                     >
-                      {t("action.confirm")}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </TabsContent>
-          ))}
+                      {t("training.select")} {option.name}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t("training.confirm")}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t("training.confirmation").replace("{{type}}", option.name).replace("{{cost}}", option.cost.toString())}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => onSelectTraining(option.id as any)}
+                      >
+                        {t("action.confirm")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </TabsContent>
+            ))}
+          </div>
         </Tabs>
       </CardContent>
     </Card>
