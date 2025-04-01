@@ -28,7 +28,7 @@ import {
   updateHorsesAfterRace,
   RaceResult
 } from "@/utils/gameLogic";
-import { useLanguage } from "@/utils/i18n";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const GameContainer = ({
   playerName,
