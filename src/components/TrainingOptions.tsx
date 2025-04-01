@@ -74,22 +74,23 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
       
       <CardContent>
         <Tabs defaultValue="general" className="w-full">
-          {/* Improved 2x2 grid layout with proper spacing */}
-          <TabsList className="grid grid-cols-2 gap-2 w-full">
+          {/* Grid layout for 2x2 buttons with proper spacing */}
+          <TabsList className="grid grid-cols-2 gap-2 w-full mb-6">
             {trainingOptions.map(option => (
               <TabsTrigger 
                 key={option.id} 
                 value={option.id}
-                className="px-2 py-2 text-sm font-medium"
+                className="p-2 text-sm font-medium h-10"
               >
                 {option.name}
               </TabsTrigger>
             ))}
           </TabsList>
           
-          <div className="mt-4">
+          {/* Content section moved below the buttons to avoid overlap */}
+          <div className="mt-2">
             {trainingOptions.map(option => (
-              <TabsContent key={option.id} value={option.id} className="space-y-4">
+              <TabsContent key={option.id} value={option.id} className="space-y-4 pt-2">
                 <div>
                   <h3 className="font-medium">{option.name} {t("training.training")} (${option.cost})</h3>
                   <p className="text-sm text-muted-foreground">{option.description}</p>
