@@ -110,7 +110,7 @@ const CompetitorsPanel = ({
         </Button>
         
         {/* Training options moved here from left column */}
-        <div className="mt-6">
+        <div className="mt-6 w-full">
           <TrainingOptions 
             onSelectTraining={onSelectTraining}
             trainingsUsed={trainingsUsed}

@@ -74,9 +74,15 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
       
       <CardContent>
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-4 w-full min-w-[320px]">
             {trainingOptions.map(option => (
-              <TabsTrigger key={option.id} value={option.id}>{option.name}</TabsTrigger>
+              <TabsTrigger 
+                key={option.id} 
+                value={option.id}
+                className="px-1 sm:px-2 whitespace-nowrap text-xs sm:text-sm"
+              >
+                {option.name}
+              </TabsTrigger>
             ))}
           </TabsList>
           
