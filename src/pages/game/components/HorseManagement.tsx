@@ -6,6 +6,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import HorseCard from "@/components/HorseCard";
 import { Horse, calculateLoanAmount } from "@/utils/gameLogic";
 import { InfoIcon } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HorseManagementProps {
   playerHorse: Horse;
@@ -33,14 +34,15 @@ const HorseManagement = ({
   loanAmount
 }: HorseManagementProps) => {
   const availableLoan = calculateLoanAmount(playerMoney);
+  const { t } = useLanguage();
   
   return (
     <>
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Your Horse</CardTitle>
+          <CardTitle className="text-lg">{t("horse.yourHorse")}</CardTitle>
           <CardDescription>
-            Manage and train your horse before each race
+            {t("horse.manage")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -58,34 +60,34 @@ const HorseManagement = ({
       
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Financial Options</CardTitle>
-          <CardDescription>Take a loan if you're short on cash</CardDescription>
+          <CardTitle className="text-lg">{t("horse.financial")}</CardTitle>
+          <CardDescription>{t("horse.takeLoan")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button className="w-full" variant="outline" disabled={isDisabled}>
-                  Take Loan (${availableLoan})
+                  {t("horse.loanButton")} (${availableLoan})
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Confirm Loan</AlertDialogTitle>
+                  <AlertDialogTitle>{t("horse.confirmLoan")}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    You're about to take a loan of ${availableLoan}. This will need to be repaid at the end of the season. Proceed?
+                    {t("horse.loanDescription").replace("{{amount}}", availableLoan.toString())}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={onTakeLoan}>Confirm</AlertDialogAction>
+                  <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
+                  <AlertDialogAction onClick={onTakeLoan}>{t("action.confirm")}</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
             
             {loanAmount > 0 && (
               <div className="text-sm text-muted-foreground text-center">
-                Current debt: ${loanAmount}
+                {t("horse.currentDebt")} ${loanAmount}
               </div>
             )}
             
@@ -93,17 +95,17 @@ const HorseManagement = ({
               <HoverCardTrigger asChild>
                 <div className="flex items-center justify-center text-sm text-muted-foreground cursor-help">
                   <InfoIcon className="h-4 w-4 mr-1" />
-                  <span>How do loans work?</span>
+                  <span>{t("horse.loanInfo")}</span>
                 </div>
               </HoverCardTrigger>
               <HoverCardContent className="w-80">
                 <div className="space-y-2">
-                  <h4 className="font-medium">Loan Information</h4>
+                  <h4 className="font-medium">{t("horse.loanDetails")}</h4>
                   <p className="text-sm">
-                    You can take a loan to get more money for betting and training. The loan amount is based on your current money.
+                    {t("horse.loanExplain1")}
                   </p>
                   <p className="text-sm">
-                    The total loan amount will be deducted from your final money at the end of the season.
+                    {t("horse.loanExplain2")}
                   </p>
                 </div>
               </HoverCardContent>

@@ -2,6 +2,7 @@
 import { RandomEvent } from "@/utils/gameLogic";
 import EventPanel from "@/components/EventPanel";
 import { useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface RandomEventHandlerProps {
   event: RandomEvent | null;

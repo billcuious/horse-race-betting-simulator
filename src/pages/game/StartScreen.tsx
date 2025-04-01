@@ -6,6 +6,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { Badge } from "@/components/ui/badge";
 import { Check, ChevronRight, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSelector from "@/components/LanguageSelector";
 
 interface JockeyOption {
   id: string;
@@ -58,6 +60,7 @@ const JOCKEY_OPTIONS: JockeyOption[] = [
 const StartScreen = ({ onStartGame }: StartScreenProps) => {
   const [playerName, setPlayerName] = useState<string>("");
   const [selectedJockeyId, setSelectedJockeyId] = useState<string>("composed");
+  const { t } = useLanguage();
   
   const handleStartGame = () => {
     onStartGame(playerName.trim() || "Player", selectedJockeyId);
@@ -67,16 +70,19 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
     <div className="min-h-screen flex items-center justify-center bg-racing-beige p-4">
       <Card className="w-full max-w-4xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-racing-green">Horse Racing Simulator</CardTitle>
-          <CardDescription>Bet, train, and race your way to victory!</CardDescription>
+          <div className="flex justify-end mb-2">
+            <LanguageSelector />
+          </div>
+          <CardTitle className="text-3xl font-bold text-racing-green">{t("game.title")}</CardTitle>
+          <CardDescription>{t("game.subtitle")}</CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-6">
           <div>
-            <label className="text-sm font-medium mb-1 block">Enter your name:</label>
+            <label className="text-sm font-medium mb-1 block">{t("game.nameLabel")}</label>
             <input
               type="text"
-              placeholder="Your Name"
+              placeholder={t("game.namePlaceholder")}
               className="w-full p-2 border rounded"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
@@ -84,7 +90,7 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
           </div>
           
           <div>
-            <h3 className="text-lg font-medium mb-3">Choose Your Jockey for the Season</h3>
+            <h3 className="text-lg font-medium mb-3">{t("game.chooseJockey")}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {JOCKEY_OPTIONS.map((jockey) => (
                 <div 
@@ -95,7 +101,7 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h4 className="font-bold">{jockey.name}</h4>
-                      <p className="text-sm text-muted-foreground">{jockey.title}</p>
+                      <p className="text-sm text-muted-foreground">{t(`jockey.${jockey.id}.title`)}</p>
                     </div>
                     {selectedJockeyId === jockey.id && (
                       <Badge className="bg-racing-green">
@@ -103,18 +109,18 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm mb-3">{jockey.description}</p>
+                  <p className="text-sm mb-3">{t(`jockey.${jockey.id}.desc`)}</p>
                   
                   <HoverCard>
                     <HoverCardTrigger asChild>
                       <Button variant="outline" size="sm" className="w-full flex justify-between">
-                        <span>Effect Details</span>
+                        <span>{t("game.effectDetails")}</span>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </HoverCardTrigger>
                     <HoverCardContent className="w-80">
-                      <h5 className="font-medium mb-2">How This Affects Your Horse</h5>
-                      <p className="text-sm">{jockey.effect}</p>
+                      <h5 className="font-medium mb-2">{t("traits.title")}</h5>
+                      <p className="text-sm">{t(`jockey.${jockey.id}.effect`)}</p>
                       <div className="mt-3 flex flex-wrap gap-1">
                         {jockey.traits.map(trait => (
                           <Badge key={trait} variant="secondary">{trait}</Badge>
@@ -128,14 +134,14 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
           </div>
           
           <div className="rounded-md bg-muted p-4 text-sm">
-            <h3 className="font-medium mb-2">Game Rules:</h3>
+            <h3 className="font-medium mb-2">{t("game.gameRules")}</h3>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Train your horse and scout competitors</li>
-              <li>Bet on races to earn money</li>
-              <li>Your goal is to reach the season target money</li>
-              <li>The season consists of {15} races</li>
+              <li>{t("game.rules.train")}</li>
+              <li>{t("game.rules.bet")}</li>
+              <li>{t("game.rules.goal")}</li>
+              <li>{t("game.rules.season").replace("15", "15")}</li>
               <li>
-                You can take loans if needed
+                {t("game.rules.loans")}
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -148,15 +154,15 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
                   </Tooltip>
                 </TooltipProvider>
               </li>
-              <li>Each horse has unique stats and hidden traits</li>
-              <li>Your choice of jockey will affect your horse's starting stats and abilities</li>
+              <li>{t("game.rules.stats")}</li>
+              <li>{t("game.rules.jockey")}</li>
             </ul>
           </div>
         </CardContent>
         
         <CardFooter>
           <Button className="w-full" onClick={handleStartGame}>
-            Start Game
+            {t("game.startButton")}
           </Button>
         </CardFooter>
       </Card>

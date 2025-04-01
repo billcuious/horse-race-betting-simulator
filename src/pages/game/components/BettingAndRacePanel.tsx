@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import BettingPanel from "@/components/BettingPanel";
 import { Horse, RaceResult } from "@/utils/gameLogic";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BettingAndRacePanelProps {
   selectedHorseId: string | null;
@@ -30,6 +31,8 @@ const BettingAndRacePanel = ({
   playerHorseId,
   onViewResults
 }: BettingAndRacePanelProps) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="space-y-6">
       {/* Betting Panel */}
@@ -47,9 +50,9 @@ const BettingAndRacePanel = ({
       {raceResults.length > 0 && !raceInProgress && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Latest Results</CardTitle>
+            <CardTitle className="text-lg">{t("results.title")}</CardTitle>
             <CardDescription>
-              Race {currentRace - 1}
+              {t("results.race").replace("{{number}}", (currentRace - 1).toString())}
             </CardDescription>
           </CardHeader>
           
@@ -69,19 +72,19 @@ const BettingAndRacePanel = ({
                     >
                       <div className="w-8 text-center font-bold">
                         {result.position === 1 && (
-                          <Badge className="bg-racing-gold">1st</Badge>
+                          <Badge className="bg-racing-gold">{t("position.1")}</Badge>
                         )}
                         {result.position === 2 && (
-                          <Badge variant="outline">2nd</Badge>
+                          <Badge variant="outline">{t("position.2")}</Badge>
                         )}
                         {result.position === 3 && (
-                          <Badge variant="outline">3rd</Badge>
+                          <Badge variant="outline">{t("position.3")}</Badge>
                         )}
                       </div>
                       <div className="ml-2">
                         {result.horseName}
                         {isPlayerHorse && (
-                          <span className="text-xs ml-1 text-muted-foreground">(You)</span>
+                          <span className="text-xs ml-1 text-muted-foreground">{t("results.you")}</span>
                         )}
                       </div>
                     </div>
@@ -97,7 +100,7 @@ const BettingAndRacePanel = ({
               className="w-full"
               onClick={onViewResults}
             >
-              View Full Results
+              {t("results.view")}
             </Button>
           </CardFooter>
         </Card>

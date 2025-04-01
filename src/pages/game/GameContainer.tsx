@@ -28,6 +28,7 @@ import {
   updateHorsesAfterRace,
   RaceResult
 } from "@/utils/gameLogic";
+import { useLanguage } from "@/utils/i18n";
 
 const GameContainer = ({
   playerName,
@@ -38,6 +39,7 @@ const GameContainer = ({
   jockeyId: string;
   onResetGame: () => void;
 }) => {
+  const { t } = useLanguage();
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [selectedHorseId, setSelectedHorseId] = useState<string | null>(null);
   const [trainingSelected, setTrainingSelected] = useState<boolean>(false);
@@ -333,10 +335,10 @@ const GameContainer = ({
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/30 z-50">
           <div className="bg-white rounded-lg p-8 shadow-lg text-center animate-pulse max-w-md mx-4">
             <div className="text-2xl font-bold mb-4 animate-gallop">
-              Race in Progress...
+              {t("race.progress")}
             </div>
             <p className="text-lg text-muted-foreground">
-              The horses are thundering down the track!
+              {t("race.description")}
             </p>
           </div>
         </div>

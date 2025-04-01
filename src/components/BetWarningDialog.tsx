@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Horse } from "@/utils/gameLogic";
 import { Input } from "@/components/ui/input";
 import { AlertTriangle, Coins } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BetWarningDialogProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ const BetWarningDialog = ({
   playerMoney
 }: BetWarningDialogProps) => {
   const [betAmount, setBetAmount] = useState<number>(100);
+  const { t } = useLanguage();
   
   const handlePlaceBet = () => {
     if (selectedHorse && betAmount > 0) {
@@ -45,17 +47,17 @@ const BetWarningDialog = ({
         <DialogHeader>
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
-            <DialogTitle>No Bet Placed</DialogTitle>
+            <DialogTitle>{t("betWarning.title")}</DialogTitle>
           </div>
           <DialogDescription>
-            You've selected {selectedHorse?.name} but haven't placed a bet yet.
+            {t("betWarning.description").replace("{{horseName}}", selectedHorse?.name || "")}
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-2">
           <div className="flex items-center gap-2">
             <Coins className="h-4 w-4 text-muted-foreground" />
-            <span>Would you like to place a bet before the race starts?</span>
+            <span>{t("betWarning.question")}</span>
           </div>
           
           <div className="flex items-center gap-3">
@@ -67,7 +69,7 @@ const BetWarningDialog = ({
               onChange={(e) => setBetAmount(Number(e.target.value))}
               className="w-full"
             />
-            <span className="text-muted-foreground whitespace-nowrap">Max: ${maxBet}</span>
+            <span className="text-muted-foreground whitespace-nowrap">{t("betWarning.max")} ${maxBet}</span>
           </div>
         </div>
         
@@ -77,14 +79,14 @@ const BetWarningDialog = ({
             onClick={handleContinue}
             className="w-full sm:w-auto"
           >
-            Continue Without Betting
+            {t("betWarning.continue")}
           </Button>
           <Button 
             onClick={handlePlaceBet}
             disabled={!selectedHorse || betAmount <= 0 || betAmount > maxBet}
             className="w-full sm:w-auto"
           >
-            Place Bet & Start Race
+            {t("betWarning.placeBet")}
           </Button>
         </DialogFooter>
       </DialogContent>

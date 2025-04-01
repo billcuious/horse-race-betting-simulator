@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { RandomEvent } from "@/utils/gameLogic";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface EventPanelProps {
   event: RandomEvent | null;
@@ -13,6 +14,8 @@ interface EventPanelProps {
 }
 
 const EventPanel = ({ event, onAcceptEvent, onDismissEvent, playerMoney }: EventPanelProps) => {
+  const { t } = useLanguage();
+  
   if (!event) return null;
   
   const isPassiveEvent = event.type === "passive";
@@ -40,7 +43,7 @@ const EventPanel = ({ event, onAcceptEvent, onDismissEvent, playerMoney }: Event
           className="flex-1" 
           onClick={onDismissEvent}
         >
-          Decline
+          {t("action.decline")}
         </Button>
         
         <AlertDialog>
@@ -49,20 +52,20 @@ const EventPanel = ({ event, onAcceptEvent, onDismissEvent, playerMoney }: Event
               className="flex-1" 
               disabled={!canAffordEvent}
             >
-              Accept
+              {t("action.accept")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Confirm Decision</AlertDialogTitle>
+              <AlertDialogTitle>{t("action.confirm")}</AlertDialogTitle>
               <AlertDialogDescription>
                 {event.choicePrompt}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
               <AlertDialogAction onClick={onAcceptEvent}>
-                Confirm
+                {t("action.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
