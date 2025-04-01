@@ -215,6 +215,7 @@ export const translations = {
     "betting.start": "Iniciar Carrera",
     "betting.noSelection": "Selecciona un caballo primero",
     "betting.max": "Máximo",
+    "betting.on": "en",
     
     // Results
     "results.title": "Últimos Resultados",
