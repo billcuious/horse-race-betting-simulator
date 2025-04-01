@@ -7,6 +7,7 @@ import { MinusIcon, PlusIcon } from "lucide-react";
 import { Horse } from "@/utils/gameLogic";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { getVisibleHorseStats } from "@/utils/horsesData";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BettingPanelProps {
   selectedHorseId: string | null;
@@ -29,6 +30,7 @@ const BettingPanel = ({
 }: BettingPanelProps) => {
   const [betAmount, setBetAmount] = useState(100);
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
+  const { t } = useLanguage();
   
   const increaseBet = (amount: number) => {
     if (betAmount + amount <= playerMoney) {
@@ -58,31 +60,31 @@ const BettingPanel = ({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-lg">Place Your Bet</CardTitle>
-        <CardDescription>Race {currentRace} - Select a horse and bet amount</CardDescription>
+        <CardTitle className="text-lg">{t("betting.title")}</CardTitle>
+        <CardDescription>{t("betting.selectDescription").replace("{{race}}", currentRace.toString())}</CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-4">
         <div>
-          <h3 className="font-medium mb-2">Selected Horse</h3>
+          <h3 className="font-medium mb-2">{t("betting.selectedHorse")}</h3>
           {selectedHorse ? (
             <div className="p-3 border rounded-md">
               <p className="font-medium">{selectedHorse.name}</p>
               <div className="flex gap-2 mt-1 text-sm">
-                <span>Speed: {getVisibleHorseStats(selectedHorse, currentRace).displayedSpeed}</span>
+                <span>{t("stats.speed")}: {getVisibleHorseStats(selectedHorse, currentRace).displayedSpeed}</span>
                 <span>•</span>
-                <span>Control: {getVisibleHorseStats(selectedHorse, currentRace).control}</span>
+                <span>{t("stats.control")}: {getVisibleHorseStats(selectedHorse, currentRace).control}</span>
               </div>
             </div>
           ) : (
             <div className="p-3 border rounded-md text-muted-foreground">
-              No horse selected
+              {t("betting.noSelection")}
             </div>
           )}
         </div>
         
         <div>
-          <h3 className="font-medium mb-2">Bet Amount: ${betAmount}</h3>
+          <h3 className="font-medium mb-2">{t("betting.amount")}: ${betAmount}</h3>
           <div className="flex items-center gap-2">
             <Button 
               variant="outline" 
@@ -139,24 +141,24 @@ const BettingPanel = ({
               className="w-full" 
               disabled={!selectedHorseId || betInProgress}
             >
-              Place Bet
+              {t("betting.place")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Confirm Bet</AlertDialogTitle>
+              <AlertDialogTitle>{t("betting.confirmTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
                 {selectedHorse 
-                  ? `Bet $${betAmount} on ${selectedHorse.name}?` 
-                  : "Please select a horse first"}
+                  ? t("betting.confirmDescription").replace("{{amount}}", betAmount.toString()).replace("{{horse}}", selectedHorse.name)
+                  : t("betting.noSelection")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
               <AlertDialogAction 
                 onClick={() => selectedHorseId && onPlaceBet(selectedHorseId, betAmount)}
               >
-                Confirm Bet
+                {t("action.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -168,7 +170,7 @@ const BettingPanel = ({
           onClick={onStartRace}
           disabled={betInProgress}
         >
-          Start Race
+          {t("betting.start")}
         </Button>
       </CardFooter>
     </Card>

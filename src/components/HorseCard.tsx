@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Horse } from "@/utils/gameLogic";
 import { getVisibleHorseStats, getHorseDisplayColor } from "@/utils/horsesData";
 import { InfoIcon, AlertCircleIcon } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HorseCardProps {
   horse: Horse;
@@ -25,58 +27,6 @@ interface HorseCardProps {
   showScoutButton?: boolean;
 }
 
-const traitDescriptions: Record<string, string> = {
-  "Fast Starter": "This horse bursts out of the gate with remarkable speed.",
-  "Endurance": "Can maintain performance over long distances without tiring.",
-  "Unpredictable": "Sometimes brilliant, sometimes disappointing - you never know what you'll get.",
-  "Sprinter": "Excels at short, explosive bursts of speed.",
-  "Consistent": "Rarely has bad races, tends to perform at a steady level.",
-  "Muddy Track Expert": "Performs exceptionally well on wet or muddy tracks.",
-  "Nervous": "Tends to get unsettled by crowds and noise.",
-  "Weather Sensitive": "Performance varies significantly based on weather conditions.",
-  "Injury Prone": "Has a history of getting injured more easily than other horses.",
-  "Late Charger": "Often comes from behind to finish strong.",
-  "Focused": "Maintains concentration throughout the race.",
-  "Easily Distracted": "Can lose focus during critical moments.",
-  "Track Memorizer": "Performs better on familiar tracks.",
-  "Recovery Expert": "Bounces back quickly after races.",
-  "Slow Starter": "Takes time to reach full speed.",
-  "Crowd Pleaser": "Performs better when there's a large audience.",
-  "Stamina": "Can maintain high performance for longer periods.",
-  "Adaptable": "Quickly adjusts to changing race conditions.",
-  "Competitive": "Performs better when racing neck-to-neck with others.",
-  "Temperature Sensitive": "Performance varies based on temperature.",
-  "Lucky": "Sometimes defies the odds in surprising ways.",
-  "Fast Finisher": "Has an impressive final sprint capability.",
-  "Tactical": "Seems to make smart positioning decisions during races.",
-  "Fragile": "More susceptible to injuries and fatigue.",
-  "Champion Blood": "Descends from a line of winning racehorses.",
-  "Underdog": "Often performs better than statistics would predict.",
-  "Dark Horse": "Tends to surprise competitors when least expected.",
-  "Strong Finisher": "Has incredible endurance in the final stretch.",
-  "Crowd Favorite": "The audience loves this horse, boosting its confidence.",
-  "Iron Horse": "Known for remarkable resilience and stamina.",
-  "Nervous Runner": "Gets anxious before and during races.",
-  "Poor Starter": "Takes longer than most to hit stride after the gate opens.",
-  "Mud Runner": "Performs better in poor weather and muddy track conditions.",
-  "Late Bloomer": "Develops strength and speed later in the season.",
-  "Training Resistant": "Doesn't always respond well to intensive training regimens.",
-  "Inconsistent": "Performance varies unpredictably from race to race.",
-  "Temperamental": "Mood can greatly affect race performance.",
-  "Spotlight Shy": "Doesn't perform well when favored to win.",
-  "Legendary Bloodline": "Descended from the greatest champions in racing history. A rare gift indeed.",
-  "Sixth Sense": "This horse seems to anticipate obstacles before they appear. Truly extraordinary.",
-  "Phoenix Spirit": "Can rise from the depths of exhaustion in miraculous fashion.",
-  "Heart of Gold": "Shows incredible determination in the face of challenges.",
-  "Soul Bond": "Forms a deep connection with its jockey, enhancing performance.",
-  "Time Dilation": "Appears to enter a state where time itself slows down during critical moments.",
-  "Miracle Worker": "Known to achieve the impossible when all hope seems lost.",
-  "Risk Taker": "This horse thrives on danger and takes chances other horses wouldn't dare.",
-  "Uninjurable": "This horse has a remarkable constitution, able to avoid injuries that would stop others.",
-  "Extreme Training": "This horse undergoes intense training that pushes the limits of equine performance.",
-  "Veteran Tactics": "Years of experience have taught this horse to navigate even the most challenging races."
-};
-
 const HorseCard = ({
   horse,
   currentRace,
@@ -91,6 +41,7 @@ const HorseCard = ({
 }: HorseCardProps) => {
   const stats = getVisibleHorseStats(horse, currentRace, isPlayerHorse);
   const speedColor = getHorseDisplayColor(stats.displayedSpeed);
+  const { t } = useLanguage();
   
   const canAffordBasicScout = playerMoney >= scoutCosts.basic;
   const canAffordDeepScout = playerMoney >= scoutCosts.deep;
@@ -111,23 +62,23 @@ const HorseCard = ({
                     <TooltipTrigger asChild>
                       <div className="flex items-center">
                         <AlertCircleIcon className="h-3 w-3 mr-1 text-yellow-600" />
-                        Last Scouted: Race {stats.lastUpdated}
+                        {t("scout.lastRace").replace("{{race}}", stats.lastUpdated.toString())}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="text-xs">Stats may be outdated</p>
+                      <p className="text-xs">{t("stats.outdated")}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               ) : (
-                <>Last Scouted: Race {stats.lastUpdated}</>
+                <>{t("scout.lastRace").replace("{{race}}", stats.lastUpdated.toString())}</>
               )}
             </Badge>
           )}
         </div>
         {horse.hasInjury && (
           <Badge variant="destructive" className="self-start">
-            {horse.injuryType === "mild" ? "Mild Injury" : "Major Injury"}
+            {horse.injuryType === "mild" ? t("horse.mildInjury") : t("horse.majorInjury")}
           </Badge>
         )}
       </CardHeader>
@@ -136,7 +87,7 @@ const HorseCard = ({
         <div className="space-y-3">
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium">Speed</span>
+              <span className="text-sm font-medium">{t("stats.speed")}</span>
               <span className="text-sm">{stats.displayedSpeed}</span>
             </div>
             <div className="stat-bar">
@@ -149,7 +100,7 @@ const HorseCard = ({
           
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium">Control</span>
+              <span className="text-sm font-medium">{t("stats.control")}</span>
               <span className="text-sm">{stats.control}</span>
             </div>
             <div className="stat-bar">
@@ -162,7 +113,7 @@ const HorseCard = ({
           
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium">Recovery</span>
+              <span className="text-sm font-medium">{t("stats.recovery")}</span>
               <span className="text-sm">{stats.recovery}</span>
             </div>
             <div className="stat-bar">
@@ -175,7 +126,7 @@ const HorseCard = ({
           
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium">Endurance</span>
+              <span className="text-sm font-medium">{t("stats.endurance")}</span>
               <span className="text-sm">{stats.endurance}</span>
             </div>
             <div className="stat-bar">
@@ -190,23 +141,23 @@ const HorseCard = ({
         {statsAreOutdated && !isPlayerHorse && (
           <div className="mt-3 text-xs text-yellow-600 flex items-center">
             <AlertCircleIcon className="h-3 w-3 mr-1" />
-            Stats may have changed since last scouted
+            {t("stats.outdatedWarning")}
           </div>
         )}
         
         {stats.revealedAttributes.length > 0 && (
           <div className="mt-4">
-            <h4 className="text-sm font-medium mb-2">Traits</h4>
+            <h4 className="text-sm font-medium mb-2">{t("stats.traits")}</h4>
             <div className="flex flex-wrap gap-1">
               {stats.revealedAttributes.map((trait) => (
                 <HoverCard key={trait} openDelay={100} closeDelay={200}>
                   <HoverCardTrigger asChild>
                     <Badge variant="secondary" className="text-xs cursor-help hover:bg-secondary/80">
-                      {trait}
+                      {t(`trait.${trait.replace(/\s+/g, '')}`, trait)}
                     </Badge>
                   </HoverCardTrigger>
                   <HoverCardContent className="w-72 p-4">
-                    <p className="text-sm">{traitDescriptions[trait] || `${trait} affects this horse's performance.`}</p>
+                    <p className="text-sm">{t(`traitDesc.${trait.replace(/\s+/g, '')}`, `${trait} ${t("trait.effectsPerformance")}`)}</p>
                   </HoverCardContent>
                 </HoverCard>
               ))}
@@ -217,7 +168,7 @@ const HorseCard = ({
         {stats.hasMoreAttributes && (
           <div className="mt-2 text-xs text-muted-foreground flex items-center">
             <InfoIcon className="h-3 w-3 mr-1" />
-            More traits to discover
+            {t("trait.moreToDiscover")}
           </div>
         )}
       </CardContent>
@@ -233,7 +184,7 @@ const HorseCard = ({
                 onClick={() => onScout && onScout(horse.id, "deep")}
                 disabled={isDisabled || !canAffordOwnHorseScout || !stats.hasMoreAttributes}
               >
-                Scout Own Horse (${scoutCosts.ownHorse})
+                {t("scout.ownHorse").replace("{{cost}}", scoutCosts.ownHorse.toString())}
               </Button>
             )}
             
@@ -245,7 +196,7 @@ const HorseCard = ({
                 onClick={() => onSelect(horse.id)}
                 disabled={isDisabled || horse.missNextRace}
               >
-                {isSelected ? "Selected" : "Select for Bet"}
+                {isSelected ? t("betting.selected") : t("betting.selectForBet")}
               </Button>
             )}
           </div>
@@ -260,7 +211,7 @@ const HorseCard = ({
                   onClick={() => onScout && onScout(horse.id, "basic")}
                   disabled={isDisabled || playerMoney < scoutCosts.basic}
                 >
-                  Scout (${scoutCosts.basic})
+                  {t("scout.basic").replace("{{cost}}", scoutCosts.basic.toString())}
                 </Button>
                 <Button 
                   variant="outline"
@@ -269,7 +220,7 @@ const HorseCard = ({
                   onClick={() => onScout && onScout(horse.id, "deep")}
                   disabled={isDisabled || playerMoney < scoutCosts.deep}
                 >
-                  Deep Scout (${scoutCosts.deep})
+                  {t("scout.deep").replace("{{cost}}", scoutCosts.deep.toString())}
                 </Button>
               </div>
             )}
@@ -282,7 +233,7 @@ const HorseCard = ({
                 onClick={() => onSelect(horse.id)}
                 disabled={isDisabled || horse.missNextRace}
               >
-                {isSelected ? "Selected" : "Select for Bet"}
+                {isSelected ? t("betting.selected") : t("betting.selectForBet")}
               </Button>
             )}
           </>

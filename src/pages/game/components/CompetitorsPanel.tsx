@@ -7,6 +7,7 @@ import SeasonHistory from "@/components/SeasonHistory";
 import TrainingOptions from "@/components/TrainingOptions";
 import { Horse, RaceResult } from "@/utils/gameLogic";
 import { ChevronRightIcon } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CompetitorsPanelProps {
   competitors: Horse[];
@@ -43,12 +44,14 @@ const CompetitorsPanel = ({
   playerMoney,
   seasonResults
 }: CompetitorsPanelProps) => {
+  const { t } = useLanguage();
+  
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Competitors</CardTitle>
+        <CardTitle className="text-lg">{t("competitors.title")}</CardTitle>
         <CardDescription>
-          Stats shown are from last scouting. Scout horses to get updated information.
+          {t("competitors.scouting")}
         </CardDescription>
       </CardHeader>
       
@@ -56,13 +59,13 @@ const CompetitorsPanel = ({
         <Sheet>
           <SheetTrigger asChild>
             <Button className="w-full flex justify-between items-center" variant="outline">
-              <span>View All Competitors</span>
+              <span>{t("competitors.viewAll")}</span>
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
           </SheetTrigger>
           <SheetContent className="w-full overflow-y-auto" side="right">
             <SheetHeader>
-              <SheetTitle>All Competitors</SheetTitle>
+              <SheetTitle>{t("competitors.allCompetitors")}</SheetTitle>
             </SheetHeader>
             <div className="pr-4 pb-20 max-h-[90vh] overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6">
@@ -103,7 +106,7 @@ const CompetitorsPanel = ({
         
         {/* Select competitor instructions */}
         <Button className="w-full text-center" variant="secondary">
-          Select a competitor to place a bet
+          {t("competitors.selectForBet")}
         </Button>
         
         {/* Training options moved here from left column */}
