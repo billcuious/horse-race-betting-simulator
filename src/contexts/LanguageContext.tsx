@@ -256,7 +256,90 @@ export const translations = {
     
     // Languages
     "language.english": "Inglés",
-    "language.spanish": "Español"
+    "language.spanish": "Español",
+    
+    // Training options
+    "training.title": "Opciones de Entrenamiento",
+    "training.general": "Entrenamiento General",
+    "training.general.desc": "Mejora todas las estadísticas de manera uniforme",
+    "training.speed": "Entrenamiento de Velocidad",
+    "training.speed.desc": "Enfoca el entrenamiento en mejorar la velocidad máxima",
+    "training.endurance": "Entrenamiento de Resistencia",
+    "training.endurance.desc": "Fortalece la capacidad de tu caballo para mantener el ritmo",
+    "training.control": "Entrenamiento de Control",
+    "training.control.desc": "Mejora la estabilidad y la navegación en la pista",
+    "training.recovery": "Descanso y Recuperación",
+    "training.recovery.desc": "Permite que tu caballo se recupere para la próxima carrera",
+    "training.balance": "Entrenamiento Equilibrado",
+    "training.balance.desc": "Un enfoque equilibrado para todas las habilidades",
+    "training.unavailable": "Ya has entrenado para esta carrera",
+    "training.select": "Selecciona un tipo de entrenamiento",
+    
+    // Random events
+    "event.injury": "¡Lesión del Caballo!",
+    "event.recovery": "Recuperación Rápida",
+    "event.sponsor": "Oferta de Patrocinio",
+    "event.equipment": "Mejora de Equipamiento",
+    "event.weather": "Entrenamiento en Clima Adverso",
+    "event.fan": "Base de Fans Creciente",
+    "event.media": "Atención de los Medios",
+    "event.vet": "Visita al Veterinario",
+    "event.trainer": "Consejos del Entrenador",
+    "event.nutrition": "Mejora en la Nutrición",
+    
+    // Scout results
+    "scout.results": "Resultados de la Exploración",
+    "scout.horseStats": "Estadísticas del Caballo",
+    "scout.revealed": "Rasgos Revelados",
+    "scout.noTraits": "No se revelaron rasgos",
+    "scout.unknownTrait": "Rasgo Desconocido",
+    "scout.deepScout": "Realizar Exploración Profunda",
+    "scout.alreadyScouted": "Ya explorado recientemente",
+    "scout.cost": "Costo: ${{amount}}",
+    "scout.insufficientFunds": "Fondos insuficientes",
+    
+    // Horse traits
+    "trait.sprinter": "Velocista",
+    "trait.enduring": "Resistente",
+    "trait.composed": "Calmado",
+    "trait.fragile": "Frágil",
+    "trait.unpredictable": "Impredecible",
+    "trait.comeback": "Remontador",
+    "trait.focused": "Concentrado",
+    "trait.nervous": "Nervioso",
+    "trait.adaptable": "Adaptable",
+    "trait.stubborn": "Terco",
+    
+    // Training effects
+    "effect.speed": "+{{value}} Velocidad",
+    "effect.control": "+{{value}} Control",
+    "effect.recovery": "+{{value}} Recuperación",
+    "effect.endurance": "+{{value}} Resistencia",
+    "effect.negative": "{{stat}} -{{value}}",
+    
+    // Competitors
+    "competitors.title": "Competidores",
+    "competitors.scouting": "Exploración",
+    "competitors.training": "Entrenamiento",
+    "competitors.history": "Historial de Carreras",
+    "competitors.selectHorse": "Selecciona un caballo para ver detalles",
+    "competitors.performance": "Rendimiento Reciente",
+    "competitors.won": "Ganó",
+    "competitors.placed": "Posicionado",
+    "competitors.outOfMoney": "Fuera de Premio",
+    
+    // Race results details
+    "raceDetails.title": "Detalles de la Carrera",
+    "raceDetails.results": "Resultados de la Carrera {{number}}",
+    "raceDetails.positions": "Posiciones Finales",
+    "raceDetails.winnings": "Ganancias: ${{amount}}",
+    "raceDetails.close": "Cerrar",
+    "raceDetails.finalTime": "Tiempo Final",
+    "raceDetails.personalBest": "¡Mejor Marca Personal!",
+    "raceDetails.horseName": "Nombre del Caballo",
+    "raceDetails.position": "Pos.",
+    "raceDetails.time": "Tiempo",
+    "raceDetails.odds": "Probabilidades"
   }
 };
 
