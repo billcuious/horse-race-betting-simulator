@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 // Define language types
@@ -573,4 +574,110 @@ export const translations = {
     "traitDesc.PoorStarter": "Tarda en tomar ritmo.",
     "traitDesc.MudRunner": "Mejor en mal tiempo y pistas fangosas.",
     "traitDesc.LateBloomer": "Desarrolla fuerza más tarde en temporada.",
-    "traitDesc.TrainingResistant": "No siempre responde
+    "traitDesc.TrainingResistant": "No siempre responde bien al entrenamiento intensivo.",
+    "traitDesc.Inconsistent": "Rendimiento varía impredeciblemente.",
+    "traitDesc.Temperamental": "El humor afecta mucho su rendimiento.",
+    "traitDesc.SpotlightShy": "No rinde bien cuando es favorito.",
+    "traitDesc.LegendaryBloodline": "Descendiente de grandes campeones de la historia.",
+    "traitDesc.SixthSense": "Parece anticipar obstáculos antes de que aparezcan.",
+    "traitDesc.PhoenixSpirit": "Puede surgir del agotamiento de forma milagrosa.",
+    "traitDesc.HeartofGold": "Muestra determinación increíble ante los desafíos.",
+    "traitDesc.SoulBond": "Forma conexión profunda con su jinete.",
+    "traitDesc.TimeDilation": "Parece entrar en un estado donde el tiempo se ralentiza.",
+    "traitDesc.MiracleWorker": "Logra lo imposible cuando parece perdido.",
+    "traitDesc.RiskTaker": "Este caballo prospera con el peligro y toma riesgos.",
+    "traitDesc.Uninjurable": "Tiene constitución notable, evita lesiones.",
+    "traitDesc.ExtremeTraining": "Sometido a entrenamientos que superan límites normales.",
+    "traitDesc.VeteranTactics": "Años de experiencia le han enseñado a navegar carreras difíciles.",
+    
+    // Season History Translations
+    "seasonHistory.viewButton": "Ver Historial de Temporada",
+    "seasonHistory.title": "Historial de Temporada",
+    "seasonHistory.noRaces": "No hay carreras completadas aún",
+    "seasonHistory.race": "Carrera",
+    
+    // Race Results Translations
+    "raceResults.title": "Resultados de Carrera",
+    "raceResults.subtitle": "Posiciones finales y velocidades",
+    "raceResults.yourHorse": "Tu Caballo",
+    "raceResults.yourBet": "Tu Apuesta",
+    
+    // Toast Notifications
+    "toast.success": "Éxito",
+    "toast.error": "Error",
+    "toast.info": "Info",
+    "toast.warning": "Advertencia",
+    
+    // Race Events - Good outcomes (position <= 3)
+    "raceEvent.injury.good": "Se esforzó demasiado y se lesionó a pesar de quedar bien",
+    "raceEvent.stumble.good": "Se recuperó magníficamente de un tropiezo inicial",
+    "raceEvent.burst.good": "Tuvo un impulso increíble de velocidad en el momento crítico",
+    "raceEvent.tired.good": "Luchó contra la fatiga para asegurar su posición",
+    "raceEvent.distracted.good": "Superó un momento de distracción",
+    "raceEvent.perfect.good": "Corrió una carrera perfecta de principio a fin",
+    "raceEvent.jockey.good": "El jinete tomó decisiones tácticas brillantes",
+    "raceEvent.weather.good": "Se adaptó bien a condiciones climáticas difíciles",
+    "raceEvent.comeback.good": "Hizo una remontada impresionante tras quedar atrás",
+    "raceEvent.nervous.good": "Controló eficazmente los nervios previos a la carrera",
+    "raceEvent.collision.good": "Navegó a través de una colisión y mantuvo el ritmo",
+    "raceEvent.crowd.good": "Se alimentó de la energía del público",
+    "raceEvent.miracle.good": "Realizó una carrera milagrosa más allá de las expectativas",
+    
+    // Race Events - Bad outcomes (position > 3)
+    "raceEvent.injury.bad": "Sufrió una lesión durante la carrera",
+    "raceEvent.stumble.bad": "Tropezó gravemente y no pudo recuperar posición",
+    "raceEvent.burst.bad": "Tuvo un breve impulso de velocidad pero no pudo mantenerlo",
+    "raceEvent.tired.bad": "Se cansó rápidamente y perdió terreno",
+    "raceEvent.distracted.bad": "Se distrajo severamente en un momento crítico",
+    "raceEvent.perfect.bad": "Comenzó perfectamente pero se desvaneció significativamente",
+    "raceEvent.jockey.bad": "El jinete cometió un error táctico crítico",
+    "raceEvent.weather.bad": "Luchó con las condiciones climáticas",
+    "raceEvent.comeback.bad": "Intentó recuperarse pero no pudo compensar el terreno perdido",
+    "raceEvent.nervous.bad": "Estuvo visiblemente nervioso durante toda la carrera",
+    "raceEvent.collision.bad": "Quedó atrapado en el tráfico y perdió posición",
+    "raceEvent.crowd.bad": "Se distrajo con el público rugiente",
+    "raceEvent.miracle.bad": "Casi logró un final milagroso"
+  }
+};
+
+// Provider Component
+export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  const [language, setLanguage] = useState<Language>("en");
+  
+  const t = (key: string, fallback?: string): string => {
+    const lang = language;
+    // @ts-ignore
+    const translation = translations[lang]?.[key];
+    
+    if (translation) {
+      return translation;
+    }
+    
+    // Fallback to English if the key exists there
+    // @ts-ignore
+    const englishTranslation = translations.en[key];
+    if (englishTranslation) {
+      return englishTranslation;
+    }
+    
+    // Return fallback or key if no translation found
+    return fallback || key;
+  };
+  
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+// Hook to use the language context
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  
+  if (context === undefined) {
+    throw new Error("useLanguage must be used within a LanguageProvider");
+  }
+  
+  return context;
+};
