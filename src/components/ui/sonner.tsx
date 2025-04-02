@@ -1,6 +1,7 @@
 
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface ToasterProps {
   theme?: "system" | "light" | "dark"
@@ -14,6 +15,7 @@ interface ToasterProps {
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
+  const { t } = useLanguage()
 
   return (
     <Sonner

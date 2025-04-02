@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { RaceResult, Horse } from "@/utils/gameLogic";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Coins, AlertCircle, Zap } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface RaceResultsProps {
   isOpen: boolean;
@@ -12,24 +13,9 @@ interface RaceResultsProps {
   betHorseId: string | null;
 }
 
-// Define race events display with position-based messages
-const raceEventMessages: Record<string, (position: number) => string> = {
-  "injury": (position) => position <= 3 ? "Pushed too hard and got injured despite placing well" : "Suffered an injury during the race",
-  "stumble": (position) => position <= 3 ? "Recovered magnificently from an early stumble" : "Stumbled badly and couldn't recover position",
-  "burst": (position) => position <= 3 ? "Had an incredible burst of speed at the critical moment" : "Had a brief burst of speed but couldn't maintain it",
-  "tired": (position) => position <= 3 ? "Fought through fatigue to secure position" : "Tired quickly and lost ground",
-  "distracted": (position) => position <= 3 ? "Overcame a moment of distraction" : "Got severely distracted at a critical moment",
-  "perfect": (position) => position <= 3 ? "Ran a perfect race from start to finish" : "Started perfectly but faded significantly",
-  "jockey": (position) => position <= 3 ? "Jockey made brilliant tactical decisions" : "Jockey made a critical tactical error",
-  "weather": (position) => position <= 3 ? "Adapted well to challenging weather conditions" : "Struggled with the weather conditions",
-  "comeback": (position) => position <= 4 ? "Made an impressive comeback after falling behind" : "Attempted to rally but couldn't make up lost ground",
-  "nervous": (position) => position <= 3 ? "Controlled pre-race nerves effectively" : "Was visibly nervous throughout the race",
-  "collision": (position) => position <= 5 ? "Navigated through a collision and kept pace" : "Got caught in traffic and lost position",
-  "crowd": (position) => position <= 3 ? "Fed off the crowd's energy" : "Was distracted by the roaring crowd",
-  "miracle": (position) => position === 1 ? "Performed a miraculous run beyond all expectations" : "Nearly pulled off a miracle finish"
-};
-
 const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: RaceResultsProps) => {
+  const { t } = useLanguage();
+  
   // Sort results by position (should already be sorted, but just in case)
   const sortedResults = [...results].sort((a, b) => a.position - b.position);
   
@@ -37,9 +23,9 @@ const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: Ra
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Race Results</DialogTitle>
+          <DialogTitle>{t("raceResults.title")}</DialogTitle>
           <DialogDescription>
-            Final positions and speeds
+            {t("raceResults.subtitle")}
           </DialogDescription>
         </DialogHeader>
         
@@ -65,32 +51,32 @@ const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: Ra
                   <div className="font-medium flex items-center">
                     {result.horseName}
                     {isPlayerHorse && (
-                      <Badge variant="outline" className="ml-2">Your Horse</Badge>
+                      <Badge variant="outline" className="ml-2">{t("raceResults.yourHorse")}</Badge>
                     )}
                     {isBetHorse && (
                       <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-800 flex items-center gap-1">
-                        <Coins className="h-3 w-3" /> Your Bet
+                        <Coins className="h-3 w-3" /> {t("raceResults.yourBet")}
                       </Badge>
                     )}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Speed: {result.finalSpeed.toFixed(1)}
+                    {t("stats.speed")}: {result.finalSpeed.toFixed(1)}
                   </div>
                   
-                  {/* Display race events with position-based messages */}
+                  {/* Display race events with translations */}
                   {result.raceEvents && result.raceEvents.length > 0 && (
                     <div className="mt-1 flex flex-wrap gap-1">
                       {result.raceEvents.map((event, idx) => {
                         if (event === "injury") {
                           return (
                             <Badge key={idx} variant="destructive" className="text-xs flex items-center gap-1">
-                              <AlertCircle className="h-3 w-3" /> {raceEventMessages[event](result.position)}
+                              <AlertCircle className="h-3 w-3" /> {t(`raceEvent.${event}.${result.position <= 3 ? 'good' : 'bad'}`)}
                             </Badge>
                           );
                         }
                         return (
                           <Badge key={idx} variant="outline" className="text-xs flex items-center gap-1">
-                            <Zap className="h-3 w-3" /> {raceEventMessages[event] ? raceEventMessages[event](result.position) : event}
+                            <Zap className="h-3 w-3" /> {t(`raceEvent.${event}.${result.position <= 3 ? 'good' : 'bad'}`)}
                           </Badge>
                         );
                       })}

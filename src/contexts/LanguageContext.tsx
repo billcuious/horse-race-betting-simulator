@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 // Define language types
@@ -277,7 +276,55 @@ export const translations = {
     "traitDesc.RiskTaker": "This horse thrives on danger and takes chances other horses wouldn't dare.",
     "traitDesc.Uninjurable": "This horse has a remarkable constitution, able to avoid injuries that would stop others.",
     "traitDesc.ExtremeTraining": "This horse undergoes intense training that pushes the limits of equine performance.",
-    "traitDesc.VeteranTactics": "Years of experience have taught this horse to navigate even the most challenging races."
+    "traitDesc.VeteranTactics": "Years of experience have taught this horse to navigate even the most challenging races.",
+    
+    // Season History Translations
+    "seasonHistory.viewButton": "View Season History",
+    "seasonHistory.title": "Season History",
+    "seasonHistory.noRaces": "No races completed yet",
+    "seasonHistory.race": "Race",
+    
+    // Race Results Translations
+    "raceResults.title": "Race Results",
+    "raceResults.subtitle": "Final positions and speeds",
+    "raceResults.yourHorse": "Your Horse",
+    "raceResults.yourBet": "Your Bet",
+    
+    // Toast Notifications
+    "toast.success": "Success",
+    "toast.error": "Error",
+    "toast.info": "Info",
+    "toast.warning": "Warning",
+    
+    // Race Events - Good outcomes (position <= 3)
+    "raceEvent.injury.good": "Pushed too hard and got injured despite placing well",
+    "raceEvent.stumble.good": "Recovered magnificently from an early stumble",
+    "raceEvent.burst.good": "Had an incredible burst of speed at the critical moment",
+    "raceEvent.tired.good": "Fought through fatigue to secure position",
+    "raceEvent.distracted.good": "Overcame a moment of distraction",
+    "raceEvent.perfect.good": "Ran a perfect race from start to finish",
+    "raceEvent.jockey.good": "Jockey made brilliant tactical decisions",
+    "raceEvent.weather.good": "Adapted well to challenging weather conditions",
+    "raceEvent.comeback.good": "Made an impressive comeback after falling behind",
+    "raceEvent.nervous.good": "Controlled pre-race nerves effectively",
+    "raceEvent.collision.good": "Navigated through a collision and kept pace",
+    "raceEvent.crowd.good": "Fed off the crowd's energy",
+    "raceEvent.miracle.good": "Performed a miraculous run beyond all expectations",
+    
+    // Race Events - Bad outcomes (position > 3)
+    "raceEvent.injury.bad": "Suffered an injury during the race",
+    "raceEvent.stumble.bad": "Stumbled badly and couldn't recover position",
+    "raceEvent.burst.bad": "Had a brief burst of speed but couldn't maintain it",
+    "raceEvent.tired.bad": "Tired quickly and lost ground",
+    "raceEvent.distracted.bad": "Got severely distracted at a critical moment",
+    "raceEvent.perfect.bad": "Started perfectly but faded significantly",
+    "raceEvent.jockey.bad": "Jockey made a critical tactical error",
+    "raceEvent.weather.bad": "Struggled with the weather conditions",
+    "raceEvent.comeback.bad": "Attempted to rally but couldn't make up lost ground",
+    "raceEvent.nervous.bad": "Was visibly nervous throughout the race",
+    "raceEvent.collision.bad": "Got caught in traffic and lost position",
+    "raceEvent.crowd.bad": "Was distracted by the roaring crowd",
+    "raceEvent.miracle.bad": "Nearly pulled off a miracle finish"
   },
   es: {
     // Game title and start screen
@@ -526,46 +573,4 @@ export const translations = {
     "traitDesc.PoorStarter": "Tarda en tomar ritmo.",
     "traitDesc.MudRunner": "Mejor en mal tiempo y pistas fangosas.",
     "traitDesc.LateBloomer": "Desarrolla fuerza más tarde en temporada.",
-    "traitDesc.TrainingResistant": "No siempre responde bien al entrenamiento.",
-    "traitDesc.Inconsistent": "Rendimiento varía impredeciblemente.",
-    "traitDesc.Temperamental": "Su humor afecta rendimiento.",
-    "traitDesc.SpotlightShy": "Mal rendimiento cuando es favorito.",
-    "traitDesc.LegendaryBloodline": "Descendiente de grandes campeones.",
-    "traitDesc.SixthSense": "Anticipa obstáculos. Extraordinario.",
-    "traitDesc.PhoenixSpirit": "Resurge del agotamiento milagrosamente.",
-    "traitDesc.HeartofGold": "Determinación increíble ante desafíos.",
-    "traitDesc.SoulBond": "Conexión profunda con jinete.",
-    "traitDesc.TimeDilation": "Parece ralentizar el tiempo en momentos críticos.",
-    "traitDesc.MiracleWorker": "Logra lo imposible cuando parece perdido.",
-    "traitDesc.RiskTaker": "Prospera con el peligro y toma riesgos.",
-    "traitDesc.Uninjurable": "Constitución notable, evita lesiones.",
-    "traitDesc.ExtremeTraining": "Entrenamiento que lleva al límite.",
-    "traitDesc.VeteranTactics": "Experiencia para navegar carreras difíciles."
-  }
-};
-
-// Provider component
-export const LanguageProvider: React.FC<{children: ReactNode}> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>("en");
-  
-  // Translation function
-  const t = (key: string, fallback?: string): string => {
-    const currentTranslations = translations[language];
-    return currentTranslations[key as keyof typeof currentTranslations] || fallback || key;
-  };
-  
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
-};
-
-// Hook to use the language context
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
-  }
-  return context;
-};
+    "traitDesc.TrainingResistant": "No siempre responde

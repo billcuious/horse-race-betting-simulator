@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronRightIcon } from "lucide-react";
 import { RaceResult } from "@/utils/gameLogic";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SeasonHistoryProps {
   raceResults: {
@@ -19,6 +20,7 @@ interface SeasonHistoryProps {
 }
 
 const SeasonHistory = ({ raceResults }: SeasonHistoryProps) => {
+  const { t } = useLanguage();
   // Handle no race results
   const noResults = raceResults.length === 0;
   
@@ -26,26 +28,26 @@ const SeasonHistory = ({ raceResults }: SeasonHistoryProps) => {
     <Sheet>
       <SheetTrigger asChild>
         <Button className="w-full flex justify-between items-center" variant="outline">
-          <span>View Season History</span>
+          <span>{t("seasonHistory.viewButton")}</span>
           <ChevronRightIcon className="h-4 w-4" />
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full overflow-y-auto" side="right">
         <SheetHeader>
-          <SheetTitle>Season History</SheetTitle>
+          <SheetTitle>{t("seasonHistory.title")}</SheetTitle>
         </SheetHeader>
         <div className="pr-4 mt-6 pb-20 overflow-y-auto">
           {noResults ? (
             <Card className="w-full">
               <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">No races completed yet</p>
+                <p className="text-center text-muted-foreground">{t("seasonHistory.noRaces")}</p>
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-4">
               {raceResults.map((race) => (
                 <div key={race.raceNumber} className="border rounded-md p-3">
-                  <h3 className="font-semibold mb-2">Race {race.raceNumber}</h3>
+                  <h3 className="font-semibold mb-2">{t("seasonHistory.race")} {race.raceNumber}</h3>
                   <div className="space-y-1">
                     {race.results.slice(0, 3).map((result, index) => (
                       <div 

@@ -1,3 +1,4 @@
+
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
@@ -7,9 +8,11 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 export function Toaster() {
   const { toasts } = useToast()
+  const { t } = useLanguage()
 
   return (
     <ToastProvider>
