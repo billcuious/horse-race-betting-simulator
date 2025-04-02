@@ -65,7 +65,10 @@ const GameContainer = ({
     setGameState(updatedGameState);
     setTrainingSelected(true);
     
-    toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} training applied!`);
+    const trainingName = t(`training.${type}`);
+    toast.success(t("toast.success"), {
+      description: `${trainingName} ${t("training.training")} ${t("action.confirm")}!`
+    });
   };
   
   const handleScout = (horseId: string, type: "basic" | "deep") => {
@@ -80,9 +83,13 @@ const GameContainer = ({
       ]?.name;
       
       if (revealedTrait) {
-        toast.success(`Discovered trait: ${revealedTrait}`);
+        toast.success(t("toast.success"), {
+          description: `${t("scout.button")}: ${t(`trait.${revealedTrait}`)}`
+        });
       } else {
-        toast.info("No new traits discovered");
+        toast.info(t("toast.info"), {
+          description: t("trait.moreToDiscover")
+        });
       }
     } else {
       const updatedGameState = scoutHorse(gameState, horseId, type);
@@ -95,12 +102,18 @@ const GameContainer = ({
         const revealedTrait = horse.revealedAttributes[horse.revealedAttributes.length - 1]?.name;
         
         if (revealedTrait) {
-          toast.success(`Discovered trait on ${horse.name}: ${revealedTrait}`);
+          toast.success(t("toast.success"), {
+            description: `${t("scout.button")} ${horse.name}: ${t(`trait.${revealedTrait}`)}`
+          });
         } else {
-          toast.info(`No new traits discovered on ${horse.name}`);
+          toast.info(t("toast.info"), {
+            description: t("trait.moreToDiscover")
+          });
         }
       } else {
-        toast.success(`Updated stats for ${horse.name}`);
+        toast.success(t("toast.success"), {
+          description: `${t("scout.button")} ${horse.name} ${t("action.confirm")}`
+        });
       }
     }
   };
@@ -112,14 +125,18 @@ const GameContainer = ({
     const loanAmount = calculateLoanAmount(gameState.playerMoney);
     
     setGameState(updatedGameState);
-    toast.success(`Loan of $${loanAmount} received!`);
+    toast.success(t("toast.success"), {
+      description: `${t("horse.loanButton")} $${loanAmount} ${t("action.confirm")}!`
+    });
   };
   
   const handlePlaceBet = (horseId: string, amount: number) => {
     if (!gameState) return;
     
     if (gameState.playerMoney - amount < 100) {
-      toast.error("You need to maintain at least $100 after betting!");
+      toast.error(t("toast.error"), {
+        description: t("betWarning.max")
+      });
       return;
     }
     
@@ -133,7 +150,9 @@ const GameContainer = ({
     setBetPlaced(true);
     
     const horse = [...updatedGameState.competitors, updatedGameState.playerHorse].find(h => h.id === horseId);
-    toast.success(`Bet $${amount} on ${horse?.name}`);
+    toast.success(t("toast.success"), {
+      description: `${t("betting.place")} $${amount} ${t("betting.selectForBet")} ${horse?.name}`
+    });
   };
   
   const handleStartRace = () => {
@@ -212,9 +231,13 @@ const GameContainer = ({
       
       if (currentEvent.moneyEffect) {
         if (currentEvent.moneyEffect > 0) {
-          toast.success(`Event: ${currentEvent.title}! +$${currentEvent.moneyEffect}`);
+          toast.success(t("toast.success"), {
+            description: `${currentEvent.title}! +$${currentEvent.moneyEffect}`
+          });
         } else {
-          toast.error(`Event: ${currentEvent.title}! ${currentEvent.moneyEffect}`);
+          toast.error(t("toast.error"), {
+            description: `${currentEvent.title}! ${currentEvent.moneyEffect}`
+          });
         }
       }
     } else if (currentEvent.type === "choice" && currentEvent.acceptEffect) {
@@ -230,7 +253,9 @@ const GameContainer = ({
         setGameState(updatedGameState);
       }
       
-      toast.success(`Event: ${message}`);
+      toast.success(t("toast.success"), {
+        description: message
+      });
     }
     
     setCurrentEvent(null);
