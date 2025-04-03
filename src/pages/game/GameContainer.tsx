@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import GameHeader from "./components/GameHeader";
@@ -47,6 +48,7 @@ const GameContainer = ({
   const [betPlaced, setBetPlaced] = useState<boolean>(false);
   const [raceInProgress, setRaceInProgress] = useState<boolean>(false);
   const [currentEvent, setCurrentEvent] = useState<RandomEvent | null>(null);
+  const [pendingPassiveEvent, setPendingPassiveEvent] = useState<boolean>(false);
   const [eventProcessed, setEventProcessed] = useState<boolean>(false);
   const [gameEnded, setGameEnded] = useState<boolean>(false);
   const [seasonResults, setSeasonResults] = useState<{raceNumber: number; results: RaceResult[]}[]>([]);
@@ -55,7 +57,16 @@ const GameContainer = ({
   useEffect(() => {
     const newGame = initializeGame(playerName || "Player", jockeyId);
     setGameState(newGame);
-    setCurrentEvent(getRandomEvent());
+    
+    // Get the first event
+    const firstEvent = getRandomEvent();
+    setCurrentEvent(firstEvent);
+    
+    // If it's a passive event, mark it as pending instead of
+    // immediately applying it
+    if (firstEvent && firstEvent.type === "passive") {
+      setPendingPassiveEvent(true);
+    }
   }, [playerName, jockeyId]);
   
   const handleTrainingSelection = (type: "general" | "speed" | "rest" | "sync") => {
@@ -173,7 +184,25 @@ const GameContainer = ({
     
     setTimeout(() => {
       const raceResults = simulateRace(gameState);
-      const updatedGameState = updateHorsesAfterRace(raceResults);
+      let updatedGameState = updateHorsesAfterRace(raceResults);
+      
+      // Apply pending passive event after race concludes
+      if (currentEvent && currentEvent.type === "passive" && pendingPassiveEvent) {
+        updatedGameState = applyRandomEvent(updatedGameState, currentEvent);
+        
+        // Show toast message about the applied passive event
+        if (currentEvent.moneyEffect) {
+          if (currentEvent.moneyEffect > 0) {
+            toast.success(t("toast.success"), {
+              description: `${currentEvent.title}! +$${currentEvent.moneyEffect}`
+            });
+          } else {
+            toast.error(t("toast.error"), {
+              description: `${currentEvent.title}! -$${Math.abs(currentEvent.moneyEffect)}`
+            });
+          }
+        }
+      }
       
       setSeasonResults(prev => [
         ...prev, 
@@ -199,11 +228,20 @@ const GameContainer = ({
       setTrainingSelected(false);
       setBetPlaced(false);
       setSelectedHorseId(null);
+      setPendingPassiveEvent(false);
       
       if (isGameOver(updatedGameState) || updatedGameState.playerMoney < 100) {
         setGameEnded(true);
       } else {
-        setCurrentEvent(getRandomEvent());
+        // Get new event for next race
+        const nextEvent = getRandomEvent();
+        setCurrentEvent(nextEvent);
+        
+        // If it's a passive event, mark it as pending
+        if (nextEvent && nextEvent.type === "passive") {
+          setPendingPassiveEvent(true);
+        }
+        
         setEventProcessed(false);
       }
     }, 3000);
@@ -216,31 +254,8 @@ const GameContainer = ({
   const handleAcceptEvent = () => {
     if (!gameState || !currentEvent) return;
     
-    if (currentEvent.type === "passive") {
-      const updatedGameState = applyRandomEvent(gameState, currentEvent);
-      
-      if (updatedGameState.playerMoney < 100) {
-        setGameState({
-          ...updatedGameState,
-          playerMoney: 0
-        });
-        setGameEnded(true);
-      } else {
-        setGameState(updatedGameState);
-      }
-      
-      if (currentEvent.moneyEffect) {
-        if (currentEvent.moneyEffect > 0) {
-          toast.success(t("toast.success"), {
-            description: `${currentEvent.title}! +$${currentEvent.moneyEffect}`
-          });
-        } else {
-          toast.error(t("toast.error"), {
-            description: `${currentEvent.title}! ${currentEvent.moneyEffect}`
-          });
-        }
-      }
-    } else if (currentEvent.type === "choice" && currentEvent.acceptEffect) {
+    // Only handle choice events here now, passive events are handled after race
+    if (currentEvent.type === "choice" && currentEvent.acceptEffect) {
       const { gameState: updatedGameState, message } = currentEvent.acceptEffect(gameState);
       
       if (updatedGameState.playerMoney < 100) {
@@ -302,6 +317,7 @@ const GameContainer = ({
               onAcceptEvent={handleAcceptEvent}
               onDismissEvent={handleDismissEvent}
               playerMoney={gameState.playerMoney}
+              isPendingPassiveEvent={pendingPassiveEvent}
             />
           </div>
         )}
