@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 // Define language types
@@ -554,4 +555,160 @@ export const translations = {
     "trait.Tactical": "Táctico",
     "trait.Fragile": "Frágil",
     "trait.ChampionBlood": "Sangre campeona",
-    "trait.Underdog": "Desvalido
+    "trait.Underdog": "Desvalido",
+    "trait.DarkHorse": "Caballo negro",
+    "trait.StrongFinisher": "Final fuerte",
+    "trait.CrowdFavorite": "Favorito",
+    "trait.IronHorse": "Caballo de hierro",
+    "trait.NervousRunner": "Corredor nervioso",
+    "trait.PoorStarter": "Mal inicio",
+    "trait.MudRunner": "Corredor de lodo",
+    "trait.LateBloomer": "Tardío",
+    "trait.TrainingResistant": "Resistente al entrenamiento",
+    "trait.Inconsistent": "Inconsistente",
+    "trait.Temperamental": "Temperamental",
+    "trait.SpotlightShy": "Tímido",
+    "trait.LegendaryBloodline": "Linaje legendario",
+    "trait.SixthSense": "Sexto sentido",
+    "trait.PhoenixSpirit": "Espíritu fénix",
+    "trait.HeartofGold": "Corazón de oro",
+    "trait.SoulBond": "Vínculo espiritual",
+    "trait.TimeDilation": "Dilatación temporal",
+    "trait.MiracleWorker": "Milagroso",
+    "trait.RiskTaker": "Arriesgado",
+    "trait.Uninjurable": "Indestructible",
+    "trait.ExtremeTraining": "Entrenamiento extremo",
+    "trait.VeteranTactics": "Tácticas veteranas",
+    
+    // Trait descriptions
+    "traitDesc.FastStarter": "Este caballo sale de la puerta con notable velocidad.",
+    "traitDesc.Endurance": "Puede mantener su rendimiento en largas distancias sin cansarse.",
+    "traitDesc.Unpredictable": "A veces brillante, a veces decepcionante - nunca sabes qué esperar.",
+    "traitDesc.Sprinter": "Destaca en explosiones cortas de velocidad.",
+    "traitDesc.Consistent": "Raramente tiene malas carreras, tiende a rendir de manera constante.",
+    "traitDesc.MuddyTrackExpert": "Rinde excepcionalmente bien en pistas mojadas o embarradas.",
+    "traitDesc.Nervous": "Tiende a inquietarse con las multitudes y el ruido.",
+    "traitDesc.WeatherSensitive": "Su rendimiento varía significativamente según las condiciones climáticas.",
+    "traitDesc.InjuryProne": "Tiene historial de lesionarse más fácilmente que otros caballos.",
+    "traitDesc.LateCharger": "A menudo viene desde atrás para terminar fuerte.",
+    "traitDesc.Focused": "Mantiene la concentración durante toda la carrera.",
+    "traitDesc.EasilyDistracted": "Puede perder el enfoque en momentos críticos.",
+    "traitDesc.TrackMemorizer": "Rinde mejor en pistas familiares.",
+    "traitDesc.RecoveryExpert": "Se recupera rápidamente después de las carreras.",
+    "traitDesc.SlowStarter": "Tarda en alcanzar su velocidad máxima.",
+    "traitDesc.CrowdPleaser": "Rinde mejor cuando hay una gran audiencia.",
+    "traitDesc.Stamina": "Puede mantener un alto rendimiento durante períodos más largos.",
+    "traitDesc.Adaptable": "Se adapta rápidamente a los cambios en las condiciones de la carrera.",
+    "traitDesc.Competitive": "Rinde mejor cuando compite cabeza a cabeza con otros.",
+    "traitDesc.TemperatureSensitive": "Su rendimiento varía según la temperatura.",
+    "traitDesc.Lucky": "A veces desafía las probabilidades de manera sorprendente.",
+    "traitDesc.FastFinisher": "Tiene una impresionante capacidad de sprint final.",
+    "traitDesc.Tactical": "Parece tomar decisiones inteligentes de posicionamiento durante las carreras.",
+    "traitDesc.Fragile": "Más susceptible a lesiones y fatiga.",
+    "traitDesc.ChampionBlood": "Desciende de una línea de caballos ganadores.",
+    "traitDesc.Underdog": "A menudo rinde mejor de lo que las estadísticas predicen.",
+    "traitDesc.DarkHorse": "Tiende a sorprender a los competidores cuando menos se espera.",
+    "traitDesc.StrongFinisher": "Tiene una resistencia increíble en el tramo final.",
+    "traitDesc.CrowdFavorite": "El público ama a este caballo, aumentando su confianza.",
+    "traitDesc.IronHorse": "Conocido por su notable resistencia y aguante.",
+    "traitDesc.NervousRunner": "Se pone ansioso antes y durante las carreras.",
+    "traitDesc.PoorStarter": "Tarda más que la mayoría en tomar impulso después de la salida.",
+    "traitDesc.MudRunner": "Rinde mejor en mal tiempo y en condiciones de pista embarrada.",
+    "traitDesc.LateBloomer": "Desarrolla fuerza y velocidad más tarde en la temporada.",
+    "traitDesc.TrainingResistant": "No siempre responde bien a regímenes de entrenamiento intensivo.",
+    "traitDesc.Inconsistent": "El rendimiento varía impredeciblemente de carrera a carrera.",
+    "traitDesc.Temperamental": "El estado de ánimo puede afectar mucho el rendimiento en la carrera.",
+    "traitDesc.SpotlightShy": "No rinde bien cuando es favorito para ganar.",
+    "traitDesc.LegendaryBloodline": "Descendiente de los más grandes campeones en la historia de las carreras. Un don verdaderamente raro.",
+    "traitDesc.SixthSense": "Este caballo parece anticipar obstáculos antes de que aparezcan. Verdaderamente extraordinario.",
+    "traitDesc.PhoenixSpirit": "Puede resurgir del agotamiento de manera milagrosa.",
+    "traitDesc.HeartofGold": "Muestra una increíble determinación frente a los desafíos.",
+    "traitDesc.SoulBond": "Forma una conexión profunda con su jinete, mejorando el rendimiento.",
+    "traitDesc.TimeDilation": "Parece entrar en un estado donde el tiempo mismo se ralentiza en momentos críticos.",
+    "traitDesc.MiracleWorker": "Conocido por lograr lo imposible cuando toda esperanza parece perdida.",
+    "traitDesc.RiskTaker": "Este caballo prospera con el peligro y toma oportunidades que otros caballos no se atreverían.",
+    "traitDesc.Uninjurable": "Este caballo tiene una constitución notable, capaz de evitar lesiones que detendrían a otros.",
+    "traitDesc.ExtremeTraining": "Este caballo se somete a un entrenamiento intenso que lleva al límite el rendimiento equino.",
+    "traitDesc.VeteranTactics": "Años de experiencia han enseñado a este caballo a navegar incluso las carreras más desafiantes.",
+    
+    // Season History Translations
+    "seasonHistory.viewButton": "Ver Historial de Temporada",
+    "seasonHistory.title": "Historial de Temporada",
+    "seasonHistory.noRaces": "Aún no hay carreras completadas",
+    "seasonHistory.race": "Carrera",
+    
+    // Race Results Translations
+    "raceResults.title": "Resultados de Carrera",
+    "raceResults.subtitle": "Posiciones finales y velocidades",
+    "raceResults.yourHorse": "Tu Caballo",
+    "raceResults.yourBet": "Tu Apuesta",
+    
+    // Toast Notifications
+    "toast.success": "Éxito",
+    "toast.error": "Error",
+    "toast.info": "Info",
+    "toast.warning": "Advertencia",
+    
+    // Race Events - Good outcomes (position <= 3)
+    "raceEvent.injury.good": "Se esforzó demasiado y se lesionó a pesar de posicionarse bien",
+    "raceEvent.stumble.good": "Se recuperó magníficamente de un tropiezo inicial",
+    "raceEvent.burst.good": "Tuvo un impulso increíble de velocidad en el momento crítico",
+    "raceEvent.tired.good": "Luchó contra la fatiga para asegurar su posición",
+    "raceEvent.distracted.good": "Superó un momento de distracción",
+    "raceEvent.perfect.good": "Corrió una carrera perfecta de principio a fin",
+    "raceEvent.jockey.good": "El jinete tomó decisiones tácticas brillantes",
+    "raceEvent.weather.good": "Se adaptó bien a las condiciones climáticas desafiantes",
+    "raceEvent.comeback.good": "Hizo un regreso impresionante después de quedarse atrás",
+    "raceEvent.nervous.good": "Controló eficazmente los nervios previos a la carrera",
+    "raceEvent.collision.good": "Navegó a través de una colisión y mantuvo el ritmo",
+    "raceEvent.crowd.good": "Se alimentó de la energía de la multitud",
+    "raceEvent.miracle.good": "Realizó una carrera milagrosa más allá de todas las expectativas",
+    
+    // Race Events - Bad outcomes (position > 3)
+    "raceEvent.injury.bad": "Sufrió una lesión durante la carrera",
+    "raceEvent.stumble.bad": "Tropezó gravemente y no pudo recuperar posición",
+    "raceEvent.burst.bad": "Tuvo un breve impulso de velocidad pero no pudo mantenerlo",
+    "raceEvent.tired.bad": "Se cansó rápidamente y perdió terreno",
+    "raceEvent.distracted.bad": "Se distrajo severamente en un momento crítico",
+    "raceEvent.perfect.bad": "Comenzó perfectamente pero se desvaneció significativamente",
+    "raceEvent.jockey.bad": "El jinete cometió un error táctico crítico",
+    "raceEvent.weather.bad": "Luchó con las condiciones climáticas",
+    "raceEvent.comeback.bad": "Intentó recuperarse pero no pudo compensar el terreno perdido",
+    "raceEvent.nervous.bad": "Estuvo visiblemente nervioso durante toda la carrera",
+    "raceEvent.collision.bad": "Quedó atrapado en el tráfico y perdió posición",
+    "raceEvent.crowd.bad": "Se distrajo por la multitud rugiente",
+    "raceEvent.miracle.bad": "Casi logró un final milagroso",
+
+    // Events
+    "event.pendingMessage": "Este evento se aplicará después de la carrera.",
+  }
+};
+
+// Provider component
+export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [language, setLanguage] = useState<Language>("en");
+
+  // Translation function
+  const t = (key: string, fallback?: string): string => {
+    const translatedText = translations[language][key];
+    if (!translatedText && fallback) {
+      return fallback;
+    }
+    return translatedText || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+};
+
+// Custom hook for using the language context
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error("useLanguage must be used within a LanguageProvider");
+  }
+  return context;
+};
