@@ -29,12 +29,12 @@ const EventPanel = ({ event, onAcceptEvent, onDismissEvent, playerMoney }: Event
   return (
     <Card className="w-full">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">{event.title}</CardTitle>
-        <CardDescription>{event.description}</CardDescription>
+        <CardTitle className="text-lg">{t(event.title, event.title)}</CardTitle>
+        <CardDescription>{t(event.description, event.description)}</CardDescription>
       </CardHeader>
       
       <CardContent>
-        <p className="text-sm">{event.choicePrompt}</p>
+        <p className="text-sm">{t(event.choicePrompt || "", event.choicePrompt || "")}</p>
       </CardContent>
       
       <CardFooter className="flex gap-2">
@@ -59,7 +59,7 @@ const EventPanel = ({ event, onAcceptEvent, onDismissEvent, playerMoney }: Event
             <AlertDialogHeader>
               <AlertDialogTitle>{t("action.confirm")}</AlertDialogTitle>
               <AlertDialogDescription>
-                {event.choicePrompt}
+                {t(event.choicePrompt || "", event.choicePrompt || "")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

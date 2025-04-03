@@ -35,18 +35,15 @@ const RandomEventHandler = ({
       <Alert className="mb-4 border-amber-500 bg-amber-50 dark:bg-amber-950 dark:border-amber-800">
         <InfoIcon className="h-5 w-5 text-amber-600 dark:text-amber-500" />
         <AlertTitle className="text-amber-800 dark:text-amber-400">
-          {event.title}
+          {t(event.title, event.title)}
         </AlertTitle>
         <AlertDescription className="text-amber-700 dark:text-amber-300">
-          {event.description}
+          {t(event.description, event.description)}
           {event.moneyEffect && (
             <span className="font-semibold">
               {' '}{event.moneyEffect > 0 ? `+$${event.moneyEffect}` : `-$${Math.abs(event.moneyEffect)}`}
             </span>
           )}
-          <p className="mt-2 text-sm italic">
-            {t("event.pendingMessage")}
-          </p>
         </AlertDescription>
       </Alert>
     );

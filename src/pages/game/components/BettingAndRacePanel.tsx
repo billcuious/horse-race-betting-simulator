@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import BettingPanel from "@/components/BettingPanel";
 import { Horse, RaceResult } from "@/utils/gameLogic";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useState } from "react";
 
 interface BettingAndRacePanelProps {
   selectedHorseId: string | null;
@@ -17,6 +18,7 @@ interface BettingAndRacePanelProps {
   raceResults: RaceResult[];
   playerHorseId: string;
   onViewResults: () => void;
+  onBetAmountChange: (amount: number) => void;
 }
 
 const BettingAndRacePanel = ({
@@ -29,7 +31,8 @@ const BettingAndRacePanel = ({
   raceInProgress,
   raceResults,
   playerHorseId,
-  onViewResults
+  onViewResults,
+  onBetAmountChange
 }: BettingAndRacePanelProps) => {
   const { t } = useLanguage();
   
@@ -44,6 +47,7 @@ const BettingAndRacePanel = ({
         currentRace={currentRace}
         onStartRace={onStartRace}
         betInProgress={raceInProgress}
+        onBetAmountChange={onBetAmountChange}
       />
       
       {/* Previous Race Result Summary */}

@@ -1,11 +1,11 @@
 
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import React, { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Horse } from "@/utils/gameLogic";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle, Coins } from "lucide-react";
+import { MinusIcon, PlusIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Horse } from "@/utils/gameLogic";
 
 interface BetWarningDialogProps {
   isOpen: boolean;
@@ -14,78 +14,134 @@ interface BetWarningDialogProps {
   onContinueWithoutBet: () => void;
   selectedHorse: Horse | null;
   playerMoney: number;
+  initialBetAmount?: number;
 }
 
-const BetWarningDialog = ({ 
-  isOpen, 
-  onClose, 
-  onPlaceBet, 
+const BetWarningDialog = ({
+  isOpen,
+  onClose,
+  onPlaceBet,
   onContinueWithoutBet,
   selectedHorse,
-  playerMoney
+  playerMoney,
+  initialBetAmount = 100,
 }: BetWarningDialogProps) => {
-  const [betAmount, setBetAmount] = useState<number>(100);
+  const [betAmount, setBetAmount] = useState(initialBetAmount);
   const { t } = useLanguage();
   
+  // Update betAmount when initialBetAmount changes
+  useEffect(() => {
+    if (initialBetAmount !== 100) {
+      setBetAmount(initialBetAmount);
+    }
+  }, [initialBetAmount]);
+
+  const increaseBet = (amount: number) => {
+    if (betAmount + amount <= playerMoney) {
+      setBetAmount(prev => prev + amount);
+    }
+  };
+
+  const decreaseBet = (amount: number) => {
+    if (betAmount - amount >= 100) {
+      setBetAmount(prev => prev - amount);
+    }
+  };
+
+  const handleManualInput = (value: string) => {
+    const numValue = parseInt(value);
+    if (!isNaN(numValue)) {
+      if (numValue < 100) {
+        setBetAmount(100);
+      } else if (numValue > playerMoney) {
+        setBetAmount(playerMoney);
+      } else {
+        setBetAmount(numValue);
+      }
+    }
+  };
+
   const handlePlaceBet = () => {
-    if (selectedHorse && betAmount > 0) {
+    if (selectedHorse) {
       onPlaceBet(selectedHorse.id, betAmount);
       onClose();
     }
   };
-  
-  const handleContinue = () => {
-    onContinueWithoutBet();
-    onClose();
-  };
-  
-  const maxBet = Math.max(0, playerMoney - 100); // Keep at least $100
-  
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
-            <DialogTitle>{t("betWarning.title")}</DialogTitle>
-          </div>
+          <DialogTitle>{t("betWarning.title")}</DialogTitle>
           <DialogDescription>
-            {t("betWarning.description").replace("{{horseName}}", selectedHorse?.name || "")}
+            {selectedHorse
+              ? t("betWarning.description").replace("{{horseName}}", selectedHorse.name)
+              : ""}
+            <p className="mt-2">{t("betWarning.question")}</p>
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4 py-2">
+
+        <div className="flex flex-col space-y-4 py-4">
           <div className="flex items-center gap-2">
-            <Coins className="h-4 w-4 text-muted-foreground" />
-            <span>{t("betWarning.question")}</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => decreaseBet(100)}
+              disabled={betAmount <= 100}
+            >
+              <MinusIcon className="h-4 w-4" />
+            </Button>
+
             <Input
               type="number"
               min={100}
-              max={maxBet}
+              max={playerMoney}
               value={betAmount}
-              onChange={(e) => setBetAmount(Number(e.target.value))}
-              className="w-full"
+              onChange={(e) => handleManualInput(e.target.value)}
+              className="text-center"
             />
-            <span className="text-muted-foreground whitespace-nowrap">{t("betWarning.max")} ${maxBet}</span>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => increaseBet(100)}
+              disabled={betAmount + 100 > playerMoney}
+            >
+              <PlusIcon className="h-4 w-4" />
+            </Button>
+
+            <span className="text-sm text-muted-foreground">
+              {t("betWarning.max")} ${playerMoney}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              onClick={() => increaseBet(1000)}
+              disabled={betAmount + 1000 > playerMoney}
+            >
+              +$1,000
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => decreaseBet(1000)}
+              disabled={betAmount - 1000 < 100}
+            >
+              -$1,000
+            </Button>
           </div>
         </div>
-        
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleContinue}
-            className="w-full sm:w-auto"
+
+        <DialogFooter className="flex justify-between sm:justify-between">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onContinueWithoutBet}
           >
             {t("betWarning.continue")}
           </Button>
-          <Button 
-            onClick={handlePlaceBet}
-            disabled={!selectedHorse || betAmount <= 0 || betAmount > maxBet}
-            className="w-full sm:w-auto"
-          >
+          <Button type="button" onClick={handlePlaceBet}>
             {t("betWarning.placeBet")}
           </Button>
         </DialogFooter>

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ interface BettingPanelProps {
   currentRace: number;
   onStartRace: () => void;
   betInProgress: boolean;
+  onBetAmountChange?: (amount: number) => void;
 }
 
 const BettingPanel = ({
@@ -26,11 +27,18 @@ const BettingPanel = ({
   playerMoney,
   currentRace,
   onStartRace,
-  betInProgress
+  betInProgress,
+  onBetAmountChange
 }: BettingPanelProps) => {
   const [betAmount, setBetAmount] = useState(100);
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
   const { t } = useLanguage();
+  
+  useEffect(() => {
+    if (onBetAmountChange) {
+      onBetAmountChange(betAmount);
+    }
+  }, [betAmount, onBetAmountChange]);
   
   const increaseBet = (amount: number) => {
     if (betAmount + amount <= playerMoney) {

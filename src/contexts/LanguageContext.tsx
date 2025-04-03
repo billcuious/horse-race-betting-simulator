@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 // Define language types
@@ -348,6 +347,68 @@ export const translations = {
 
     // Events
     "event.pendingMessage": "This event will be applied after the race.",
+    
+    // Event titles and descriptions
+    "Famous Jockey Offer": "Famous Jockey Offer",
+    "A famous jockey offers to race for you!": "A famous jockey offers to race for you!",
+    "Pay $1800 to hire a famous jockey? This will greatly increase Speed (+10) but decrease Control (-15).": "Pay $1800 to hire a famous jockey? This will greatly increase Speed (+10) but decrease Control (-15).",
+    
+    "Horse Health Tonic": "Horse Health Tonic",
+    "A special tonic that promises to increase your horse's endurance.": "A special tonic that promises to increase your horse's endurance.",
+    "Pay $1200 for the tonic? This will increase Endurance (+8) but may slightly reduce Speed (-3).": "Pay $1200 for the tonic? This will increase Endurance (+8) but may slightly reduce Speed (-3).",
+    
+    "Luxury Stable Offer": "Luxury Stable Offer",
+    "An opportunity to rent a premium stable for your horse.": "An opportunity to rent a premium stable for your horse.",
+    "Pay $2000 for the luxury stable? Your horse will gain +5 Recovery and +5 Control.": "Pay $2000 for the luxury stable? Your horse will gain +5 Recovery and +5 Control.",
+    
+    "Local Sponsor Interest": "Local Sponsor Interest",
+    "A local business wants to sponsor your horse.": "A local business wants to sponsor your horse.",
+    "Accept the sponsorship deal? You'll receive $1500, but will need to race with their logo, reducing Control by -5.": "Accept the sponsorship deal? You'll receive $1500, but will need to race with their logo, reducing Control by -5.",
+    
+    "Experimental Training Regime": "Experimental Training Regime",
+    "A cutting-edge training program that could transform your horse.": "A cutting-edge training program that could transform your horse.",
+    "Pay $2500 for the program? It promises major gains (+8 to all stats) but comes with risks of injury.": "Pay $2500 for the program? It promises major gains (+8 to all stats) but comes with risks of injury.",
+    
+    "Charity Race Invitation": "Charity Race Invitation",
+    "You've been invited to participate in a charity exhibition race.": "You've been invited to participate in a charity exhibition race.",
+    "Pay $1000 to enter? You'll gain significant publicity and +10 Control from the experience.": "Pay $1000 to enter? You'll gain significant publicity and +10 Control from the experience.",
+    
+    "Speed Enhancement Offer": "Speed Enhancement Offer",
+    "A trainer offers a special technique to boost your horse's speed.": "A trainer offers a special technique to boost your horse's speed.",
+    "Pay $1500 for the speed enhancement? Your horse will gain +15 Speed but lose -10 Control.": "Pay $1500 for the speed enhancement? Your horse will gain +15 Speed but lose -10 Control.",
+    
+    "Recovery Expert": "Recovery Expert",
+    "A specialist in equine recovery techniques offers their services.": "A specialist in equine recovery techniques offers their services.",
+    "Pay $1300 for the recovery specialist? Your horse will gain +12 Recovery but may lose some training time (-4 Speed).": "Pay $1300 for the recovery specialist? Your horse will gain +12 Recovery but may lose some training time (-4 Speed).",
+    
+    "Private Track Access": "Private Track Access",
+    "An opportunity to train on an exclusive private track.": "An opportunity to train on an exclusive private track.",
+    "Pay $1800 for private track access? Your horse will gain +7 Speed and +7 Control from the specialized training.": "Pay $1800 for private track access? Your horse will gain +7 Speed and +7 Control from the specialized training.",
+    
+    "Bad Weather Forecast": "Bad Weather Forecast",
+    "A storm is predicted for the next race.": "A storm is predicted for the next race.",
+    "Pay $1100 for specialized wet-track training? This will increase your horse's Control (+8) in adverse conditions.": "Pay $1100 for specialized wet-track training? This will increase your horse's Control (+8) in adverse conditions.",
+    
+    "Small Fine": "Small Fine",
+    "You received a minor fine for administrative issues.": "You received a minor fine for administrative issues.",
+    "Sponsor Bonus": "Sponsor Bonus",
+    "A sponsor has awarded you a bonus for good performance!": "A sponsor has awarded you a bonus for good performance!",
+    "Equipment Upgrade": "Equipment Upgrade",
+    "New equipment has slightly improved your horse's performance.": "New equipment has slightly improved your horse's performance.",
+    "Minor Setback": "Minor Setback",
+    "Some minor issues have affected your horse's training.": "Some minor issues have affected your horse's training.",
+    "Lucky Find": "Lucky Find",
+    "You found some money that someone left behind!": "You found some money that someone left behind!",
+    "Favorable Odds": "Favorable Odds",
+    "Betting odds have shifted in your favor, bringing in some extra cash.": "Betting odds have shifted in your favor, bringing in some extra cash.",
+    "Training Accident": "Training Accident",
+    "A minor accident during training has cost you some money.": "A minor accident during training has cost you some money.",
+    "Unexpected Expense": "Unexpected Expense",
+    "An unexpected equipment replacement has cost you money.": "An unexpected equipment replacement has cost you money.",
+    "Generous Tip": "Generous Tip", 
+    "Someone gave you a tip that paid off!": "Someone gave you a tip that paid off!",
+    "Tax Audit": "Tax Audit",
+    "A tax audit has resulted in you owing some back taxes.": "A tax audit has resulted in you owing some back taxes.",
   },
   es: {
     // Game title and start screen
@@ -681,6 +742,68 @@ export const translations = {
 
     // Events
     "event.pendingMessage": "Este evento se aplicará después de la carrera.",
+    
+    // Event titles and descriptions
+    "Famous Jockey Offer": "Oferta de Jinete Famoso",
+    "A famous jockey offers to race for you!": "¡Un jinete famoso se ofrece a correr para ti!",
+    "Pay $1800 to hire a famous jockey? This will greatly increase Speed (+10) but decrease Control (-15).": "¿Pagar $1800 para contratar a un jinete famoso? Esto aumentará considerablemente la Velocidad (+10) pero disminuirá el Control (-15).",
+    
+    "Horse Health Tonic": "Tónico de Salud para Caballos",
+    "A special tonic that promises to increase your horse's endurance.": "Un tónico especial que promete aumentar la resistencia de tu caballo.",
+    "Pay $1200 for the tonic? This will increase Endurance (+8) but may slightly reduce Speed (-3).": "¿Pagar $1200 por el tónico? Esto aumentará la Resistencia (+8) pero puede reducir ligeramente la Velocidad (-3).",
+    
+    "Luxury Stable Offer": "Oferta de Establo de Lujo",
+    "An opportunity to rent a premium stable for your horse.": "Una oportunidad para alquilar un establo premium para tu caballo.",
+    "Pay $2000 for the luxury stable? Your horse will gain +5 Recovery and +5 Control.": "¿Pagar $2000 por el establo de lujo? Tu caballo ganará +5 de Recuperación y +5 de Control.",
+    
+    "Local Sponsor Interest": "Interés de Patrocinador Local",
+    "A local business wants to sponsor your horse.": "Un negocio local quiere patrocinar a tu caballo.",
+    "Accept the sponsorship deal? You'll receive $1500, but will need to race with their logo, reducing Control by -5.": "¿Aceptar el acuerdo de patrocinio? Recibirás $1500, pero tendrás que correr con su logo, reduciendo el Control en -5.",
+    
+    "Experimental Training Regime": "Régimen de Entrenamiento Experimental",
+    "A cutting-edge training program that could transform your horse.": "Un programa de entrenamiento de vanguardia que podría transformar a tu caballo.",
+    "Pay $2500 for the program? It promises major gains (+8 to all stats) but comes with risks of injury.": "¿Pagar $2500 por el programa? Promete grandes ganancias (+8 a todas las estadísticas) pero conlleva riesgos de lesión.",
+    
+    "Charity Race Invitation": "Invitación a Carrera Benéfica",
+    "You've been invited to participate in a charity exhibition race.": "Has sido invitado a participar en una carrera de exhibición benéfica.",
+    "Pay $1000 to enter? You'll gain significant publicity and +10 Control from the experience.": "¿Pagar $1000 para participar? Ganarás publicidad significativa y +10 de Control por la experiencia.",
+    
+    "Speed Enhancement Offer": "Oferta de Mejora de Velocidad",
+    "A trainer offers a special technique to boost your horse's speed.": "Un entrenador ofrece una técnica especial para aumentar la velocidad de tu caballo.",
+    "Pay $1500 for the speed enhancement? Your horse will gain +15 Speed but lose -10 Control.": "¿Pagar $1500 por la mejora de velocidad? Tu caballo ganará +15 de Velocidad pero perderá -10 de Control.",
+    
+    "Recovery Expert": "Experto en Recuperación",
+    "A specialist in equine recovery techniques offers their services.": "Un especialista en técnicas de recuperación equina ofrece sus servicios.",
+    "Pay $1300 for the recovery specialist? Your horse will gain +12 Recovery but may lose some training time (-4 Speed).": "¿Pagar $1300 por el especialista en recuperación? Tu caballo ganará +12 de Recuperación pero puede perder algo de tiempo de entrenamiento (-4 de Velocidad).",
+    
+    "Private Track Access": "Acceso a Pista Privada",
+    "An opportunity to train on an exclusive private track.": "Una oportunidad para entrenar en una pista privada exclusiva.",
+    "Pay $1800 for private track access? Your horse will gain +7 Speed and +7 Control from the specialized training.": "¿Pagar $1800 por el acceso a la pista privada? Tu caballo ganará +7 de Velocidad y +7 de Control del entrenamiento especializado.",
+    
+    "Bad Weather Forecast": "Pronóstico de Mal Tiempo",
+    "A storm is predicted for the next race.": "Se predice una tormenta para la próxima carrera.",
+    "Pay $1100 for specialized wet-track training? This will increase your horse's Control (+8) in adverse conditions.": "¿Pagar $1100 por entrenamiento especializado en pista mojada? Esto aumentará el Control de tu caballo (+8) en condiciones adversas.",
+    
+    "Small Fine": "Multa Pequeña",
+    "You received a minor fine for administrative issues.": "Has recibido una multa menor por problemas administrativos.",
+    "Sponsor Bonus": "Bono de Patrocinador",
+    "A sponsor has awarded you a bonus for good performance!": "¡Un patrocinador te ha otorgado un bono por buen rendimiento!",
+    "Equipment Upgrade": "Mejora de Equipo",
+    "New equipment has slightly improved your horse's performance.": "El nuevo equipo ha mejorado ligeramente el rendimiento de tu caballo.",
+    "Minor Setback": "Contratiempo Menor",
+    "Some minor issues have affected your horse's training.": "Algunos problemas menores han afectado el entrenamiento de tu caballo.",
+    "Lucky Find": "Hallazgo Afortunado",
+    "You found some money that someone left behind!": "¡Has encontrado algo de dinero que alguien dejó atrás!",
+    "Favorable Odds": "Probabilidades Favorables",
+    "Betting odds have shifted in your favor, bringing in some extra cash.": "Las probabilidades de apuesta han cambiado a tu favor, trayendo algo de dinero extra.",
+    "Training Accident": "Accidente de Entrenamiento",
+    "A minor accident during training has cost you some money.": "Un accidente menor durante el entrenamiento te ha costado algo de dinero.",
+    "Unexpected Expense": "Gasto Inesperado",
+    "An unexpected equipment replacement has cost you money.": "Un reemplazo de equipo inesperado te ha costado dinero.",
+    "Generous Tip": "Propina Generosa", 
+    "Someone gave you a tip that paid off!": "¡Alguien te dio un consejo que dio resultado!",
+    "Tax Audit": "Auditoría Fiscal",
+    "A tax audit has resulted in you owing some back taxes.": "Una auditoría fiscal ha resultado en que debes algunos impuestos atrasados.",
   }
 };
 

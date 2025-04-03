@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import GameHeader from "./components/GameHeader";
@@ -52,6 +53,7 @@ const GameContainer = ({
   const [gameEnded, setGameEnded] = useState<boolean>(false);
   const [seasonResults, setSeasonResults] = useState<{raceNumber: number; results: RaceResult[]}[]>([]);
   const [showBetWarning, setShowBetWarning] = useState<boolean>(false);
+  const [currentBetAmount, setCurrentBetAmount] = useState<number>(100);
   
   useEffect(() => {
     const newGame = initializeGame(playerName || "Player", jockeyId);
@@ -198,11 +200,11 @@ const GameContainer = ({
         if (currentEvent.moneyEffect) {
           if (currentEvent.moneyEffect > 0) {
             toast.success(t("toast.success"), {
-              description: `${currentEvent.title}! +$${currentEvent.moneyEffect}`
+              description: `${t(currentEvent.title, currentEvent.title)}! +$${currentEvent.moneyEffect}`
             });
           } else {
             toast.error(t("toast.error"), {
-              description: `${currentEvent.title}! -$${Math.abs(currentEvent.moneyEffect)}`
+              description: `${t(currentEvent.title, currentEvent.title)}! -$${Math.abs(currentEvent.moneyEffect)}`
             });
           }
         }
@@ -273,7 +275,7 @@ const GameContainer = ({
       }
       
       toast.success(t("toast.success"), {
-        description: message
+        description: t(message, message)
       });
     }
     
@@ -284,6 +286,11 @@ const GameContainer = ({
   const handleDismissEvent = () => {
     setCurrentEvent(null);
     setEventProcessed(true);
+  };
+  
+  // Track the current bet amount
+  const handleBetAmountChange = (amount: number) => {
+    setCurrentBetAmount(amount);
   };
   
   if (!gameState) return null;
@@ -373,6 +380,7 @@ const GameContainer = ({
             raceResults={gameState.raceResults}
             playerHorseId={gameState.playerHorse.id}
             onViewResults={() => setShowingResults(true)}
+            onBetAmountChange={handleBetAmountChange}
           />
         </div>
       </main>
@@ -405,6 +413,7 @@ const GameContainer = ({
         onContinueWithoutBet={startRaceSequence}
         selectedHorse={selectedHorse}
         playerMoney={gameState.playerMoney}
+        initialBetAmount={currentBetAmount}
       />
     </div>
   );
