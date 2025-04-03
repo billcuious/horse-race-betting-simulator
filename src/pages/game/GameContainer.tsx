@@ -141,7 +141,7 @@ const GameContainer = ({
     
     setGameState(updatedGameState);
     toast.success(t("toast.success"), {
-      description: `${t("horse.loanButton")} $${loanAmount} ${t("action.confirm")}! ${t("horse.interestNote", "Note: $" + interestAmount + " interest will be applied.")}`
+      description: `${t("horse.loanButton")} $${loanAmount} ${t("action.confirm")}! ${t("horse.interestNote").replace("{{interestAmount}}", interestAmount.toString())}`
     });
   };
   

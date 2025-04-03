@@ -75,14 +75,21 @@ export const translations = {
     "horse.takeLoan": "Take a loan if you're short on cash",
     "horse.loanButton": "Take Loan",
     "horse.currentDebt": "Current debt:",
+    "horse.interest": "interest",
+    "horse.totalDebt": "Total debt",
     "horse.loanInfo": "How do loans work?",
     "horse.loanDetails": "Loan Information",
     "horse.loanExplain1": "You can take a loan to get more money for betting and training. The loan amount is based on your current money.",
     "horse.loanExplain2": "The total loan amount will be deducted from your final money at the end of the season.",
+    "horse.loanInterestNormal": "Interest rate: 25%",
+    "horse.loanInterestUnderhanded": "Interest rate: 40%",
+    "horse.loanInterestExplain": "The interest rate is 25% of your loan amount.",
+    "horse.loanInterestExplainUnderhanded": "Your Underhanded Jockey increases interest to 40%.",
     "horse.confirmLoan": "Confirm Loan",
     "horse.loanDescription": "You're about to take a loan of ${{amount}}. This will need to be repaid at the end of the season. Proceed?",
     "horse.mildInjury": "Mild Injury",
     "horse.majorInjury": "Major Injury",
+    "horse.interestNote": "Note: ${{interestAmount}} interest will be applied.",
     
     // Game progress
     "progress.title": "Season Progress",
@@ -336,7 +343,10 @@ export const translations = {
     "raceEvent.nervous.bad": "Was visibly nervous throughout the race",
     "raceEvent.collision.bad": "Got caught in traffic and lost position",
     "raceEvent.crowd.bad": "Was distracted by the roaring crowd",
-    "raceEvent.miracle.bad": "Nearly pulled off a miracle finish"
+    "raceEvent.miracle.bad": "Nearly pulled off a miracle finish",
+
+    // Events
+    "event.pendingMessage": "This event will be applied after the race.",
   },
   es: {
     // Game title and start screen
@@ -398,14 +408,21 @@ export const translations = {
     "horse.takeLoan": "Toma un préstamo si te falta dinero",
     "horse.loanButton": "Tomar Préstamo",
     "horse.currentDebt": "Deuda actual:",
+    "horse.interest": "interés",
+    "horse.totalDebt": "Deuda total",
     "horse.loanInfo": "¿Cómo funcionan los préstamos?",
     "horse.loanDetails": "Información del Préstamo",
     "horse.loanExplain1": "Puedes tomar un préstamo para obtener más dinero para apostar y entrenar. El monto del préstamo se basa en tu dinero actual.",
     "horse.loanExplain2": "El monto total del préstamo se deducirá de tu dinero final al final de la temporada.",
+    "horse.loanInterestNormal": "Tasa de interés: 25%",
+    "horse.loanInterestUnderhanded": "Tasa de interés: 40%",
+    "horse.loanInterestExplain": "La tasa de interés es del 25% del monto de tu préstamo.",
+    "horse.loanInterestExplainUnderhanded": "Tu Jinete Tramposo aumenta el interés al 40%.",
     "horse.confirmLoan": "Confirmar Préstamo",
     "horse.loanDescription": "Estás a punto de tomar un préstamo de ${{amount}}. Deberá ser reembolsado al final de la temporada. ¿Proceder?",
     "horse.mildInjury": "Lesión Leve",
     "horse.majorInjury": "Lesión Grave",
+    "horse.interestNote": "Nota: se aplicarán ${{interestAmount}} de interés.",
     
     // Game progress
     "progress.title": "Progreso de Temporada",
@@ -537,170 +554,4 @@ export const translations = {
     "trait.Tactical": "Táctico",
     "trait.Fragile": "Frágil",
     "trait.ChampionBlood": "Sangre campeona",
-    "trait.Underdog": "Desvalido",
-    "trait.DarkHorse": "Sorpresivo",
-    "trait.StrongFinisher": "Final potente",
-    "trait.CrowdFavorite": "Favorito",
-    "trait.IronHorse": "Caballo de hierro",
-    "trait.NervousRunner": "Corredor nervioso",
-    "trait.PoorStarter": "Mal inicio",
-    "trait.MudRunner": "Corredor de lodo",
-    "trait.LateBloomer": "Tardío",
-    "trait.TrainingResistant": "Resistente al entrenamiento",
-    "trait.Inconsistent": "Inconsistente",
-    "trait.Temperamental": "Temperamental",
-    "trait.SpotlightShy": "Tímido",
-    "trait.LegendaryBloodline": "Linaje legendario",
-    "trait.SixthSense": "Sexto sentido",
-    "trait.PhoenixSpirit": "Espíritu fénix",
-    "trait.HeartofGold": "Corazón de oro",
-    "trait.SoulBond": "Vínculo del alma",
-    "trait.TimeDilation": "Dilata el tiempo",
-    "trait.MiracleWorker": "Milagroso",
-    "trait.RiskTaker": "Arriesgado",
-    "trait.Uninjurable": "Inquebrantable",
-    "trait.ExtremeTraining": "Entrenamiento extremo",
-    "trait.VeteranTactics": "Tácticas veteranas",
-    
-    // Trait descriptions - shortened for UI space
-    "traitDesc.FastStarter": "Sale con rapidez impresionante.",
-    "traitDesc.Endurance": "Mantiene rendimiento sin cansarse.",
-    "traitDesc.Unpredictable": "A veces brillante, a veces decepcionante.",
-    "traitDesc.Sprinter": "Destaca en explosiones breves de velocidad.",
-    "traitDesc.Consistent": "Rara vez tiene malas carreras.",
-    "traitDesc.MuddyTrackExpert": "Excelente en pistas mojadas o fangosas.",
-    "traitDesc.Nervous": "Se inquieta por multitudes y ruido.",
-    "traitDesc.WeatherSensitive": "Rendimiento varía según el clima.",
-    "traitDesc.InjuryProne": "Tiende a lesionarse más fácilmente.",
-    "traitDesc.LateCharger": "Suele remontar al final.",
-    "traitDesc.Focused": "Mantiene concentración durante la carrera.",
-    "traitDesc.EasilyDistracted": "Pierde foco en momentos críticos.",
-    "traitDesc.TrackMemorizer": "Mejor en pistas familiares.",
-    "traitDesc.RecoveryExpert": "Se recupera rápido después de las carreras.",
-    "traitDesc.SlowStarter": "Tarda en alcanzar velocidad máxima.",
-    "traitDesc.CrowdPleaser": "Mejor con gran audiencia.",
-    "traitDesc.Stamina": "Mantiene alto rendimiento por más tiempo.",
-    "traitDesc.Adaptable": "Se adapta rápido a condiciones cambiantes.",
-    "traitDesc.Competitive": "Mejor cuando compite cabeza a cabeza.",
-    "traitDesc.TemperatureSensitive": "Rendimiento varía según temperatura.",
-    "traitDesc.Lucky": "A veces desafía probabilidades.",
-    "traitDesc.FastFinisher": "Impresionante sprint final.",
-    "traitDesc.Tactical": "Toma decisiones inteligentes de posición.",
-    "traitDesc.Fragile": "Más susceptible a lesiones y fatiga.",
-    "traitDesc.ChampionBlood": "Desciende de caballos ganadores.",
-    "traitDesc.Underdog": "Rinde mejor de lo esperado.",
-    "traitDesc.DarkHorse": "Sorprende cuando menos se espera.",
-    "traitDesc.StrongFinisher": "Increíble resistencia en el tramo final.",
-    "traitDesc.CrowdFavorite": "Amado por la audiencia.",
-    "traitDesc.IronHorse": "Notable resistencia y aguante.",
-    "traitDesc.NervousRunner": "Ansioso antes y durante carreras.",
-    "traitDesc.PoorStarter": "Tarda en tomar ritmo.",
-    "traitDesc.MudRunner": "Mejor en mal tiempo y pistas fangosas.",
-    "traitDesc.LateBloomer": "Desarrolla fuerza más tarde en temporada.",
-    "traitDesc.TrainingResistant": "No siempre responde bien al entrenamiento intensivo.",
-    "traitDesc.Inconsistent": "Rendimiento varía impredeciblemente.",
-    "traitDesc.Temperamental": "El humor afecta mucho su rendimiento.",
-    "traitDesc.SpotlightShy": "No rinde bien cuando es favorito.",
-    "traitDesc.LegendaryBloodline": "Descendiente de grandes campeones de la historia.",
-    "traitDesc.SixthSense": "Parece anticipar obstáculos antes de que aparezcan.",
-    "traitDesc.PhoenixSpirit": "Puede surgir del agotamiento de forma milagrosa.",
-    "traitDesc.HeartofGold": "Muestra determinación increíble ante los desafíos.",
-    "traitDesc.SoulBond": "Forma conexión profunda con su jinete.",
-    "traitDesc.TimeDilation": "Parece entrar en un estado donde el tiempo se ralentiza.",
-    "traitDesc.MiracleWorker": "Logra lo imposible cuando parece perdido.",
-    "traitDesc.RiskTaker": "Este caballo prospera con el peligro y toma riesgos.",
-    "traitDesc.Uninjurable": "Tiene constitución notable, evita lesiones.",
-    "traitDesc.ExtremeTraining": "Sometido a entrenamientos que superan límites normales.",
-    "traitDesc.VeteranTactics": "Años de experiencia le han enseñado a navegar carreras difíciles.",
-    
-    // Season History Translations
-    "seasonHistory.viewButton": "Ver Historial de Temporada",
-    "seasonHistory.title": "Historial de Temporada",
-    "seasonHistory.noRaces": "No hay carreras completadas aún",
-    "seasonHistory.race": "Carrera",
-    
-    // Race Results Translations
-    "raceResults.title": "Resultados de Carrera",
-    "raceResults.subtitle": "Posiciones finales y velocidades",
-    "raceResults.yourHorse": "Tu Caballo",
-    "raceResults.yourBet": "Tu Apuesta",
-    
-    // Toast Notifications
-    "toast.success": "Éxito",
-    "toast.error": "Error",
-    "toast.info": "Info",
-    "toast.warning": "Advertencia",
-    
-    // Race Events - Good outcomes (position <= 3)
-    "raceEvent.injury.good": "Se esforzó demasiado y se lesionó a pesar de quedar bien",
-    "raceEvent.stumble.good": "Se recuperó magníficamente de un tropiezo inicial",
-    "raceEvent.burst.good": "Tuvo un impulso increíble de velocidad en el momento crítico",
-    "raceEvent.tired.good": "Luchó contra la fatiga para asegurar su posición",
-    "raceEvent.distracted.good": "Superó un momento de distracción",
-    "raceEvent.perfect.good": "Corrió una carrera perfecta de principio a fin",
-    "raceEvent.jockey.good": "El jinete tomó decisiones tácticas brillantes",
-    "raceEvent.weather.good": "Se adaptó bien a condiciones climáticas difíciles",
-    "raceEvent.comeback.good": "Hizo una remontada impresionante tras quedar atrás",
-    "raceEvent.nervous.good": "Controló eficazmente los nervios previos a la carrera",
-    "raceEvent.collision.good": "Navegó a través de una colisión y mantuvo el ritmo",
-    "raceEvent.crowd.good": "Se alimentó de la energía del público",
-    "raceEvent.miracle.good": "Realizó una carrera milagrosa más allá de las expectativas",
-    
-    // Race Events - Bad outcomes (position > 3)
-    "raceEvent.injury.bad": "Sufrió una lesión durante la carrera",
-    "raceEvent.stumble.bad": "Tropezó gravemente y no pudo recuperar posición",
-    "raceEvent.burst.bad": "Tuvo un breve impulso de velocidad pero no pudo mantenerlo",
-    "raceEvent.tired.bad": "Se cansó rápidamente y perdió terreno",
-    "raceEvent.distracted.bad": "Se distrajo severamente en un momento crítico",
-    "raceEvent.perfect.bad": "Comenzó perfectamente pero se desvaneció significativamente",
-    "raceEvent.jockey.bad": "El jinete cometió un error táctico crítico",
-    "raceEvent.weather.bad": "Luchó con las condiciones climáticas",
-    "raceEvent.comeback.bad": "Intentó recuperarse pero no pudo compensar el terreno perdido",
-    "raceEvent.nervous.bad": "Estuvo visiblemente nervioso durante toda la carrera",
-    "raceEvent.collision.bad": "Quedó atrapado en el tráfico y perdió posición",
-    "raceEvent.crowd.bad": "Se distrajo con el público rugiente",
-    "raceEvent.miracle.bad": "Casi logró un final milagroso"
-  }
-};
-
-// Provider Component
-export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>("en");
-  
-  const t = (key: string, fallback?: string): string => {
-    const lang = language;
-    // @ts-ignore
-    const translation = translations[lang]?.[key];
-    
-    if (translation) {
-      return translation;
-    }
-    
-    // Fallback to English if the key exists there
-    // @ts-ignore
-    const englishTranslation = translations.en[key];
-    if (englishTranslation) {
-      return englishTranslation;
-    }
-    
-    // Return fallback or key if no translation found
-    return fallback || key;
-  };
-  
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
-};
-
-// Hook to use the language context
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  
-  if (context === undefined) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
-  }
-  
-  return context;
-};
+    "trait.Underdog": "Desvalido
