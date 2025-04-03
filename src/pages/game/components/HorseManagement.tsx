@@ -21,6 +21,7 @@ interface HorseManagementProps {
   isDisabled: boolean;
   playerMoney: number;
   loanAmount: number;
+  hasUsedLoanThisRace: boolean;
 }
 
 const HorseManagement = ({
@@ -31,10 +32,17 @@ const HorseManagement = ({
   scoutCosts,
   isDisabled,
   playerMoney,
-  loanAmount
+  loanAmount,
+  hasUsedLoanThisRace
 }: HorseManagementProps) => {
   const availableLoan = calculateLoanAmount(playerMoney);
   const { t } = useLanguage();
+  
+  // Calculate the interest amount (25% of loan amount unless player has Underhanded jockey)
+  const hasUnderhandedTactics = playerHorse.attributes.some(attr => attr.name === "Underhanded Tactics");
+  const interestRate = hasUnderhandedTactics ? 0.4 : 0.25;
+  const interestAmount = Math.floor(loanAmount * interestRate);
+  const totalDebt = loanAmount + interestAmount;
   
   return (
     <>
@@ -67,7 +75,11 @@ const HorseManagement = ({
           <div className="space-y-4">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button className="w-full" variant="outline" disabled={isDisabled}>
+                <Button 
+                  className="w-full" 
+                  variant="outline" 
+                  disabled={isDisabled || hasUsedLoanThisRace}
+                >
                   {t("horse.loanButton")} (${availableLoan})
                 </Button>
               </AlertDialogTrigger>
@@ -76,6 +88,11 @@ const HorseManagement = ({
                   <AlertDialogTitle>{t("horse.confirmLoan")}</AlertDialogTitle>
                   <AlertDialogDescription>
                     {t("horse.loanDescription").replace("{{amount}}", availableLoan.toString())}
+                    <p className="mt-2 font-medium text-destructive">
+                      {hasUnderhandedTactics 
+                        ? t("horse.loanInterestUnderhanded", { fallback: "Interest rate: 40%" })
+                        : t("horse.loanInterestNormal", { fallback: "Interest rate: 25%" })}
+                    </p>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -87,7 +104,13 @@ const HorseManagement = ({
             
             {loanAmount > 0 && (
               <div className="text-sm text-muted-foreground text-center">
-                {t("horse.currentDebt")} ${loanAmount}
+                {t("horse.currentDebt")} ${loanAmount} 
+                <span className="text-destructive ml-1">
+                  (+ ${interestAmount} {t("horse.interest", { fallback: "interest" })})
+                </span>
+                <div className="font-medium mt-1">
+                  {t("horse.totalDebt", { fallback: "Total debt" })}: ${totalDebt}
+                </div>
               </div>
             )}
             
@@ -106,6 +129,11 @@ const HorseManagement = ({
                   </p>
                   <p className="text-sm">
                     {t("horse.loanExplain2")}
+                  </p>
+                  <p className="text-sm font-medium">
+                    {hasUnderhandedTactics 
+                      ? t("horse.loanInterestExplainUnderhanded", { fallback: "Your Underhanded Jockey increases interest to 40%." })
+                      : t("horse.loanInterestExplain", { fallback: "The interest rate is 25% of your loan amount." })}
                   </p>
                 </div>
               </HoverCardContent>

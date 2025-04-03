@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import GameHeader from "./components/GameHeader";
@@ -135,9 +134,14 @@ const GameContainer = ({
     const updatedGameState = takeLoan(gameState);
     const loanAmount = calculateLoanAmount(gameState.playerMoney);
     
+    // Get proper interest rate based on jockey
+    const hasUnderhandedTactics = gameState.playerHorse.attributes.some(attr => attr.name === "Underhanded Tactics");
+    const interestRate = hasUnderhandedTactics ? 0.4 : 0.25;
+    const interestAmount = Math.floor(loanAmount * interestRate);
+    
     setGameState(updatedGameState);
     toast.success(t("toast.success"), {
-      description: `${t("horse.loanButton")} $${loanAmount} ${t("action.confirm")}!`
+      description: `${t("horse.loanButton")} $${loanAmount} ${t("action.confirm")}! ${t("horse.interestNote", {fallback: `Note: $${interestAmount} interest will be applied.`})}`
     });
   };
   
@@ -338,6 +342,7 @@ const GameContainer = ({
               isDisabled={raceInProgress}
               playerMoney={gameState.playerMoney}
               loanAmount={gameState.loanAmount}
+              hasUsedLoanThisRace={gameState.hasUsedLoanThisRace}
             />
           </div>
           
