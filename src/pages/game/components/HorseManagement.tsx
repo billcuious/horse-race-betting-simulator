@@ -90,8 +90,8 @@ const HorseManagement = ({
                     {t("horse.loanDescription").replace("{{amount}}", availableLoan.toString())}
                     <p className="mt-2 font-medium text-destructive">
                       {hasUnderhandedTactics 
-                        ? t("horse.loanInterestUnderhanded", { fallback: "Interest rate: 40%" })
-                        : t("horse.loanInterestNormal", { fallback: "Interest rate: 25%" })}
+                        ? t("horse.loanInterestUnderhanded", "Interest rate: 40%")
+                        : t("horse.loanInterestNormal", "Interest rate: 25%")}
                     </p>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -106,10 +106,10 @@ const HorseManagement = ({
               <div className="text-sm text-muted-foreground text-center">
                 {t("horse.currentDebt")} ${loanAmount} 
                 <span className="text-destructive ml-1">
-                  (+ ${interestAmount} {t("horse.interest", { fallback: "interest" })})
+                  (+ ${interestAmount} {t("horse.interest", "interest")})
                 </span>
                 <div className="font-medium mt-1">
-                  {t("horse.totalDebt", { fallback: "Total debt" })}: ${totalDebt}
+                  {t("horse.totalDebt", "Total debt")}: ${totalDebt}
                 </div>
               </div>
             )}
@@ -132,8 +132,8 @@ const HorseManagement = ({
                   </p>
                   <p className="text-sm font-medium">
                     {hasUnderhandedTactics 
-                      ? t("horse.loanInterestExplainUnderhanded", { fallback: "Your Underhanded Jockey increases interest to 40%." })
-                      : t("horse.loanInterestExplain", { fallback: "The interest rate is 25% of your loan amount." })}
+                      ? t("horse.loanInterestExplainUnderhanded", "Your Underhanded Jockey increases interest to 40%.")
+                      : t("horse.loanInterestExplain", "The interest rate is 25% of your loan amount.")}
                   </p>
                 </div>
               </HoverCardContent>
