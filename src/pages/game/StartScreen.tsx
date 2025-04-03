@@ -22,7 +22,7 @@ interface StartScreenProps {
   onStartGame: (playerName: string, jockeyId: string) => void;
 }
 
-const JOCKEY_OPTIONS: JockeyOption[] = [
+const ALL_JOCKEY_OPTIONS: JockeyOption[] = [
   {
     id: "composed",
     name: "Marcus Williams",
@@ -54,6 +54,38 @@ const JOCKEY_OPTIONS: JockeyOption[] = [
     description: "Lives for the thrill of pushing boundaries, sometimes with spectacular results.",
     effect: "Your horse has a 15% chance per race to unlock a temporary massive speed boost, but injury risk is increased by 1.5x.",
     traits: ["Fearless", "Unpredictable", "Aggressive"]
+  },
+  {
+    id: "celebrity",
+    name: "Jackson Taylor",
+    title: "The Celebrity Jockey",
+    description: "Famous personality who brings in extra sponsorship money for every race.",
+    effect: "Earn $300 bonus each race but only receive half of the prize money for top 3 placements.",
+    traits: ["Famous", "Charismatic", "Marketable"]
+  },
+  {
+    id: "underhanded",
+    name: "Victor Reyes",
+    title: "The Underhanded Jockey",
+    description: "Uses unorthodox methods and has suspicious betting strategies.",
+    effect: "Earn $1000 when placing last, but loans have 40% higher interest. Your horse starts with -3 to all stats.",
+    traits: ["Deceptive", "Calculating", "Unconventional"]
+  },
+  {
+    id: "slippery",
+    name: "Olivia Banks",
+    title: "The Slippery Jockey",
+    description: "Has a knack for sneaking into better positions than expected.",
+    effect: "20% chance to place one position higher each race (except for 1st place). Speed decreases 10% faster after races.",
+    traits: ["Opportunistic", "Clever", "Sneaky"]
+  },
+  {
+    id: "oneshot",
+    name: "Michael Zhang",
+    title: "The One Shot Jockey",
+    description: "Strategizes for a single, perfectly timed race in the season.",
+    effect: "Race 10: +5 to all stats and +$1000 prize money. After: double stat decrease. Starts with -4 to all stats.",
+    traits: ["Strategic", "All-or-nothing", "Precise"]
   }
 ];
 
@@ -61,6 +93,26 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
   const [playerName, setPlayerName] = useState<string>("");
   const [selectedJockeyId, setSelectedJockeyId] = useState<string>("composed");
   const { t } = useLanguage();
+  
+  // Randomly select 4 jockeys to display
+  const [availableJockeys] = useState<JockeyOption[]>(() => {
+    const jockeysPool = [...ALL_JOCKEY_OPTIONS];
+    const selectedJockeys: JockeyOption[] = [];
+    
+    for (let i = 0; i < 4; i++) {
+      const randomIndex = Math.floor(Math.random() * jockeysPool.length);
+      selectedJockeys.push(jockeysPool[randomIndex]);
+      jockeysPool.splice(randomIndex, 1);
+    }
+    
+    // If "composed" is not in the random selection, replace the first jockey with it
+    // This ensures new players always get a simple jockey option
+    if (!selectedJockeys.some(j => j.id === "composed")) {
+      selectedJockeys[0] = ALL_JOCKEY_OPTIONS.find(j => j.id === "composed")!;
+    }
+    
+    return selectedJockeys;
+  });
   
   const handleStartGame = () => {
     onStartGame(playerName.trim() || "Player", selectedJockeyId);
@@ -92,7 +144,7 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
           <div>
             <h3 className="text-lg font-medium mb-3">{t("game.chooseJockey")}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {JOCKEY_OPTIONS.map((jockey) => (
+              {availableJockeys.map((jockey) => (
                 <div 
                   key={jockey.id}
                   className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedJockeyId === jockey.id ? 'border-racing-green bg-green-50' : 'hover:border-gray-400'}`}

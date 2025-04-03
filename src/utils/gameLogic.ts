@@ -491,7 +491,6 @@ const applyJockeyEffects = (horse: Horse, jockeyId: string): void => {
       
     case "risk":
       // The Risk Taker: 15% chance for speed boost, 1.5x injury risk
-      // No longer modifies starting stats, just adds a special trait
       const riskTakerTrait: HorseAttribute = {
         name: "Risk Taker",
         description: "This horse has a chance for a massive speed boost in each race but is more prone to injuries.",
@@ -507,6 +506,78 @@ const applyJockeyEffects = (horse: Horse, jockeyId: string): void => {
       
       horse.attributes.push(riskTakerTrait);
       horse.revealedAttributes.push(riskTakerTrait);
+      break;
+      
+    case "celebrity":
+      // Celebrity Jockey: $300 bonus per race, half prize money for top 3
+      const celebrityTrait: HorseAttribute = {
+        name: "Celebrity Status",
+        description: "This jockey's fame brings in sponsorship money but they take a bigger cut of prize money.",
+        isPositive: true,
+        effect: (h: Horse) => {
+          // Effects handled during race calculations
+        }
+      };
+      
+      horse.attributes.push(celebrityTrait);
+      horse.revealedAttributes.push(celebrityTrait);
+      break;
+      
+    case "underhanded":
+      // Underhanded Jockey: Gains $1000 for last place, 40% loan interest, -3 all stats
+      horse.displayedSpeed = Math.max(40, horse.displayedSpeed - 3);
+      horse.control = Math.max(10, horse.control - 3);
+      horse.recovery = Math.max(10, horse.recovery - 3);
+      horse.endurance = Math.max(10, horse.endurance - 3);
+      horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+      
+      const underhandedTrait: HorseAttribute = {
+        name: "Underhanded Tactics",
+        description: "This jockey uses questionable methods, receiving payouts for last place but with higher loan costs.",
+        isPositive: false,
+        effect: (h: Horse) => {
+          // Effects handled during race calculations
+        }
+      };
+      
+      horse.attributes.push(underhandedTrait);
+      horse.revealedAttributes.push(underhandedTrait);
+      break;
+      
+    case "slippery":
+      // Slippery Jockey: 20% chance to place one position higher, speed decreases 10% faster
+      const slipperyTrait: HorseAttribute = {
+        name: "Slippery Tactics",
+        description: "This jockey can sneak into better positions but pushes the horse harder, accelerating stat decline.",
+        isPositive: true,
+        effect: (h: Horse) => {
+          // Effects handled during race calculations
+        }
+      };
+      
+      horse.attributes.push(slipperyTrait);
+      horse.revealedAttributes.push(slipperyTrait);
+      break;
+      
+    case "oneshot":
+      // One Shot Jockey: Race 10 bonus, double stat decline after, -4 all stats
+      horse.displayedSpeed = Math.max(40, horse.displayedSpeed - 4);
+      horse.control = Math.max(10, horse.control - 4);
+      horse.recovery = Math.max(10, horse.recovery - 4);
+      horse.endurance = Math.max(10, horse.endurance - 4);
+      horse.actualSpeed = horse.displayedSpeed * (0.8 + 0.2 * horse.endurance / 100);
+      
+      const oneShotTrait: HorseAttribute = {
+        name: "One Shot Specialist",
+        description: "This jockey focuses on a single race at the cost of long-term performance.",
+        isPositive: true,
+        effect: (h: Horse) => {
+          // Effects handled during race calculations
+        }
+      };
+      
+      horse.attributes.push(oneShotTrait);
+      horse.revealedAttributes.push(oneShotTrait);
       break;
   }
 };
@@ -709,7 +780,14 @@ export const takeLoan = (gameState: GameState): GameState => {
   }
   
   const newState = { ...gameState };
-  const loanAmount = calculateLoanAmount(newState.playerMoney);
+  let loanAmount = calculateLoanAmount(newState.playerMoney);
+  
+  // Check for Underhanded Tactics - 40% higher loan interest
+  const hasUnderhandedTactics = newState.playerHorse.attributes.some(attr => attr.name === "Underhanded Tactics");
+  if (hasUnderhandedTactics) {
+    // Apply 40% instead of the normal 25% interest by adjusting the amount taken
+    loanAmount = Math.floor(loanAmount * 0.893); // ~10.7% reduction in loan amount to account for higher interest
+  }
   
   newState.playerMoney += loanAmount;
   newState.loanAmount += loanAmount;
@@ -752,7 +830,7 @@ const applySimulatedTraining = (horse: Horse, currentRace: number, totalRaces: n
 };
 
 // Helper function to update a single horse's stats after a race
-const updateHorseStatsAfterRace = (horse: Horse, currentRace: number, totalRaces: number): Horse => {
+const updateHorseStatsAfterRace = (horse: Horse, currentRace: number, totalRaces: number, gameState: GameState): Horse => {
   const updatedHorse = { ...horse };
   
   // How much recovery gets drained is based on endurance (higher endurance = less drain)
@@ -791,13 +869,33 @@ const updateHorseStatsAfterRace = (horse: Horse, currentRace: number, totalRaces
     }
   }
   
-  if (statDegradation > 0) {
+  // Check for Slippery Jockey effect - 10% faster speed decrease
+  const hasSlipperyTactics = updatedHorse.attributes.some(attr => attr.name === "Slippery Tactics");
+  if (hasSlipperyTactics) {
+    // Add 10% more to speed degradation
+    const additionalSpeedLoss = statDegradation * 0.1;
+    if (statDegradation > 0) {
+      updatedHorse.displayedSpeed = Math.max(40, updatedHorse.displayedSpeed - (statDegradation * 0.5 + additionalSpeedLoss));
+    }
+  }
+  
+  // Check for One Shot Jockey effect - double stat decline after race 10
+  const hasOneShotSpecialist = updatedHorse.attributes.some(attr => attr.name === "One Shot Specialist");
+  if (hasOneShotSpecialist && currentRace > 10) {
+    // Double stat degradation post race 10
+    if (statDegradation > 0) {
+      updatedHorse.displayedSpeed = Math.max(40, updatedHorse.displayedSpeed - statDegradation * 0.5 * 2 - 5);
+      updatedHorse.control = Math.max(10, updatedHorse.control - statDegradation * 0.7 * 2);
+      updatedHorse.endurance = Math.max(10, updatedHorse.endurance - statDegradation * 0.3 * 2);
+    }
+  } else if (statDegradation > 0) {
+    // Regular stat degradation for all other jockeys/races
     updatedHorse.displayedSpeed = Math.max(40, updatedHorse.displayedSpeed - statDegradation * 0.5);
     updatedHorse.control = Math.max(10, updatedHorse.control - statDegradation * 0.7);
     updatedHorse.endurance = Math.max(10, updatedHorse.endurance - statDegradation * 0.3);
-    
-    updatedHorse.actualSpeed = updatedHorse.displayedSpeed * (0.8 + 0.2 * updatedHorse.endurance / 100);
   }
+  
+  updatedHorse.actualSpeed = updatedHorse.displayedSpeed * (0.8 + 0.2 * updatedHorse.endurance / 100);
   
   // Handle injury recovery
   if (updatedHorse.hasInjury && updatedHorse.injuryType === "mild") {
@@ -821,7 +919,8 @@ export const updateHorsesAfterRace = (gameState: GameState): GameState => {
   newState.playerHorse = updateHorseStatsAfterRace(
     newState.playerHorse, 
     newState.currentRace,
-    newState.totalRaces
+    newState.totalRaces,
+    newState
   );
   
   // Update all competitors with both natural stat changes and simulated training
@@ -830,7 +929,8 @@ export const updateHorsesAfterRace = (gameState: GameState): GameState => {
     const updatedHorse = updateHorseStatsAfterRace(
       horse,
       newState.currentRace,
-      newState.totalRaces
+      newState.totalRaces,
+      newState
     );
     
     // Then apply simulated training effects to AI horses
@@ -875,10 +975,22 @@ export const calculateHorseRacePerformance = (
   horse: Horse,
   allHorses: Horse[],
   raceNumber: number,
-  totalRaces: number
+  totalRaces: number,
+  gameState: GameState
 ): { performance: number, events: string[] } => {
   const activeHorse = { ...horse };
   const events: string[] = [];
+  
+  // Check for One Shot Jockey effect - bonus for race 10
+  const hasOneShotSpecialist = activeHorse.attributes.some(attr => attr.name === "One Shot Specialist");
+  if (hasOneShotSpecialist && raceNumber === 10) {
+    activeHorse.displayedSpeed = Math.min(100, activeHorse.displayedSpeed + 5);
+    activeHorse.control = Math.min(100, activeHorse.control + 5);
+    activeHorse.recovery = Math.min(100, activeHorse.recovery + 5);
+    activeHorse.endurance = Math.min(100, activeHorse.endurance + 5);
+    activeHorse.actualSpeed = activeHorse.displayedSpeed * (0.8 + 0.2 * activeHorse.endurance / 100);
+    events.push("burst");
+  }
   
   // Calculate average top speed of all horses for Dark Horse trait
   const avgTopSpeed = allHorses.reduce((sum, h) => sum + h.actualSpeed, 0) / allHorses.length;
@@ -1082,7 +1194,8 @@ export const simulateRace = (gameState: GameState): GameState => {
       horse,
       allHorses,
       newState.currentRace,
-      newState.totalRaces
+      newState.totalRaces,
+      newState
     );
     
     performances.push({ horse, performance, events });
@@ -1094,6 +1207,25 @@ export const simulateRace = (gameState: GameState): GameState => {
     }
     return b.performance - a.performance;
   });
+  
+  // Apply Slippery Jockey effect - 20% chance to move up one position (except to 1st)
+  const hasSlipperyTactics = newState.playerHorse.attributes.some(attr => attr.name === "Slippery Tactics");
+  
+  if (hasSlipperyTactics) {
+    // Find player horse index in performances
+    const playerHorseIndex = performances.findIndex(p => p.horse.id === newState.playerHorse.id);
+    
+    // If player horse isn't already in 1st place and 20% chance hits
+    if (playerHorseIndex > 1 && Math.random() < 0.2) {
+      // Swap positions with the horse ahead
+      const temp = performances[playerHorseIndex];
+      performances[playerHorseIndex] = performances[playerHorseIndex - 1];
+      performances[playerHorseIndex - 1] = temp;
+      
+      // Add jockey event for UI feedback
+      performances[playerHorseIndex - 1].events.push("jockey");
+    }
+  }
   
   const results: RaceResult[] = performances.map((perf, index) => ({
     horseId: perf.horse.id,
@@ -1128,12 +1260,35 @@ export const simulateRace = (gameState: GameState): GameState => {
   if (playerHorseResult) {
     let prizeMoney = 0;
     
+    // Check for Celebrity Jockey effect - half prize money for top 3
+    const hasCelebrityStatus = newState.playerHorse.attributes.some(attr => attr.name === "Celebrity Status");
+    
     if (playerHorseResult.position === 1) {
-      prizeMoney = 2000;
+      prizeMoney = hasCelebrityStatus ? 1000 : 2000; // Half prize money if Celebrity Jockey
     } else if (playerHorseResult.position === 2) {
-      prizeMoney = 1000;
+      prizeMoney = hasCelebrityStatus ? 500 : 1000;
     } else if (playerHorseResult.position === 3) {
-      prizeMoney = 500;
+      prizeMoney = hasCelebrityStatus ? 250 : 500;
+    }
+    
+    // Check for Celebrity Jockey - $300 bonus per race
+    if (hasCelebrityStatus) {
+      prizeMoney += 300;
+      toast.success(`Celebrity Jockey earned $300 in sponsorships!`);
+    }
+    
+    // Check for Underhanded Jockey - $1000 for last place
+    const hasUnderhandedTactics = newState.playerHorse.attributes.some(attr => attr.name === "Underhanded Tactics");
+    if (hasUnderhandedTactics && playerHorseResult.position === performances.length) {
+      prizeMoney += 1000;
+      toast.success(`Underhanded Jockey earned $1000 for last place!`);
+    }
+    
+    // Check for One Shot Jockey - additional $1000 prize money on race 10
+    const hasOneShotSpecialist = newState.playerHorse.attributes.some(attr => attr.name === "One Shot Specialist");
+    if (hasOneShotSpecialist && newState.currentRace === 10 && playerHorseResult.position <= 3) {
+      prizeMoney += 1000;
+      toast.success(`One Shot Jockey earned an extra $1000 prize money!`);
     }
     
     if (prizeMoney > 0) {
