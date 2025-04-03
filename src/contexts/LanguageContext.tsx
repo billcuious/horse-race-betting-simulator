@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 // Define language types
@@ -47,6 +46,18 @@ export const translations = {
     "jockey.risk.title": "The Risk Taker",
     "jockey.risk.desc": "Lives for the thrill of pushing boundaries, sometimes with spectacular results.",
     "jockey.risk.effect": "Your horse has a 15% chance per race to unlock a temporary massive speed boost, but injury risk is increased by 1.5x.",
+    "jockey.celebrity.title": "The Celebrity Jockey",
+    "jockey.celebrity.desc": "Famous personality who brings in extra sponsorship money for every race.",
+    "jockey.celebrity.effect": "Earn $300 bonus each race but only receive half of the prize money for top 3 placements.",
+    "jockey.underhanded.title": "The Underhanded Jockey",
+    "jockey.underhanded.desc": "Uses unorthodox methods and has suspicious betting strategies.",
+    "jockey.underhanded.effect": "Earn $1000 when placing last, but loans have 40% higher interest. Your horse starts with -3 to all stats.",
+    "jockey.slippery.title": "The Slippery Jockey",
+    "jockey.slippery.desc": "Has a knack for sneaking into better positions than expected.",
+    "jockey.slippery.effect": "20% chance to place one position higher each race (except for 1st place). Speed decreases 10% faster after races.",
+    "jockey.oneshot.title": "The One Shot Jockey",
+    "jockey.oneshot.desc": "Strategizes for a single, perfectly timed race in the season.",
+    "jockey.oneshot.effect": "Race 10: +5 to all stats and +$1000 prize money. After: double stat decrease. Starts with -4 to all stats.",
     
     // Traits
     "traits.title": "How This Affects Your Horse",
@@ -358,10 +369,22 @@ export const translations = {
     "jockey.risk.title": "El Arriesgado",
     "jockey.risk.desc": "Vive por la emoción de empujar los límites, a veces con resultados espectaculares.",
     "jockey.risk.effect": "Tu caballo tiene un 15% de probabilidad por carrera de desbloquear un impulso de velocidad masivo temporal, pero el riesgo de lesión aumenta en 1.5 veces.",
+    "jockey.celebrity.title": "El Jinete Celebridad",
+    "jockey.celebrity.desc": "Personalidad famosa que atrae dinero extra de patrocinadores en cada carrera.",
+    "jockey.celebrity.effect": "Gana $300 adicionales por carrera pero solo recibe la mitad del premio por posiciones 1-3.",
+    "jockey.underhanded.title": "El Jinete Tramposo",
+    "jockey.underhanded.desc": "Utiliza métodos poco ortodoxos y tiene estrategias de apuestas sospechosas.",
+    "jockey.underhanded.effect": "Gana $1000 al quedar último, pero los préstamos tienen un 40% más de interés. Tu caballo comienza con -3 en todas las estadísticas.",
+    "jockey.slippery.title": "La Jinete Escurridiza",
+    "jockey.slippery.desc": "Tiene una habilidad para colarse en mejores posiciones de lo esperado.",
+    "jockey.slippery.effect": "20% de probabilidad de subir una posición en cada carrera (excepto para el 1er lugar). La velocidad disminuye un 10% más rápido después de las carreras.",
+    "jockey.oneshot.title": "El Jinete de Una Oportunidad",
+    "jockey.oneshot.desc": "Planifica para una sola carrera perfectamente cronometrada en la temporada.",
+    "jockey.oneshot.effect": "Carrera 10: +5 a todas las estadísticas y +$1000 de premio. Después: disminución doble de estadísticas. Comienza con -4 en todas las estadísticas.",
     
     // Traits
     "traits.title": "Cómo Afecta Esto a Tu Caballo",
-    "trait.effectsPerformance": "afecta el rendimiento de este caballo.",
+    "trait.effectsPerformance": "affecta el rendimiento de este caballo.",
     "trait.moreToDiscover": "Más rasgos por descubrir",
     
     // Game header
