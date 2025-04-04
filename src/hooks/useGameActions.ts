@@ -183,8 +183,11 @@ export const useGameActions = (
         }
       }
       
-      // Fix: Extract the raceResults from the updated game state
-      addRaceResults(gameState.currentRace, updatedGameState.raceResults);
+      // Get the race results from the updated game state
+      // This fixes the type error by explicitly passing RaceResult[] instead of GameState
+      const resultsToAdd = [...updatedGameState.raceResults];
+      addRaceResults(gameState.currentRace, resultsToAdd);
+      
       setGameState(updatedGameState);
       
       setRaceInProgress(false);
