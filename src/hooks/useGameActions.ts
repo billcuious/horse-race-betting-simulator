@@ -183,6 +183,7 @@ export const useGameActions = (
         }
       }
       
+      // Fix: Extract the raceResults from the updated game state
       addRaceResults(gameState.currentRace, updatedGameState.raceResults);
       setGameState(updatedGameState);
       
