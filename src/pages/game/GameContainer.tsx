@@ -9,6 +9,7 @@ import BettingAndRacePanel from "./components/BettingAndRacePanel";
 import RaceResults from "@/components/RaceResults";
 import GameEndScreen from "./GameEndScreen";
 import BetWarningDialog from "@/components/BetWarningDialog";
+import RaceInProgress from "./components/RaceInProgress";
 import { 
   GameState,
   SCOUTING_COSTS
