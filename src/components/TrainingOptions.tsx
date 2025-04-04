@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +16,7 @@ interface TrainingOptionsProps {
 const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisabled }: TrainingOptionsProps) => {
   const { t } = useLanguage();
   
+  // These effects now match the actual implementation in gameLogic.ts
   const trainingOptions = [
     {
       id: "general",
@@ -48,7 +50,7 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
         { stat: t("stats.speed"), change: "-1", color: "text-red-500" },
         { stat: t("stats.control"), change: "-1", color: "text-red-500" },
         { stat: t("stats.endurance"), change: "-1", color: "text-red-500" },
-        { stat: t("stats.recovery"), change: "+15", color: "text-green-500" }
+        { stat: t("stats.recovery"), change: "+25", color: "text-green-500" }
       ],
       cost: 0
     },
@@ -58,6 +60,8 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
       description: t("training.control.desc"),
       effects: [
         { stat: t("stats.control"), change: "+7", color: "text-green-500" },
+        { stat: t("stats.endurance"), change: "+3", color: "text-green-500" },
+        { stat: t("stats.recovery"), change: "-10", color: "text-red-500" },
         { stat: t("stats.bonus"), change: t("training.sync.bonus"), color: "text-blue-500" }
       ],
       cost: getTrainingCost("sync", trainingsUsed.sync || 0)
