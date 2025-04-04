@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { getTrainingCost } from "@/utils/gameLogic";
+import { getTrainingCost } from "@/utils/trainingLogic";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TrainingOptionsProps {
@@ -49,7 +49,7 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
       effects: [
         { stat: t("stats.speed"), change: "-1", color: "text-red-500" },
         { stat: t("stats.control"), change: "-1", color: "text-red-500" },
-        { stat: t("stats.endurance"), change: "-1", color: "text-red-500" },
+        { stat: t("stats.endurance"), change: "+3", color: "text-green-500" },
         { stat: t("stats.recovery"), change: "+25", color: "text-green-500" }
       ],
       cost: 0
@@ -59,6 +59,7 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
       name: t("training.control"),
       description: t("training.control.desc"),
       effects: [
+        { stat: t("stats.speed"), change: "+1", color: "text-green-500" },
         { stat: t("stats.control"), change: "+7", color: "text-green-500" },
         { stat: t("stats.endurance"), change: "+3", color: "text-green-500" },
         { stat: t("stats.recovery"), change: "-10", color: "text-red-500" },
