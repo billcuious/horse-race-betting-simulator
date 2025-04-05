@@ -686,7 +686,7 @@ export const applyTraining = (gameState: GameState, trainingType: "general" | "s
       horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 3 * effectMultiplier);
       horse.control = Math.min(100, horse.control + 2 * effectMultiplier);
       horse.endurance = Math.min(100, horse.endurance + 2 * effectMultiplier);
-      horse.recovery = Math.max(10, horse.recovery - 5 * effectMultiplier); // Change to DECREASE recovery by 5
+      horse.recovery = Math.max(10, horse.recovery - 5 * effectMultiplier);
       break;
     case "speed":
       horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 8 * effectMultiplier);
@@ -695,15 +695,15 @@ export const applyTraining = (gameState: GameState, trainingType: "general" | "s
       horse.recovery = Math.max(10, horse.recovery - 15 * effectMultiplier);
       break;
     case "rest":
-      horse.recovery = Math.min(100, horse.recovery + 25 * effectMultiplier);
-      horse.endurance = Math.min(100, horse.endurance + 3 * effectMultiplier);
+      horse.recovery = Math.min(100, horse.recovery + 15 * effectMultiplier); // Changed from 25 to 15
       horse.displayedSpeed = Math.max(40, horse.displayedSpeed - 1 * effectMultiplier);
       horse.control = Math.max(10, horse.control - 1 * effectMultiplier);
+      horse.endurance = Math.max(10, horse.endurance - 1 * effectMultiplier);
       break;
     case "sync":
       horse.control = Math.min(100, horse.control + 7 * effectMultiplier);
       horse.displayedSpeed = Math.min(100, horse.displayedSpeed + 1 * effectMultiplier);
-      horse.endurance = Math.min(100, horse.endurance + 3 * effectMultiplier);
+      // Removed endurance buff from sync training
       horse.recovery = Math.max(10, horse.recovery - 10 * effectMultiplier);
       break;
   }
@@ -846,6 +846,7 @@ const updateHorseStatsAfterRace = (horse: Horse, currentRace: number, totalRaces
   updatedHorse.recovery = Math.max(10, updatedHorse.recovery - recoveryLoss);
   
   // How much other stats degrade is based on recovery (higher recovery = less degradation)
+  // This confirms that stat degradation is already linked to recovery stat
   const statDegradation = Math.max(0, 8 - Math.floor(updatedHorse.recovery / 15));
   
   // Check for Extreme Trainer jockey effect - increased endurance loss
@@ -877,11 +878,11 @@ const updateHorseStatsAfterRace = (horse: Horse, currentRace: number, totalRaces
     }
   }
   
-  // Check for Slippery Jockey effect - 10% faster speed decrease
+  // Check for Slippery Jockey effect - increased from 10% to 15% faster speed decrease
   const hasSlipperyTactics = updatedHorse.attributes.some(attr => attr.name === "Slippery Tactics");
   if (hasSlipperyTactics) {
-    // Add 10% more to speed degradation
-    const additionalSpeedLoss = statDegradation * 0.1;
+    // Increased from 10% to 15% more speed degradation
+    const additionalSpeedLoss = statDegradation * 0.15;
     if (statDegradation > 0) {
       updatedHorse.displayedSpeed = Math.max(40, updatedHorse.displayedSpeed - (statDegradation * 0.5 + additionalSpeedLoss));
     }

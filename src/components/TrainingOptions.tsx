@@ -50,7 +50,7 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
         { stat: t("stats.speed"), change: "-1", color: "text-red-500" },
         { stat: t("stats.control"), change: "-1", color: "text-red-500" },
         { stat: t("stats.endurance"), change: "-1", color: "text-red-500" },
-        { stat: t("stats.recovery"), change: "+25", color: "text-green-500" }
+        { stat: t("stats.recovery"), change: "+15", color: "text-green-500" } // Changed from +25 to +15
       ],
       cost: 0
     },
@@ -60,7 +60,7 @@ const TrainingOptions = ({ onSelectTraining, trainingsUsed, playerMoney, isDisab
       description: t("training.control.desc"),
       effects: [
         { stat: t("stats.control"), change: "+7", color: "text-green-500" },
-        { stat: t("stats.endurance"), change: "+3", color: "text-green-500" },
+        { stat: t("stats.endurance"), change: "+0", color: "text-gray-500" }, // Changed from +3 to +0
         { stat: t("stats.recovery"), change: "-10", color: "text-red-500" },
         { stat: t("stats.bonus"), change: t("training.sync.bonus"), color: "text-blue-500" }
       ],
