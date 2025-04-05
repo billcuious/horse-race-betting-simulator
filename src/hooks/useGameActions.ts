@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { toast } from "sonner";
 import { 
@@ -102,7 +101,6 @@ export const useGameActions = (
     const updatedGameState = takeLoan(gameState);
     const loanAmount = calculateLoanAmount(gameState.playerMoney);
     
-    // Get proper interest rate based on jockey
     const hasUnderhandedTactics = gameState.playerHorse.attributes.some(attr => attr.name === "Underhanded Tactics");
     const interestRate = hasUnderhandedTactics ? 0.4 : 0.25;
     const interestAmount = Math.floor(loanAmount * interestRate);
@@ -165,11 +163,9 @@ export const useGameActions = (
         raceResults
       });
       
-      // Apply pending passive event after race concludes
       if (currentEvent && currentEvent.type === "passive" && pendingPassiveEvent) {
         updatedGameState = applyRandomEvent(updatedGameState, currentEvent);
         
-        // Show toast message about the applied passive event
         if (currentEvent.moneyEffect) {
           if (currentEvent.moneyEffect > 0) {
             toast.success(t("toast.success"), {
@@ -183,8 +179,6 @@ export const useGameActions = (
         }
       }
       
-      // Fix: Extract race results array from the updated game state
-      // This fixes the type error by explicitly passing RaceResult[] instead of GameState
       const resultsToAdd = [...updatedGameState.raceResults];
       addRaceResults(gameState.currentRace, resultsToAdd);
       
@@ -198,9 +192,7 @@ export const useGameActions = (
       setSelectedHorseId(null);
       resetEventState();
       
-      // Set up next event for the next race
       if (!updatedGameState.playerMoney || updatedGameState.currentRace > updatedGameState.totalRaces) {
-        // Game is over, don't set next event
       } else {
         setNextEvent();
       }
@@ -214,7 +206,6 @@ export const useGameActions = (
   const handleAcceptEvent = () => {
     if (!gameState || !currentEvent) return;
     
-    // Only handle choice events here now, passive events are handled after race
     if (currentEvent.type === "choice" && currentEvent.acceptEffect) {
       const { gameState: updatedGameState, message } = currentEvent.acceptEffect(gameState);
       setGameState(updatedGameState);
@@ -233,7 +224,6 @@ export const useGameActions = (
     setEventProcessed(true);
   };
   
-  // Track the current bet amount
   const handleBetAmountChange = (amount: number) => {
     setCurrentBetAmount(amount);
   };
