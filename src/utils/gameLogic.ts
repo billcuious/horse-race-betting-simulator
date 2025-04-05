@@ -1224,7 +1224,7 @@ export const simulateRace = (gameState: GameState): GameState => {
     // Find player horse index in performances
     const playerHorseIndex = performances.findIndex(p => p.horse.id === newState.playerHorse.id);
     
-    // If player horse isn't already in 1st place and 20% chance hits
+    // If player horse isn't already in 1st place and isn't in 2nd place (to avoid moving to 1st) and 20% chance hits
     if (playerHorseIndex > 1 && Math.random() < 0.2) {
       // Swap positions with the horse ahead
       const temp = performances[playerHorseIndex];
