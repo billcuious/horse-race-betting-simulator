@@ -68,6 +68,11 @@ const BetWarningDialog = ({
     }
   };
 
+  const handleContinueWithoutBet = () => {
+    onContinueWithoutBet();
+    onClose(); // Make sure to close the dialog when continuing without bet
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
@@ -137,7 +142,7 @@ const BetWarningDialog = ({
           <Button
             type="button"
             variant="outline"
-            onClick={onContinueWithoutBet}
+            onClick={handleContinueWithoutBet}
           >
             {t("betWarning.continue")}
           </Button>

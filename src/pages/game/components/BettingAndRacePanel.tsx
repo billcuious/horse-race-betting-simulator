@@ -2,10 +2,10 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BettingPanel from "@/components/BettingPanel";
 import { Horse, RaceResult } from "@/utils/gameLogic";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
 
 interface BettingAndRacePanelProps {
   selectedHorseId: string | null;
@@ -19,6 +19,7 @@ interface BettingAndRacePanelProps {
   playerHorseId: string;
   onViewResults: () => void;
   onBetAmountChange: (amount: number) => void;
+  onSelectHorse: (horseId: string | null) => void;
 }
 
 const BettingAndRacePanel = ({
@@ -32,7 +33,8 @@ const BettingAndRacePanel = ({
   raceResults,
   playerHorseId,
   onViewResults,
-  onBetAmountChange
+  onBetAmountChange,
+  onSelectHorse
 }: BettingAndRacePanelProps) => {
   const { t } = useLanguage();
   
@@ -48,6 +50,7 @@ const BettingAndRacePanel = ({
         onStartRace={onStartRace}
         betInProgress={raceInProgress}
         onBetAmountChange={onBetAmountChange}
+        onSelectHorse={onSelectHorse}
       />
       
       {/* Previous Race Result Summary */}

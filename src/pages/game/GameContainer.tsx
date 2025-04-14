@@ -10,6 +10,7 @@ import BettingAndRacePanel from "./components/BettingAndRacePanel";
 import RaceResults from "@/components/RaceResults";
 import GameEndScreen from "./GameEndScreen";
 import BetWarningDialog from "@/components/BetWarningDialog";
+import TutorialDialog from "@/components/TutorialDialog";
 import { 
   GameState,
   Horse, 
@@ -381,6 +382,7 @@ const GameContainer = ({
             playerHorseId={gameState.playerHorse.id}
             onViewResults={() => setShowingResults(true)}
             onBetAmountChange={handleBetAmountChange}
+            onSelectHorse={setSelectedHorseId}
           />
         </div>
       </main>

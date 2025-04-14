@@ -58,7 +58,10 @@ const CompetitorsPanel = ({
       <CardContent className="space-y-4">
         <Sheet>
           <SheetTrigger asChild>
-            <Button className="w-full flex justify-between items-center" variant="outline">
+            <Button 
+              className="w-full flex justify-between items-center bg-racing-gold hover:bg-racing-gold/90 text-black font-medium" 
+              variant="default"
+            >
               <span>{t("competitors.viewAll")}</span>
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
@@ -104,10 +107,10 @@ const CompetitorsPanel = ({
         {/* Season History button - now as a separate component */}
         <SeasonHistory raceResults={seasonResults} />
         
-        {/* Select competitor instructions */}
-        <Button className="w-full text-center" variant="secondary">
+        {/* Select competitor instructions - changed from button to a text label */}
+        <div className="w-full text-center p-2 bg-muted/30 rounded-md text-muted-foreground">
           {t("competitors.selectForBet")}
-        </Button>
+        </div>
         
         {/* Training options moved here from left column */}
         <div className="mt-6 w-full">

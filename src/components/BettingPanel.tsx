@@ -8,6 +8,7 @@ import { Horse } from "@/utils/gameLogic";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { getVisibleHorseStats } from "@/utils/horsesData";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface BettingPanelProps {
   selectedHorseId: string | null;
@@ -18,6 +19,7 @@ interface BettingPanelProps {
   onStartRace: () => void;
   betInProgress: boolean;
   onBetAmountChange?: (amount: number) => void;
+  onSelectHorse?: (horseId: string | null) => void;
 }
 
 const BettingPanel = ({
@@ -28,7 +30,8 @@ const BettingPanel = ({
   currentRace,
   onStartRace,
   betInProgress,
-  onBetAmountChange
+  onBetAmountChange,
+  onSelectHorse
 }: BettingPanelProps) => {
   const [betAmount, setBetAmount] = useState(100);
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
@@ -64,6 +67,12 @@ const BettingPanel = ({
       }
     }
   };
+
+  const handleHorseSelect = (value: string) => {
+    if (onSelectHorse) {
+      onSelectHorse(value);
+    }
+  };
   
   return (
     <Card className="w-full">
@@ -75,18 +84,28 @@ const BettingPanel = ({
       <CardContent className="space-y-4">
         <div>
           <h3 className="font-medium mb-2">{t("betting.selectedHorse")}</h3>
-          {selectedHorse ? (
-            <div className="p-3 border rounded-md">
-              <p className="font-medium">{selectedHorse.name}</p>
+          
+          <Select value={selectedHorseId || ""} onValueChange={handleHorseSelect}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t("betting.noSelection")} />
+            </SelectTrigger>
+            <SelectContent>
+              {horses.map((horse) => (
+                <SelectItem key={horse.id} value={horse.id} disabled={horse.missNextRace || betInProgress}>
+                  {horse.name}
+                  {horse.id === playerHorseId ? ` (${t("results.you")})` : ""}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          {selectedHorse && (
+            <div className="mt-2 p-3 border rounded-md">
               <div className="flex gap-2 mt-1 text-sm">
                 <span>{t("stats.speed")}: {getVisibleHorseStats(selectedHorse, currentRace).displayedSpeed}</span>
                 <span>•</span>
                 <span>{t("stats.control")}: {getVisibleHorseStats(selectedHorse, currentRace).control}</span>
               </div>
-            </div>
-          ) : (
-            <div className="p-3 border rounded-md text-muted-foreground">
-              {t("betting.noSelection")}
             </div>
           )}
         </div>
