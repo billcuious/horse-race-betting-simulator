@@ -110,10 +110,10 @@ const BettingPanel = ({
           {selectedHorse && (
             <div className="mt-2 p-3 border rounded-md">
               <div className="flex gap-4 mt-1 text-sm">
-                <span>S: {getVisibleHorseStats(selectedHorse, currentRace).displayedSpeed}</span>
-                <span>C: {getVisibleHorseStats(selectedHorse, currentRace).control}</span>
-                <span>R: {getVisibleHorseStats(selectedHorse, currentRace).recovery}</span>
-                <span>E: {getVisibleHorseStats(selectedHorse, currentRace).endurance}</span>
+                <span><span className="text-red-500 font-medium">S:</span> {getVisibleHorseStats(selectedHorse, currentRace).displayedSpeed}</span>
+                <span><span className="text-blue-500 font-medium">C:</span> {getVisibleHorseStats(selectedHorse, currentRace).control}</span>
+                <span><span className="text-green-500 font-medium">R:</span> {getVisibleHorseStats(selectedHorse, currentRace).recovery}</span>
+                <span><span className="text-amber-500 font-medium">E:</span> {getVisibleHorseStats(selectedHorse, currentRace).endurance}</span>
               </div>
             </div>
           )}

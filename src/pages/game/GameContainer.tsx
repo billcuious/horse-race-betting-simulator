@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import GameHeader from "./components/GameHeader";
@@ -57,6 +56,9 @@ const GameContainer = ({
   
   useEffect(() => {
     const newGame = initializeGame(playerName || "Player", jockeyId);
+    if (newGame) {
+      newGame.seasonGoal = 12000;
+    }
     setGameState(newGame);
     
     // Get the first event
