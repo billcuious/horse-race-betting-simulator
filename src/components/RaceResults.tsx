@@ -1,8 +1,33 @@
-
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RaceResult, Horse } from "@/utils/gameLogic";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Coins, AlertCircle, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Horse, RaceResult } from "@/utils/gameLogic";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface RaceResultsProps {
@@ -13,82 +38,94 @@ interface RaceResultsProps {
   betHorseId: string | null;
 }
 
-const RaceResults = ({ isOpen, onClose, results, playerHorseId, betHorseId }: RaceResultsProps) => {
+const RaceResults = ({
+  isOpen,
+  onClose,
+  results,
+  playerHorseId,
+  betHorseId,
+}: RaceResultsProps) => {
   const { t } = useLanguage();
   
-  // Sort results by position (should already be sorted, but just in case)
-  const sortedResults = [...results].sort((a, b) => a.position - b.position);
+  if (!isOpen) return null;
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t("raceResults.title")}</DialogTitle>
-          <DialogDescription>
-            {t("raceResults.subtitle")}
-          </DialogDescription>
-        </DialogHeader>
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent className="max-w-3xl">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t("results.full")}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t("results.fullDescription")}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
         
-        <div className="max-h-[400px] overflow-y-auto">
-          {sortedResults.map((result) => {
-            const isPlayerHorse = result.horseId === playerHorseId;
-            const isBetHorse = result.horseId === betHorseId;
-            return (
-              <div 
-                key={result.horseId}
-                className={`p-3 border-b last:border-b-0 flex items-center ${
-                  isPlayerHorse ? "bg-muted/40" : ""
-                } ${isBetHorse ? "border-l-4 border-l-amber-500" : ""}`}
-              >
-                <div className="mr-2 w-8 text-center font-bold">
-                  {result.position === 1 && (
-                    <Trophy className="h-6 w-6 text-racing-gold mx-auto" />
-                  )}
-                  {result.position !== 1 && `${result.position}`}
-                </div>
-                
-                <div className="flex-1">
-                  <div className="font-medium flex items-center">
-                    {result.horseName}
-                    {isPlayerHorse && (
-                      <Badge variant="outline" className="ml-2">{t("raceResults.yourHorse")}</Badge>
-                    )}
-                    {isBetHorse && (
-                      <Badge variant="secondary" className="ml-2 bg-amber-100 text-amber-800 flex items-center gap-1">
-                        <Coins className="h-3 w-3" /> {t("raceResults.yourBet")}
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {t("stats.speed")}: {result.finalSpeed.toFixed(1)}
-                  </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("results.raceResults")}</CardTitle>
+            <CardDescription>{t("results.details")}</CardDescription>
+          </CardHeader>
+          
+          <CardContent>
+            <Table>
+              <TableCaption>{t("results.summary")}</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[80px]">{t("results.position")}</TableHead>
+                  <TableHead>{t("results.horse")}</TableHead>
+                  <TableHead>{t("results.commentary")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              
+              <TableBody>
+                {results.sort((a, b) => a.position - b.position).map((result) => {
+                  const isPlayerHorse = result.horseId === playerHorseId;
+                  const isBetHorse = result.horseId === betHorseId;
                   
-                  {/* Display race events with translations */}
-                  {result.raceEvents && result.raceEvents.length > 0 && (
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {result.raceEvents.map((event, idx) => {
-                        if (event === "injury") {
-                          return (
-                            <Badge key={idx} variant="destructive" className="text-xs flex items-center gap-1">
-                              <AlertCircle className="h-3 w-3" /> {t(`raceEvent.${event}.${result.position <= 3 ? 'good' : 'bad'}`)}
-                            </Badge>
-                          );
-                        }
-                        return (
-                          <Badge key={idx} variant="outline" className="text-xs flex items-center gap-1">
-                            <Zap className="h-3 w-3" /> {t(`raceEvent.${event}.${result.position <= 3 ? 'good' : 'bad'}`)}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </DialogContent>
-    </Dialog>
+                  return (
+                    <TableRow key={result.horseId}>
+                      <TableCell className="font-medium">
+                        {result.position === 1 && (
+                          <Badge className="bg-racing-gold">{t("position.1")}</Badge>
+                        )}
+                        {result.position === 2 && (
+                          <Badge variant="outline">{t("position.2")}</Badge>
+                        )}
+                        {result.position === 3 && (
+                          <Badge variant="outline">{t("position.3")}</Badge>
+                        )}
+                        {result.position > 3 && result.position}
+                      </TableCell>
+                      
+                      <TableCell>
+                        {result.horseName}
+                        {isPlayerHorse && (
+                          <span className="text-xs ml-1 text-muted-foreground">{t("results.you")}</span>
+                        )}
+                        {isBetHorse && (
+                          <span className="text-xs ml-1 text-blue-500">
+                            ({t("betting.selectForBet")})
+                          </span>
+                        )}
+                      </TableCell>
+                      
+                      <TableCell>
+                        {result.raceEvents && result.raceEvents.length > 0
+                          ? result.raceEvents.join(", ")
+                          : t("results.noCommentary")}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+        
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>{t("action.close")}</AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 

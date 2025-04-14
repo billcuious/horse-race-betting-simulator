@@ -51,7 +51,7 @@ const BettingAndRacePanel = ({
         betInProgress={raceInProgress}
         onBetAmountChange={onBetAmountChange}
         onSelectHorse={onSelectHorse}
-        playerHorseId={playerHorseId} // Pass the playerHorseId prop here
+        playerHorseId={playerHorseId}
       />
       
       {/* Previous Race Result Summary */}

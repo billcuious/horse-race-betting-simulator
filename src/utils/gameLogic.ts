@@ -347,8 +347,8 @@ export const initializeGame = (playerName: string, jockeyId: string): GameState 
     competitors.push(generateHorse());
   }
   
-  // Set the season goal (money needed to win)
-  const seasonGoal = 8000 + Math.floor(Math.random() * 4000); // 8000-12000
+  // Set the season goal to 1200 as requested
+  const seasonGoal = 1200;
   
   return {
     playerMoney: 2000, // Restored original starting money of 2000

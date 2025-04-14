@@ -20,7 +20,7 @@ interface BettingPanelProps {
   betInProgress: boolean;
   onBetAmountChange?: (amount: number) => void;
   onSelectHorse?: (horseId: string | null) => void;
-  playerHorseId?: string; // Add this prop, making it optional with ?
+  playerHorseId?: string;
 }
 
 const BettingPanel = ({
@@ -33,9 +33,10 @@ const BettingPanel = ({
   betInProgress,
   onBetAmountChange,
   onSelectHorse,
-  playerHorseId = "" // Provide default empty string
+  playerHorseId = ""
 }: BettingPanelProps) => {
   const [betAmount, setBetAmount] = useState(100);
+  const [betPlaced, setBetPlaced] = useState(false);
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
   const { t } = useLanguage();
   
@@ -76,6 +77,11 @@ const BettingPanel = ({
     }
   };
   
+  const handlePlaceBet = (selectedHorseId: string, amount: number) => {
+    onPlaceBet(selectedHorseId, amount);
+    setBetPlaced(true);
+  };
+  
   return (
     <Card className="w-full">
       <CardHeader>
@@ -87,13 +93,13 @@ const BettingPanel = ({
         <div>
           <h3 className="font-medium mb-2">{t("betting.selectedHorse")}</h3>
           
-          <Select value={selectedHorseId || ""} onValueChange={handleHorseSelect}>
+          <Select value={selectedHorseId || ""} onValueChange={handleHorseSelect} disabled={betPlaced || betInProgress}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder={t("betting.noSelection")} />
             </SelectTrigger>
             <SelectContent>
               {horses.map((horse) => (
-                <SelectItem key={horse.id} value={horse.id} disabled={horse.missNextRace || betInProgress}>
+                <SelectItem key={horse.id} value={horse.id} disabled={horse.missNextRace || betInProgress || betPlaced}>
                   {horse.name}
                   {horse.id === playerHorseId ? ` (${t("results.you")})` : ""}
                 </SelectItem>
@@ -103,10 +109,11 @@ const BettingPanel = ({
           
           {selectedHorse && (
             <div className="mt-2 p-3 border rounded-md">
-              <div className="flex gap-2 mt-1 text-sm">
-                <span>{t("stats.speed")}: {getVisibleHorseStats(selectedHorse, currentRace).displayedSpeed}</span>
-                <span>•</span>
-                <span>{t("stats.control")}: {getVisibleHorseStats(selectedHorse, currentRace).control}</span>
+              <div className="flex gap-4 mt-1 text-sm">
+                <span>S: {getVisibleHorseStats(selectedHorse, currentRace).displayedSpeed}</span>
+                <span>C: {getVisibleHorseStats(selectedHorse, currentRace).control}</span>
+                <span>R: {getVisibleHorseStats(selectedHorse, currentRace).recovery}</span>
+                <span>E: {getVisibleHorseStats(selectedHorse, currentRace).endurance}</span>
               </div>
             </div>
           )}
@@ -119,7 +126,7 @@ const BettingPanel = ({
               variant="outline" 
               size="icon" 
               onClick={() => decreaseBet(100)}
-              disabled={betAmount <= 100 || betInProgress}
+              disabled={betAmount <= 100 || betInProgress || betPlaced}
             >
               <MinusIcon className="h-4 w-4" />
             </Button>
@@ -130,7 +137,7 @@ const BettingPanel = ({
               max={playerMoney}
               value={betAmount}
               onChange={(e) => handleManualInput(e.target.value)}
-              disabled={betInProgress}
+              disabled={betInProgress || betPlaced}
               className="text-center"
             />
             
@@ -138,7 +145,7 @@ const BettingPanel = ({
               variant="outline" 
               size="icon" 
               onClick={() => increaseBet(100)}
-              disabled={betAmount + 100 > playerMoney || betInProgress}
+              disabled={betAmount + 100 > playerMoney || betInProgress || betPlaced}
             >
               <PlusIcon className="h-4 w-4" />
             </Button>
@@ -148,14 +155,14 @@ const BettingPanel = ({
             <Button 
               variant="outline" 
               onClick={() => increaseBet(1000)}
-              disabled={betAmount + 1000 > playerMoney || betInProgress}
+              disabled={betAmount + 1000 > playerMoney || betInProgress || betPlaced}
             >
               +$1,000
             </Button>
             <Button 
               variant="outline" 
               onClick={() => decreaseBet(1000)}
-              disabled={betAmount - 1000 < 100 || betInProgress}
+              disabled={betAmount - 1000 < 100 || betInProgress || betPlaced}
             >
               -$1,000
             </Button>
@@ -168,7 +175,7 @@ const BettingPanel = ({
           <AlertDialogTrigger asChild>
             <Button 
               className="w-full" 
-              disabled={!selectedHorseId || betInProgress}
+              disabled={!selectedHorseId || betInProgress || betPlaced}
             >
               {t("betting.place")}
             </Button>
@@ -185,7 +192,7 @@ const BettingPanel = ({
             <AlertDialogFooter>
               <AlertDialogCancel>{t("action.cancel")}</AlertDialogCancel>
               <AlertDialogAction 
-                onClick={() => selectedHorseId && onPlaceBet(selectedHorseId, betAmount)}
+                onClick={() => selectedHorseId && handlePlaceBet(selectedHorseId, betAmount)}
               >
                 {t("action.confirm")}
               </AlertDialogAction>
