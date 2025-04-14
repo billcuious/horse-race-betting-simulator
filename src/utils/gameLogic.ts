@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 // Types
@@ -1168,6 +1169,21 @@ export const getRandomEvent = (): RandomEvent => {
   return events[Math.floor(Math.random() * events.length)];
 };
 
+// Add the applyRandomEvent function that was missing
+export const applyRandomEvent = (gameState: GameState, event: RandomEvent): GameState => {
+  // Apply passive event effects
+  if (event.type === "passive" && event.moneyEffect) {
+    return {
+      ...gameState,
+      playerMoney: gameState.playerMoney + event.moneyEffect
+    };
+  }
+  
+  // For choice events, this just returns the original state
+  // since the actual effects are applied by the acceptEffect function
+  return gameState;
+};
+
 export const applyPassiveEvent = (gameState: GameState): { 
   gameState: GameState;
   message: string;
@@ -1178,7 +1194,7 @@ export const applyPassiveEvent = (gameState: GameState): {
       // Weather event
       {
         check: () => true,
-        apply: (state: GameState) => {
+        apply: (gameState: GameState) => {
           const isRainy = Math.random() < 0.5;
           let message = "";
           
@@ -1186,7 +1202,7 @@ export const applyPassiveEvent = (gameState: GameState): {
             message = "Heavy rain is forecasted for the next race. Horses with good control will perform better.";
             
             // Boost horses with "Muddy Track Specialist" trait
-            const updatedCompetitors = state.competitors.map(horse => {
+            const updatedCompetitors = gameState.competitors.map(horse => {
               const updatedHorse = { ...horse };
               
               if (horse.attributes.some(attr => attr.name === "Muddy Track Specialist")) {
@@ -1197,7 +1213,7 @@ export const applyPassiveEvent = (gameState: GameState): {
             });
             
             // Handle player horse
-            const updatedPlayerHorse = { ...state.playerHorse };
+            const updatedPlayerHorse = { ...gameState.playerHorse };
             if (updatedPlayerHorse.attributes.some(attr => attr.name === "Muddy Track Specialist")) {
               updatedPlayerHorse.actualSpeed += 5;
               message += " Your horse's Muddy Track Specialist trait will be advantageous!";
@@ -1205,7 +1221,7 @@ export const applyPassiveEvent = (gameState: GameState): {
             
             return {
               gameState: {
-                ...state,
+                ...gameState,
                 playerHorse: updatedPlayerHorse,
                 competitors: updatedCompetitors
               },
@@ -1215,7 +1231,7 @@ export const applyPassiveEvent = (gameState: GameState): {
             message = "Perfect weather conditions forecasted for the next race. Horses with raw speed will shine.";
             
             // Boost horses with "Fair Weather" trait
-            const updatedCompetitors = state.competitors.map(horse => {
+            const updatedCompetitors = gameState.competitors.map(horse => {
               const updatedHorse = { ...horse };
               
               if (horse.attributes.some(attr => attr.name === "Fair Weather")) {
@@ -1226,7 +1242,7 @@ export const applyPassiveEvent = (gameState: GameState): {
             });
             
             // Handle player horse
-            const updatedPlayerHorse = { ...state.playerHorse };
+            const updatedPlayerHorse = { ...gameState.playerHorse };
             if (updatedPlayerHorse.attributes.some(attr => attr.name === "Fair Weather")) {
               updatedPlayerHorse.actualSpeed += 5;
               message += " Your horse's Fair Weather trait will be advantageous!";
@@ -1234,7 +1250,7 @@ export const applyPassiveEvent = (gameState: GameState): {
             
             return {
               gameState: {
-                ...state,
+                ...gameState,
                 playerHorse: updatedPlayerHorse,
                 competitors: updatedCompetitors
               },
@@ -1247,7 +1263,7 @@ export const applyPassiveEvent = (gameState: GameState): {
       // Track condition event
       {
         check: () => true,
-        apply: (state: GameState) => {
+        apply: (gameState: GameState) => {
           const condition = Math.random();
           let message = "";
           
@@ -1255,18 +1271,18 @@ export const applyPassiveEvent = (gameState: GameState): {
             message = "The track has been recently renovated and is in excellent condition. All horses will perform slightly better.";
             
             // Boost all horses slightly
-            const updatedCompetitors = state.competitors.map(horse => {
+            const updatedCompetitors = gameState.competitors.map(horse => {
               const updatedHorse = { ...horse };
               updatedHorse.actualSpeed += 2;
               return updatedHorse;
             });
             
-            const updatedPlayerHorse = { ...state.playerHorse };
+            const updatedPlayerHorse = { ...gameState.playerHorse };
             updatedPlayerHorse.actualSpeed += 2;
             
             return {
               gameState: {
-                ...state,
+                ...gameState,
                 playerHorse: updatedPlayerHorse,
                 competitors: updatedCompetitors
               },
@@ -1276,15 +1292,15 @@ export const applyPassiveEvent = (gameState: GameState): {
             message = "The track is in poor condition. Horses with better control will have an advantage.";
             
             // Adjust based on control
-            const updatedCompetitors = state.competitors.map(horse => {
+            const updatedCompetitors = gameState.competitors.map(horse => {
               const updatedHorse = { ...horse };
               const adjustment = Math.floor((horse.control - 50) / 10);
               updatedHorse.actualSpeed += adjustment;
               return updatedHorse;
             });
             
-            const updatedPlayerHorse = { ...state.playerHorse };
-            const playerAdjustment = Math.floor((state.playerHorse.control - 50) / 10);
+            const updatedPlayerHorse = { ...gameState.playerHorse };
+            const playerAdjustment = Math.floor((gameState.playerHorse.control - 50) / 10);
             updatedPlayerHorse.actualSpeed += playerAdjustment;
             
             if (playerAdjustment > 0) {
@@ -1295,7 +1311,7 @@ export const applyPassiveEvent = (gameState: GameState): {
             
             return {
               gameState: {
-                ...state,
+                ...gameState,
                 playerHorse: updatedPlayerHorse,
                 competitors: updatedCompetitors
               },
@@ -1304,7 +1320,7 @@ export const applyPassiveEvent = (gameState: GameState): {
           } else {
             message = "Standard track conditions for the upcoming race.";
             return {
-              gameState: state,
+              gameState: gameState,
               message
             };
           }
@@ -1313,8 +1329,8 @@ export const applyPassiveEvent = (gameState: GameState): {
       
       // Crowd size event
       {
-        check: () => state.currentRace >= 5, // More likely in later races
-        apply: (state: GameState) => {
+        check: () => gameState.currentRace >= 5, // More likely in later races
+        apply: (gameState: GameState) => {
           const isBigCrowd = Math.random() < 0.7;
           let message = "";
           
@@ -1322,7 +1338,7 @@ export const applyPassiveEvent = (gameState: GameState): {
             message = "A massive crowd is expected for the upcoming race. Horses with 'Crowd Pleaser' traits will perform better.";
             
             // Boost horses with "Crowd Pleaser" trait
-            const updatedCompetitors = state.competitors.map(horse => {
+            const updatedCompetitors = gameState.competitors.map(horse => {
               const updatedHorse = { ...horse };
               
               if (horse.attributes.some(attr => attr.name === "Crowd Pleaser")) {
@@ -1333,7 +1349,7 @@ export const applyPassiveEvent = (gameState: GameState): {
             });
             
             // Handle player horse
-            const updatedPlayerHorse = { ...state.playerHorse };
+            const updatedPlayerHorse = { ...gameState.playerHorse };
             if (updatedPlayerHorse.attributes.some(attr => attr.name === "Crowd Pleaser")) {
               updatedPlayerHorse.actualSpeed += 7;
               message += " Your horse's Crowd Pleaser trait will be very advantageous!";
@@ -1341,7 +1357,7 @@ export const applyPassiveEvent = (gameState: GameState): {
             
             return {
               gameState: {
-                ...state,
+                ...gameState,
                 playerHorse: updatedPlayerHorse,
                 competitors: updatedCompetitors
               },
@@ -1350,7 +1366,7 @@ export const applyPassiveEvent = (gameState: GameState): {
           } else {
             message = "A small crowd is expected for the upcoming race.";
             return {
-              gameState: state,
+              gameState: gameState,
               message
             };
           }
@@ -1371,7 +1387,8 @@ export const applyPassiveEvent = (gameState: GameState): {
   return null;
 };
 
-export const checkGameOver = (gameState: GameState): boolean => {
+// Add the missing isGameOver and isGameWon functions
+export const isGameOver = (gameState: GameState): boolean => {
   // The game is over if the player has no money and can't take a loan
   if (gameState.playerMoney <= 0 && gameState.hasUsedLoanThisRace) {
     return true;
@@ -1392,7 +1409,7 @@ export const checkGameOver = (gameState: GameState): boolean => {
   return false;
 };
 
-export const checkGameWon = (gameState: GameState): boolean => {
+export const isGameWon = (gameState: GameState): boolean => {
   // Game is won if all races are completed and player has enough money
   return gameState.currentRace > gameState.totalRaces && 
          gameState.playerMoney >= gameState.seasonGoal;
