@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 // Types
@@ -120,6 +119,19 @@ export const jockeys: Jockey[] = [
   }
 ];
 
+// Random Events
+export type RandomEvent = {
+  title: string;
+  description: string;
+  type: "choice" | "passive";
+  choicePrompt?: string;
+  acceptLabel?: string;
+  declineLabel?: string;
+  acceptEffect?: (gameState: GameState) => { gameState: GameState; message: string };
+  moneyEffect?: number;
+  moneyRequirement?: number;
+};
+
 // Constants
 export const TRAINING_BASE_COSTS = {
   general: 100,
@@ -235,18 +247,6 @@ export const TRAIT_EFFECTS: Record<string, (horse: Horse) => void> = {
   "Unlucky": (horse) => {
     // Worse outcomes in events
   }
-};
-
-// Random Events
-export type RandomEvent = {
-  title: string;
-  description: string;
-  type: "choice" | "passive";
-  acceptLabel?: string;
-  declineLabel?: string;
-  acceptEffect?: (gameState: GameState) => { gameState: GameState; message: string };
-  moneyEffect?: number;
-  moneyRequirement?: number;
 };
 
 // Game Utility Functions
