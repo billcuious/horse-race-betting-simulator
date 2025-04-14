@@ -27,7 +27,6 @@ import {
   calculateLoanAmount,
   isGameOver,
   isGameWon,
-  updateHorsesAfterRace,
   RaceResult
 } from "@/utils/gameLogic";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -191,7 +190,147 @@ const GameContainer = ({
     
     setTimeout(() => {
       const raceResults = simulateRace(gameState);
-      let updatedGameState = updateHorsesAfterRace(raceResults);
+      
+      // Calculate earnings from race
+      const playerResult = raceResults.find(r => r.horseId === gameState.playerHorse.id);
+      const playerPosition = playerResult?.position || 0;
+      
+      // Calculate race earnings
+      let earnings = 0;
+      if (playerPosition === 1) {
+        earnings = 1000;
+      } else if (playerPosition === 2) {
+        earnings = 500;
+      } else if (playerPosition === 3) {
+        earnings = 250;
+      } else if (playerPosition === raceResults.length && gameState.selectedJockeyId === "underhanded") {
+        // Last place bonus for underhanded jockey
+        earnings = 1000;
+      }
+      
+      // Celebrity jockey effect: half prize money for top 3, but $300 bonus
+      if (gameState.selectedJockeyId === "celebrity") {
+        if (playerPosition <= 3) {
+          earnings = Math.floor(earnings / 2);
+        }
+        earnings += 300;
+      }
+      
+      // One shot specialist bonus for race 10
+      if (gameState.selectedJockeyId === "oneshot" && gameState.currentRace === 10) {
+        // Double earnings for race 10
+        earnings *= 2;
+      }
+      
+      // Process betting result
+      if (gameState.lastBet) {
+        const betHorseResult = raceResults.find(r => r.horseId === gameState.lastBet?.horseId);
+        const betPosition = betHorseResult?.position || 0;
+        
+        if (betPosition === 1) {
+          earnings += gameState.lastBet.amount * 4;
+        } else if (betPosition === 2) {
+          earnings += gameState.lastBet.amount * 2;
+        } else if (betPosition === 3) {
+          earnings += Math.floor(gameState.lastBet.amount * 1.5);
+        }
+      }
+      
+      // Update game state with race results and other changes
+      let updatedGameState = {
+        ...gameState,
+        playerMoney: gameState.playerMoney + earnings,
+        raceResults: raceResults,
+        currentRace: gameState.currentRace + 1,
+        hasUsedLoanThisRace: false
+      };
+      
+      // Update horses after race (apply fatigue, recovery changes, etc.)
+      const updatedPlayerHorse = { ...updatedGameState.playerHorse };
+      
+      // Apply fatigue and recovery
+      updatedPlayerHorse.endurance = Math.max(1, updatedPlayerHorse.endurance - 3);
+      updatedPlayerHorse.recovery = Math.max(1, updatedPlayerHorse.recovery - 5);
+      
+      // Apply additional fatigue for special jockeys
+      if (gameState.selectedJockeyId === "extreme") {
+        updatedPlayerHorse.endurance = Math.max(1, updatedPlayerHorse.endurance - 2); // 1.4x faster depletion
+      } else if (gameState.selectedJockeyId === "slippery") {
+        updatedPlayerHorse.displayedSpeed = Math.max(1, updatedPlayerHorse.displayedSpeed - 2); // 15% faster decline
+        updatedPlayerHorse.actualSpeed = Math.max(1, updatedPlayerHorse.actualSpeed - 2);
+      } else if (gameState.selectedJockeyId === "oneshot" && gameState.currentRace === 10) {
+        // Double stat decline after race 10
+        updatedPlayerHorse.displayedSpeed = Math.max(1, updatedPlayerHorse.displayedSpeed - 4);
+        updatedPlayerHorse.actualSpeed = Math.max(1, updatedPlayerHorse.actualSpeed - 4);
+        updatedPlayerHorse.control = Math.max(1, updatedPlayerHorse.control - 4);
+        updatedPlayerHorse.recovery = Math.max(1, updatedPlayerHorse.recovery - 4);
+        updatedPlayerHorse.endurance = Math.max(1, updatedPlayerHorse.endurance - 4);
+      }
+      
+      // Apply extreme trainer jockey effect for potential new trait
+      if (gameState.selectedJockeyId === "extreme" && 
+          updatedGameState.currentRace >= 4 && 
+          !updatedPlayerHorse.traitRevealRace) {
+        updatedPlayerHorse.traitRevealRace = gameState.currentRace + Math.floor(Math.random() * 5) + 1; // 1-5 races from now
+      }
+      
+      // Check if it's time for extreme trainer to reveal a new trait
+      if (gameState.selectedJockeyId === "extreme" && 
+          updatedPlayerHorse.traitRevealRace === gameState.currentRace) {
+        // Add a new positive trait
+        const positiveTraits = ["Natural Talent", "Endurance Beast", "Fast Starter", "Light Frame", 
+                      "Consistent", "Sprint Specialist", "Stamina Monster", "Late Bloomer", 
+                      "Fast Recovery", "Precision Movement", "Natural Competitor", "Lucky"];
+                      
+        // Find traits not already on the horse
+        const availableTraits = positiveTraits.filter(trait => 
+          !updatedPlayerHorse.attributes.some(attr => attr.name === trait)
+        );
+        
+        if (availableTraits.length > 0) {
+          const newTrait = availableTraits[Math.floor(Math.random() * availableTraits.length)];
+          const traitEffect = (horse: Horse) => {
+            // Logic handled in TRAIT_EFFECTS
+          };
+          
+          updatedPlayerHorse.attributes.push({
+            name: newTrait,
+            description: `This horse ${newTrait.toLowerCase()} trait affects its performance.`,
+            isPositive: true,
+            effect: traitEffect
+          });
+          
+          updatedPlayerHorse.revealedAttributes.push({
+            name: newTrait,
+            description: `This horse ${newTrait.toLowerCase()} trait affects its performance.`,
+            isPositive: true,
+            effect: traitEffect
+          });
+          
+          toast.success("New Trait Discovered!", {
+            description: `Your horse has developed the ${newTrait} trait!`
+          });
+        }
+        
+        updatedPlayerHorse.traitRevealRace = undefined;
+      }
+      
+      // Also update competitor horses
+      const updatedCompetitors = updatedGameState.competitors.map(horse => {
+        const updatedHorse = { ...horse };
+        
+        // Apply similar fatigue effects to competitors
+        updatedHorse.endurance = Math.max(1, updatedHorse.endurance - 2);
+        updatedHorse.recovery = Math.max(1, updatedHorse.recovery - 3);
+        
+        return updatedHorse;
+      });
+      
+      updatedGameState = {
+        ...updatedGameState,
+        playerHorse: updatedPlayerHorse,
+        competitors: updatedCompetitors
+      };
       
       // Apply pending passive event after race concludes
       if (currentEvent && currentEvent.type === "passive" && pendingPassiveEvent) {
@@ -211,6 +350,25 @@ const GameContainer = ({
         }
       }
       
+      // Repay loan with interest if this is race 5 or 10
+      if (gameState.currentRace === 5 || gameState.currentRace === 10) {
+        const hasUnderhandedTactics = gameState.playerHorse.attributes.some(attr => attr.name === "Underhanded Tactics");
+        const interestRate = hasUnderhandedTactics ? 0.4 : 0.25;
+        const interestAmount = Math.floor(updatedGameState.loanAmount * interestRate);
+        const totalDebt = updatedGameState.loanAmount + interestAmount;
+        
+        if (updatedGameState.playerMoney >= totalDebt) {
+          updatedGameState.playerMoney -= totalDebt;
+          updatedGameState.loanAmount = 0;
+          
+          toast.success(`Loan repaid with $${interestAmount} interest!`);
+        } else if (updatedGameState.loanAmount > 0) {
+          // Can't repay, game over handled
+          updatedGameState.playerMoney = 0;
+          toast.error(`Couldn't repay loan of $${totalDebt}!`);
+        }
+      }
+      
       setSeasonResults(prev => [
         ...prev, 
         { 
@@ -225,6 +383,9 @@ const GameContainer = ({
           playerMoney: 0
         });
         setGameEnded(true);
+        toast.error("You've gone bankrupt!", {
+          description: "You don't have enough money to continue racing."
+        });
       } else {
         setGameState(updatedGameState);
       }

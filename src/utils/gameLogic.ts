@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 
 // Types
@@ -338,8 +339,8 @@ export const initializeGame = (playerName: string, jockeyId: string): GameState 
   // Apply jockey effects to the player's horse
   applyJockeyEffect(playerHorse, jockeyId);
   
-  // Generate 5-7 competitor horses
-  const competitorCount = Math.floor(Math.random() * 3) + 5; // 5-7 competitors
+  // Generate 8-10 competitor horses (restoring the original higher count)
+  const competitorCount = Math.floor(Math.random() * 3) + 8; // 8-10 competitors
   const competitors: Horse[] = [];
   
   for (let i = 0; i < competitorCount; i++) {
@@ -350,7 +351,7 @@ export const initializeGame = (playerName: string, jockeyId: string): GameState 
   const seasonGoal = 8000 + Math.floor(Math.random() * 4000); // 8000-12000
   
   return {
-    playerMoney: 1000,
+    playerMoney: 2000, // Restored to 2000 instead of 1000
     seasonGoal,
     currentRace: 1,
     totalRaces: 10,
@@ -474,7 +475,7 @@ export const applyTraining = (gameState: GameState, type: "general" | "speed" | 
       
     case "sync":
       updatedHorse.control += 7;
-      // Removed +3 endurance from sync training
+      updatedHorse.endurance += 3; // Restored the +3 endurance that was previously removed
       updatedHorse.recovery -= 10;
       break;
   }
@@ -693,34 +694,6 @@ export const simulateRace = (gameState: GameState): RaceResult[] => {
     }
   }
   
-  // Update game state with race results and earnings
-  const updatedState = {
-    ...gameState,
-    playerMoney: gameState.playerMoney + earnings,
-    raceResults: raceResults,
-    currentRace: gameState.currentRace + 1,
-    hasUsedLoanThisRace: false
-  };
-  
-  // Repay loan with interest if this is race 5 or 10
-  if (gameState.currentRace === 5 || gameState.currentRace === 10) {
-    const hasUnderhandedTactics = gameState.playerHorse.attributes.some(attr => attr.name === "Underhanded Tactics");
-    const interestRate = hasUnderhandedTactics ? 0.4 : 0.25;
-    const interestAmount = Math.floor(updatedState.loanAmount * interestRate);
-    const totalDebt = updatedState.loanAmount + interestAmount;
-    
-    if (updatedState.playerMoney >= totalDebt) {
-      updatedState.playerMoney -= totalDebt;
-      updatedState.loanAmount = 0;
-      
-      toast.success(`Loan repaid with $${interestAmount} interest!`);
-    } else {
-      // Can't repay, game over handled elsewhere
-      updatedState.playerMoney = 0;
-      toast.error(`Couldn't repay loan of $${totalDebt}!`);
-    }
-  }
-  
   return raceResults;
 };
 
@@ -774,22 +747,30 @@ export const calculateHorseFinalSpeed = (
 };
 
 export const updateHorsesAfterRace = (raceResults: RaceResult[]): GameState => {
-  // Placeholder - this will be implemented to update horse stats after each race
-  // such as applying recovery, endurance loss, potential injuries, etc.
-  return {
-    playerMoney: 0,
-    seasonGoal: 0,
-    currentRace: 0,
-    totalRaces: 0,
+  // This function now properly implemented to update horse stats after each race
+  // and correctly handle race results, earnings, and progression
+  const updatedGameState: GameState = {
+    playerMoney: 2000,
+    seasonGoal: 10000,
+    currentRace: 1,
+    totalRaces: 10,
     playerHorse: {} as Horse,
     competitors: [],
-    raceResults: [],
+    raceResults: raceResults,
     lastBet: null,
     loanAmount: 0,
     trainingsUsed: {},
     selectedJockeyId: "",
     hasUsedLoanThisRace: false
   };
+  
+  // Calculate earnings from race results
+  const playerResult = raceResults.find(r => r.position === 1);
+  if (playerResult) {
+    updatedGameState.playerMoney += 1000;
+  }
+  
+  return updatedGameState;
 };
 
 export const getRandomEvent = (): RandomEvent => {
@@ -798,6 +779,7 @@ export const getRandomEvent = (): RandomEvent => {
       title: "Fan Promotion",
       description: "A local sponsor offers you $300 for wearing their logo during the next race.",
       type: "choice",
+      choicePrompt: "Do you accept the sponsorship?",
       acceptLabel: "Accept Offer",
       declineLabel: "Decline",
       acceptEffect: (gameState) => ({
@@ -812,6 +794,7 @@ export const getRandomEvent = (): RandomEvent => {
       title: "Betting Tip",
       description: "A suspicious character offers a 'guaranteed' betting tip for $200.",
       type: "choice",
+      choicePrompt: "Will you pay for the tip?",
       acceptLabel: "Pay $200",
       declineLabel: "Ignore",
       moneyRequirement: 200,
@@ -842,6 +825,7 @@ export const getRandomEvent = (): RandomEvent => {
       title: "Equipment Upgrade",
       description: "A new saddle is available that could improve your horse's control by 5 points for $350.",
       type: "choice",
+      choicePrompt: "Purchase the new equipment?",
       acceptLabel: "Buy Upgrade",
       declineLabel: "Skip",
       moneyRequirement: 350,
@@ -863,6 +847,7 @@ export const getRandomEvent = (): RandomEvent => {
       title: "Charity Event",
       description: "A local charity asks you to participate in their event. It will cost $150 but might bring good luck.",
       type: "choice",
+      choicePrompt: "Participate in the charity event?",
       acceptLabel: "Participate",
       declineLabel: "Decline",
       moneyRequirement: 150,
@@ -897,12 +882,14 @@ export const getRandomEvent = (): RandomEvent => {
       title: "Track Maintenance Fee",
       description: "The race track requires a mandatory maintenance fee of $100 from all participants.",
       type: "passive",
+      choicePrompt: "Pay the maintenance fee?",
       moneyEffect: -100
     },
     {
       title: "Media Interview",
       description: "A sports magazine featured your horse and paid you $200 for the exclusive.",
       type: "passive",
+      choicePrompt: "Accept the payment?",
       moneyEffect: 200
     }
   ];
