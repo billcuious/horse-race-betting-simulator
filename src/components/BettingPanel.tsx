@@ -20,6 +20,7 @@ interface BettingPanelProps {
   betInProgress: boolean;
   onBetAmountChange?: (amount: number) => void;
   onSelectHorse?: (horseId: string | null) => void;
+  playerHorseId?: string; // Add this prop, making it optional with ?
 }
 
 const BettingPanel = ({
@@ -31,7 +32,8 @@ const BettingPanel = ({
   onStartRace,
   betInProgress,
   onBetAmountChange,
-  onSelectHorse
+  onSelectHorse,
+  playerHorseId = "" // Provide default empty string
 }: BettingPanelProps) => {
   const [betAmount, setBetAmount] = useState(100);
   const selectedHorse = horses.find(h => h.id === selectedHorseId);
