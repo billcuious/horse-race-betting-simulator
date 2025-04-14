@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 // Types
@@ -69,6 +68,18 @@ export type Jockey = {
   effect: string;
 };
 
+export type RandomEvent = {
+  title: string;
+  description: string;
+  type: "choice" | "passive";
+  choicePrompt?: string;
+  acceptLabel?: string;
+  declineLabel?: string;
+  acceptEffect?: (gameState: GameState) => { gameState: GameState; message: string };
+  moneyEffect?: number;
+  moneyRequirement?: number;
+};
+
 export const jockeys: Jockey[] = [
   {
     id: "composed",
@@ -120,20 +131,7 @@ export const jockeys: Jockey[] = [
   }
 ];
 
-// Random Events
-export type RandomEvent = {
-  title: string;
-  description: string;
-  type: "choice" | "passive";
-  choicePrompt?: string;
-  acceptLabel?: string;
-  declineLabel?: string;
-  acceptEffect?: (gameState: GameState) => { gameState: GameState; message: string };
-  moneyEffect?: number;
-  moneyRequirement?: number;
-};
-
-// Constants
+// Constants - Restoring original costs
 export const TRAINING_BASE_COSTS = {
   general: 100,
   speed: 200,
@@ -142,10 +140,11 @@ export const TRAINING_BASE_COSTS = {
 
 export const TRAINING_COST_MULTIPLIER = 1.6;
 
+// Restored original scouting costs
 export const SCOUTING_COSTS = {
-  basic: 50,
-  deep: 200,
-  ownHorse: 100
+  basic: 200,
+  deep: 500,
+  ownHorse: 150
 };
 
 export const MIN_LOAN_AMOUNT = 500;
@@ -339,7 +338,7 @@ export const initializeGame = (playerName: string, jockeyId: string): GameState 
   // Apply jockey effects to the player's horse
   applyJockeyEffect(playerHorse, jockeyId);
   
-  // Generate 8-10 competitor horses (restoring the original higher count)
+  // Restore original competitor count (8-10 competitors)
   const competitorCount = Math.floor(Math.random() * 3) + 8; // 8-10 competitors
   const competitors: Horse[] = [];
   
@@ -351,7 +350,7 @@ export const initializeGame = (playerName: string, jockeyId: string): GameState 
   const seasonGoal = 8000 + Math.floor(Math.random() * 4000); // 8000-12000
   
   return {
-    playerMoney: 2000, // Restored to 2000 instead of 1000
+    playerMoney: 2000, // Restored original starting money of 2000
     seasonGoal,
     currentRace: 1,
     totalRaces: 10,
@@ -628,6 +627,33 @@ export const simulateRace = (gameState: GameState): RaceResult[] => {
   // Assign positions
   raceResults.forEach((result, index) => {
     result.position = index + 1;
+    
+    // Add race events/flavor text based on position and performance
+    if (!result.raceEvents) {
+      result.raceEvents = [];
+    }
+    
+    // Generate realistic race commentary based on position
+    if (result.position === 1) {
+      result.raceEvents.push(getRandomRaceEvent('first'));
+    } else if (result.position === 2) {
+      result.raceEvents.push(getRandomRaceEvent('second'));
+    } else if (result.position === 3) {
+      result.raceEvents.push(getRandomRaceEvent('third'));
+    } else if (result.position === raceResults.length) {
+      result.raceEvents.push(getRandomRaceEvent('last'));
+    } else if (result.position <= Math.floor(raceResults.length / 2)) {
+      result.raceEvents.push(getRandomRaceEvent('top_half'));
+    } else {
+      result.raceEvents.push(getRandomRaceEvent('bottom_half'));
+    }
+    
+    // Add speed-related commentary
+    if (result.finalSpeed > 65) {
+      result.raceEvents.push("Displayed incredible speed throughout the race");
+    } else if (result.finalSpeed < 30) {
+      result.raceEvents.push("Struggled to maintain pace");
+    }
   });
   
   // Apply slippery jockey effect for position improvement
@@ -649,53 +675,59 @@ export const simulateRace = (gameState: GameState): RaceResult[] => {
     }
   }
   
-  // Calculate race earnings based on position
-  const playerResult = raceResults.find(r => r.horseId === gameState.playerHorse.id);
-  const playerPosition = playerResult?.position || 0;
-  
-  // Calculate race earnings
-  let earnings = 0;
-  if (playerPosition === 1) {
-    earnings = 1000;
-  } else if (playerPosition === 2) {
-    earnings = 500;
-  } else if (playerPosition === 3) {
-    earnings = 250;
-  } else if (playerPosition === raceResults.length && gameState.selectedJockeyId === "underhanded") {
-    // Last place bonus for underhanded jockey
-    earnings = 1000;
-  }
-  
-  // Celebrity jockey effect: half prize money for top 3, but $300 bonus
-  if (gameState.selectedJockeyId === "celebrity") {
-    if (playerPosition <= 3) {
-      earnings = Math.floor(earnings / 2);
-    }
-    earnings += 300;
-  }
-  
-  // One shot specialist bonus for race 10
-  if (gameState.selectedJockeyId === "oneshot" && gameState.currentRace === 10) {
-    // Double earnings for race 10
-    earnings *= 2;
-  }
-  
-  // Process betting result
-  if (gameState.lastBet) {
-    const betHorseResult = raceResults.find(r => r.horseId === gameState.lastBet?.horseId);
-    const betPosition = betHorseResult?.position || 0;
-    
-    if (betPosition === 1) {
-      earnings += gameState.lastBet.amount * 4;
-    } else if (betPosition === 2) {
-      earnings += gameState.lastBet.amount * 2;
-    } else if (betPosition === 3) {
-      earnings += Math.floor(gameState.lastBet.amount * 1.5);
-    }
-  }
-  
   return raceResults;
 };
+
+// Helper function to generate realistic race events/commentary
+function getRandomRaceEvent(position: 'first' | 'second' | 'third' | 'last' | 'top_half' | 'bottom_half'): string {
+  const events = {
+    first: [
+      "Took an early lead and maintained control throughout",
+      "Made a stunning move in the final stretch to secure the win",
+      "Dominated from start to finish with superior speed",
+      "Perfectly timed push in the final turn to take the lead",
+      "Showed exceptional stamina to hold off challengers"
+    ],
+    second: [
+      "Battled hard but couldn't quite catch the leader",
+      "Strong finish but ran out of track",
+      "Made up significant ground in the final stretch",
+      "Challenged the leader repeatedly but couldn't find a way past",
+      "Consistent pace throughout but lacked the final push"
+    ],
+    third: [
+      "Solid performance to secure a respectable finish",
+      "Recovered well after a slow start",
+      "Made a late charge to secure third place",
+      "Ran a tactical race to finish in the money",
+      "Found an opening along the rail in the final stretch"
+    ],
+    last: [
+      "Never found rhythm and struggled throughout",
+      "Appeared uncomfortable on the track today",
+      "Fell behind early and couldn't recover",
+      "May need more training before the next race",
+      "Conserving energy for future races"
+    ],
+    top_half: [
+      "Showed promise with moments of acceleration",
+      "Maintained position in the middle of the pack",
+      "Consistent but unspectacular performance",
+      "Made some good moves but couldn't sustain the effort",
+      "Has potential with more experience"
+    ],
+    bottom_half: [
+      "Struggled to keep pace with the leaders",
+      "Started well but faded as the race progressed",
+      "Could benefit from more specialized training",
+      "Had difficulty navigating traffic during the race",
+      "Showed brief moments of promise but lacked consistency"
+    ]
+  };
+  
+  const positionEvents = events[position];
+  return positionEvents[Math.floor(Math.random() * positionEvents.length)];
+}
 
 export const calculateHorseFinalSpeed = (
   horse: Horse, 
@@ -857,63 +889,3 @@ export const getRandomEvent = (): RandomEvent => {
         
         if (getLucky) {
           const updatedHorse = { ...gameState.playerHorse };
-          updatedHorse.recovery += 25;
-          
-          return {
-            gameState: {
-              ...gameState,
-              playerMoney: gameState.playerMoney - 150,
-              playerHorse: updatedHorse
-            },
-            message: "The charity brought good karma! Your horse's recovery increased by 25!"
-          };
-        } else {
-          return {
-            gameState: {
-              ...gameState,
-              playerMoney: gameState.playerMoney - 150
-            },
-            message: "You feel good about helping the charity, but received no benefit."
-          };
-        }
-      }
-    },
-    {
-      title: "Track Maintenance Fee",
-      description: "The race track requires a mandatory maintenance fee of $100 from all participants.",
-      type: "passive",
-      choicePrompt: "Pay the maintenance fee?",
-      moneyEffect: -100
-    },
-    {
-      title: "Media Interview",
-      description: "A sports magazine featured your horse and paid you $200 for the exclusive.",
-      type: "passive",
-      choicePrompt: "Accept the payment?",
-      moneyEffect: 200
-    }
-  ];
-  
-  return events[Math.floor(Math.random() * events.length)];
-};
-
-export const applyRandomEvent = (gameState: GameState, event: RandomEvent): GameState => {
-  if (event.type === "passive" && event.moneyEffect) {
-    return {
-      ...gameState,
-      playerMoney: Math.max(0, gameState.playerMoney + event.moneyEffect)
-    };
-  }
-  
-  return gameState;
-};
-
-export const isGameOver = (gameState: GameState): boolean => {
-  // Game ends if current race > total races
-  return gameState.currentRace > gameState.totalRaces;
-};
-
-export const isGameWon = (gameState: GameState): boolean => {
-  // Game is won if player has reached the season goal
-  return gameState.playerMoney >= gameState.seasonGoal;
-};
