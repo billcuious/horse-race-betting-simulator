@@ -778,31 +778,195 @@ export const calculateHorseFinalSpeed = (
   return Math.round(finalSpeed * 10) / 10;
 };
 
-export const updateHorsesAfterRace = (raceResults: RaceResult[]): GameState => {
-  // This function now properly implemented to update horse stats after each race
-  // and correctly handle race results, earnings, and progression
-  const updatedGameState: GameState = {
-    playerMoney: 2000,
-    seasonGoal: 10000,
-    currentRace: 1,
-    totalRaces: 10,
-    playerHorse: {} as Horse,
-    competitors: [],
-    raceResults: raceResults,
-    lastBet: null,
-    loanAmount: 0,
-    trainingsUsed: {},
-    selectedJockeyId: "",
-    hasUsedLoanThisRace: false
-  };
+export const updateHorsesAfterRace = (gameState: GameState, raceResults: RaceResult[]): GameState => {
+  // This function properly updates horse stats after each race
+  // and correctly handles race results, earnings, and progression
+  const updatedGameState = { ...gameState };
+  updatedGameState.raceResults = raceResults;
+  updatedGameState.currentRace += 1;
+  updatedGameState.hasUsedLoanThisRace = false;
   
-  // Calculate earnings from race results
-  const playerResult = raceResults.find(r => r.position === 1);
+  // Apply race earnings based on position
+  const playerResult = raceResults.find(r => r.horseId === gameState.playerHorse.id);
   if (playerResult) {
-    updatedGameState.playerMoney += 1000;
+    let prize = 0;
+    
+    switch (playerResult.position) {
+      case 1:
+        prize = 1000;
+        break;
+      case 2:
+        prize = 500;
+        break;
+      case 3:
+        prize = 250;
+        break;
+      default:
+        prize = 0;
+    }
+    
+    // Apply celebrity jockey effect (half prize money for top 3)
+    if (gameState.selectedJockeyId === "celebrity" && playerResult.position <= 3) {
+      prize = Math.floor(prize / 2) + 300; // Half prize + $300 bonus
+    }
+    
+    // Apply underhanded jockey effect ($1000 for last place)
+    if (gameState.selectedJockeyId === "underhanded" && 
+        playerResult.position === raceResults.length) {
+      prize = 1000;
+    }
+    
+    updatedGameState.playerMoney += prize;
   }
   
-  return updatedGameState;
+  // Update player horse stats
+  const updatedPlayerHorse = { ...gameState.playerHorse };
+  
+  // Recovery affects how much stats decrease
+  const recoveryFactor = Math.max(0.5, 1 - (updatedPlayerHorse.recovery / 100));
+  
+  // Base stat decreases
+  let speedDecrease = 2 * recoveryFactor;
+  let controlDecrease = 1 * recoveryFactor;
+  let enduranceDecrease = 2 * recoveryFactor;
+  
+  // Apply jockey effects
+  if (gameState.selectedJockeyId === "extreme") {
+    enduranceDecrease *= 1.4; // Extreme trainer depletes endurance faster
+  }
+  
+  if (gameState.selectedJockeyId === "slippery") {
+    speedDecrease *= 1.15; // Slippery jockey pushes horses harder
+  }
+  
+  if (gameState.selectedJockeyId === "oneshot" && gameState.currentRace > 9) {
+    // One shot specialist suffers double stat decline after race 10
+    speedDecrease *= 2;
+    controlDecrease *= 2;
+    enduranceDecrease *= 2;
+  }
+  
+  // Update stats
+  updatedPlayerHorse.displayedSpeed = Math.max(1, updatedPlayerHorse.displayedSpeed - speedDecrease);
+  updatedPlayerHorse.actualSpeed = Math.max(1, updatedPlayerHorse.actualSpeed - speedDecrease);
+  updatedPlayerHorse.control = Math.max(1, updatedPlayerHorse.control - controlDecrease);
+  updatedPlayerHorse.endurance = Math.max(1, updatedPlayerHorse.endurance - enduranceDecrease);
+  
+  // Recover a bit 
+  updatedPlayerHorse.recovery = Math.min(100, updatedPlayerHorse.recovery + 5);
+  
+  // Handle injuries based on race position and attributes
+  const injuryChance = 0.05 + (playerResult && playerResult.position > raceResults.length / 2 ? 0.05 : 0);
+  const adjustedInjuryChance = gameState.selectedJockeyId === "risk" 
+    ? injuryChance * 1.5  // Risk taker has higher injury chance
+    : gameState.selectedJockeyId === "composed" 
+      ? 0  // Composed jockey prevents injuries
+      : injuryChance;
+  
+  if (Math.random() < adjustedInjuryChance) {
+    // Determine injury severity
+    const severityRoll = Math.random();
+    if (severityRoll < 0.7) {
+      // Mild injury
+      updatedPlayerHorse.hasInjury = true;
+      updatedPlayerHorse.injuryType = "mild";
+      updatedPlayerHorse.displayedSpeed -= 5;
+      updatedPlayerHorse.actualSpeed -= 5;
+      toast.error("Your horse has suffered a mild injury! Speed -5");
+    } else {
+      // Major injury
+      updatedPlayerHorse.hasInjury = true;
+      updatedPlayerHorse.injuryType = "major";
+      updatedPlayerHorse.missNextRace = true;
+      toast.error("Your horse has suffered a major injury! Will miss the next race");
+    }
+  }
+  
+  // Apply extreme jockey trait reveal
+  if (gameState.selectedJockeyId === "extreme" && !updatedPlayerHorse.traitRevealRace) {
+    // Determine when the new trait will be revealed (between race 4-8)
+    updatedPlayerHorse.traitRevealRace = Math.floor(Math.random() * 5) + 4;
+  }
+  
+  // Check if it's time to reveal a new trait for extreme jockey
+  if (gameState.selectedJockeyId === "extreme" && 
+      updatedPlayerHorse.traitRevealRace === gameState.currentRace) {
+    
+    // Add a positive trait
+    const positiveTraits = ["Natural Talent", "Endurance Beast", "Fast Starter", "Light Frame", 
+                           "Consistent", "Sprint Specialist", "Stamina Monster", 
+                           "Fast Recovery", "Precision Movement"];
+    
+    // Filter out traits the horse already has
+    const availableTraits = positiveTraits.filter(
+      trait => !updatedPlayerHorse.attributes.some(attr => attr.name === trait)
+    );
+    
+    if (availableTraits.length > 0) {
+      const randomTrait = availableTraits[Math.floor(Math.random() * availableTraits.length)];
+      const newTrait: HorseAttribute = {
+        name: randomTrait,
+        description: `This horse ${randomTrait.toLowerCase()} trait affects its performance.`,
+        isPositive: true,
+        effect: TRAIT_EFFECTS[randomTrait]
+      };
+      
+      // Add the trait and reveal it
+      updatedPlayerHorse.attributes.push(newTrait);
+      updatedPlayerHorse.revealedAttributes.push(newTrait);
+      
+      // Apply the trait effect
+      newTrait.effect(updatedPlayerHorse);
+      
+      toast.success(`Your horse developed a new trait: ${randomTrait}!`);
+    }
+    
+    // Reset the trait reveal counter
+    updatedPlayerHorse.traitRevealRace = undefined;
+  }
+  
+  // Update the competitors similarly
+  const updatedCompetitors = gameState.competitors.map(competitor => {
+    const updatedCompetitor = { ...competitor };
+    
+    // Similar stat decreases for competitors, but slightly less to keep them competitive
+    updatedCompetitor.displayedSpeed = Math.max(1, updatedCompetitor.displayedSpeed - speedDecrease * 0.8);
+    updatedCompetitor.actualSpeed = Math.max(1, updatedCompetitor.actualSpeed - speedDecrease * 0.8);
+    updatedCompetitor.control = Math.max(1, updatedCompetitor.control - controlDecrease * 0.8);
+    updatedCompetitor.endurance = Math.max(1, updatedCompetitor.endurance - enduranceDecrease * 0.8);
+    updatedCompetitor.recovery = Math.min(100, updatedCompetitor.recovery + 5);
+    
+    // Handle competitor injuries (less likely than player horse)
+    if (Math.random() < 0.03) {
+      if (Math.random() < 0.7) {
+        // Mild injury
+        updatedCompetitor.hasInjury = true;
+        updatedCompetitor.injuryType = "mild";
+        updatedCompetitor.displayedSpeed -= 5;
+        updatedCompetitor.actualSpeed -= 5;
+      } else {
+        // Major injury
+        updatedCompetitor.hasInjury = true;
+        updatedCompetitor.injuryType = "major";
+        updatedCompetitor.missNextRace = true;
+      }
+    }
+    
+    return updatedCompetitor;
+  });
+  
+  // Update loan amount with interest
+  if (updatedGameState.loanAmount > 0) {
+    const interestRate = gameState.selectedJockeyId === "underhanded" ? 0.4 : LOAN_PERCENTAGE;
+    const interestAmount = Math.ceil(updatedGameState.loanAmount * interestRate);
+    updatedGameState.loanAmount += interestAmount;
+  }
+  
+  return {
+    ...updatedGameState,
+    playerHorse: updatedPlayerHorse,
+    competitors: updatedCompetitors
+  };
 };
 
 export const getRandomEvent = (): RandomEvent => {
@@ -889,3 +1053,347 @@ export const getRandomEvent = (): RandomEvent => {
         
         if (getLucky) {
           const updatedHorse = { ...gameState.playerHorse };
+          
+          // Restore 50% of lost stats
+          updatedHorse.displayedSpeed = Math.floor(updatedHorse.displayedSpeed + (updatedHorse.initialDisplayedSpeed - updatedHorse.displayedSpeed) * 0.5);
+          updatedHorse.actualSpeed = Math.floor(updatedHorse.actualSpeed + (updatedHorse.initialDisplayedSpeed - updatedHorse.actualSpeed) * 0.5);
+          updatedHorse.control = Math.floor(updatedHorse.control + (updatedHorse.initialControl - updatedHorse.control) * 0.5);
+          updatedHorse.endurance = Math.floor(updatedHorse.endurance + (updatedHorse.initialEndurance - updatedHorse.endurance) * 0.5);
+          updatedHorse.recovery = Math.floor(updatedHorse.recovery + (100 - updatedHorse.recovery) * 0.5);
+          
+          return {
+            gameState: {
+              ...gameState,
+              playerMoney: gameState.playerMoney - 150,
+              playerHorse: updatedHorse
+            },
+            message: "The charity brought you good luck! Your horse's stats have been partially restored!"
+          };
+        } else {
+          return {
+            gameState: {
+              ...gameState,
+              playerMoney: gameState.playerMoney - 150
+            },
+            message: "You feel good about helping the charity, but didn't receive any special luck."
+          };
+        }
+      }
+    },
+    {
+      title: "Horse Whisperer",
+      description: "A renowned horse whisperer offers to work with your horse for $300. They claim they can improve your horse's control.",
+      type: "choice",
+      choicePrompt: "Hire the horse whisperer?",
+      acceptLabel: "Hire",
+      declineLabel: "Decline",
+      moneyRequirement: 300,
+      acceptEffect: (gameState) => {
+        const updatedHorse = { ...gameState.playerHorse };
+        updatedHorse.control += 8;
+        updatedHorse.recovery += 5;
+        
+        return {
+          gameState: {
+            ...gameState,
+            playerMoney: gameState.playerMoney - 300,
+            playerHorse: updatedHorse
+          },
+          message: "The horse whisperer worked wonders! Control +8, Recovery +5"
+        };
+      }
+    },
+    {
+      title: "Special Feed",
+      description: "A nutrition expert offers special feed that could boost your horse's performance for $250.",
+      type: "choice",
+      choicePrompt: "Purchase the special feed?",
+      acceptLabel: "Buy Feed",
+      declineLabel: "Decline",
+      moneyRequirement: 250,
+      acceptEffect: (gameState) => {
+        const updatedHorse = { ...gameState.playerHorse };
+        updatedHorse.displayedSpeed += 5;
+        updatedHorse.actualSpeed += 5;
+        updatedHorse.endurance += 3;
+        
+        return {
+          gameState: {
+            ...gameState,
+            playerMoney: gameState.playerMoney - 250,
+            playerHorse: updatedHorse
+          },
+          message: "The special feed worked well! Speed +5, Endurance +3"
+        };
+      }
+    },
+    {
+      title: "Racing Scandal",
+      description: "You've been implicated in a minor racing scandal. Pay $400 to settle the matter quietly.",
+      type: "choice",
+      choicePrompt: "Pay to settle the matter?",
+      acceptLabel: "Pay $400",
+      declineLabel: "Refuse",
+      moneyRequirement: 400,
+      acceptEffect: (gameState) => {
+        return {
+          gameState: {
+            ...gameState,
+            playerMoney: gameState.playerMoney - 400
+          },
+          message: "You paid to settle the scandal. Your reputation remains intact."
+        };
+      }
+    },
+    {
+      title: "Sponsor Opportunity",
+      description: "A major brand wants to sponsor your horse in the next race for $450.",
+      type: "choice",
+      choicePrompt: "Accept the sponsorship?",
+      acceptLabel: "Accept",
+      declineLabel: "Decline",
+      acceptEffect: (gameState) => {
+        return {
+          gameState: {
+            ...gameState,
+            playerMoney: gameState.playerMoney + 450
+          },
+          message: "You received $450 from the sponsorship deal!"
+        };
+      }
+    }
+  ];
+  
+  // Choose a random event
+  return events[Math.floor(Math.random() * events.length)];
+};
+
+export const applyPassiveEvent = (gameState: GameState): { 
+  gameState: GameState;
+  message: string;
+} | null => {
+  // 15% chance of passive event
+  if (Math.random() < 0.15) {
+    const possibleEvents = [
+      // Weather event
+      {
+        check: () => true,
+        apply: (state: GameState) => {
+          const isRainy = Math.random() < 0.5;
+          let message = "";
+          
+          if (isRainy) {
+            message = "Heavy rain is forecasted for the next race. Horses with good control will perform better.";
+            
+            // Boost horses with "Muddy Track Specialist" trait
+            const updatedCompetitors = state.competitors.map(horse => {
+              const updatedHorse = { ...horse };
+              
+              if (horse.attributes.some(attr => attr.name === "Muddy Track Specialist")) {
+                updatedHorse.actualSpeed += 5;
+              }
+              
+              return updatedHorse;
+            });
+            
+            // Handle player horse
+            const updatedPlayerHorse = { ...state.playerHorse };
+            if (updatedPlayerHorse.attributes.some(attr => attr.name === "Muddy Track Specialist")) {
+              updatedPlayerHorse.actualSpeed += 5;
+              message += " Your horse's Muddy Track Specialist trait will be advantageous!";
+            }
+            
+            return {
+              gameState: {
+                ...state,
+                playerHorse: updatedPlayerHorse,
+                competitors: updatedCompetitors
+              },
+              message
+            };
+          } else {
+            message = "Perfect weather conditions forecasted for the next race. Horses with raw speed will shine.";
+            
+            // Boost horses with "Fair Weather" trait
+            const updatedCompetitors = state.competitors.map(horse => {
+              const updatedHorse = { ...horse };
+              
+              if (horse.attributes.some(attr => attr.name === "Fair Weather")) {
+                updatedHorse.actualSpeed += 5;
+              }
+              
+              return updatedHorse;
+            });
+            
+            // Handle player horse
+            const updatedPlayerHorse = { ...state.playerHorse };
+            if (updatedPlayerHorse.attributes.some(attr => attr.name === "Fair Weather")) {
+              updatedPlayerHorse.actualSpeed += 5;
+              message += " Your horse's Fair Weather trait will be advantageous!";
+            }
+            
+            return {
+              gameState: {
+                ...state,
+                playerHorse: updatedPlayerHorse,
+                competitors: updatedCompetitors
+              },
+              message
+            };
+          }
+        }
+      },
+      
+      // Track condition event
+      {
+        check: () => true,
+        apply: (state: GameState) => {
+          const condition = Math.random();
+          let message = "";
+          
+          if (condition < 0.4) {
+            message = "The track has been recently renovated and is in excellent condition. All horses will perform slightly better.";
+            
+            // Boost all horses slightly
+            const updatedCompetitors = state.competitors.map(horse => {
+              const updatedHorse = { ...horse };
+              updatedHorse.actualSpeed += 2;
+              return updatedHorse;
+            });
+            
+            const updatedPlayerHorse = { ...state.playerHorse };
+            updatedPlayerHorse.actualSpeed += 2;
+            
+            return {
+              gameState: {
+                ...state,
+                playerHorse: updatedPlayerHorse,
+                competitors: updatedCompetitors
+              },
+              message
+            };
+          } else if (condition < 0.7) {
+            message = "The track is in poor condition. Horses with better control will have an advantage.";
+            
+            // Adjust based on control
+            const updatedCompetitors = state.competitors.map(horse => {
+              const updatedHorse = { ...horse };
+              const adjustment = Math.floor((horse.control - 50) / 10);
+              updatedHorse.actualSpeed += adjustment;
+              return updatedHorse;
+            });
+            
+            const updatedPlayerHorse = { ...state.playerHorse };
+            const playerAdjustment = Math.floor((state.playerHorse.control - 50) / 10);
+            updatedPlayerHorse.actualSpeed += playerAdjustment;
+            
+            if (playerAdjustment > 0) {
+              message += " Your horse's good control will be an advantage.";
+            } else if (playerAdjustment < 0) {
+              message += " Your horse may struggle with the poor track conditions.";
+            }
+            
+            return {
+              gameState: {
+                ...state,
+                playerHorse: updatedPlayerHorse,
+                competitors: updatedCompetitors
+              },
+              message
+            };
+          } else {
+            message = "Standard track conditions for the upcoming race.";
+            return {
+              gameState: state,
+              message
+            };
+          }
+        }
+      },
+      
+      // Crowd size event
+      {
+        check: () => state.currentRace >= 5, // More likely in later races
+        apply: (state: GameState) => {
+          const isBigCrowd = Math.random() < 0.7;
+          let message = "";
+          
+          if (isBigCrowd) {
+            message = "A massive crowd is expected for the upcoming race. Horses with 'Crowd Pleaser' traits will perform better.";
+            
+            // Boost horses with "Crowd Pleaser" trait
+            const updatedCompetitors = state.competitors.map(horse => {
+              const updatedHorse = { ...horse };
+              
+              if (horse.attributes.some(attr => attr.name === "Crowd Pleaser")) {
+                updatedHorse.actualSpeed += 7;
+              }
+              
+              return updatedHorse;
+            });
+            
+            // Handle player horse
+            const updatedPlayerHorse = { ...state.playerHorse };
+            if (updatedPlayerHorse.attributes.some(attr => attr.name === "Crowd Pleaser")) {
+              updatedPlayerHorse.actualSpeed += 7;
+              message += " Your horse's Crowd Pleaser trait will be very advantageous!";
+            }
+            
+            return {
+              gameState: {
+                ...state,
+                playerHorse: updatedPlayerHorse,
+                competitors: updatedCompetitors
+              },
+              message
+            };
+          } else {
+            message = "A small crowd is expected for the upcoming race.";
+            return {
+              gameState: state,
+              message
+            };
+          }
+        }
+      }
+    ];
+    
+    // Filter to only events that pass their check
+    const validEvents = possibleEvents.filter(event => event.check());
+    
+    if (validEvents.length > 0) {
+      // Choose a random event
+      const selectedEvent = validEvents[Math.floor(Math.random() * validEvents.length)];
+      return selectedEvent.apply(gameState);
+    }
+  }
+  
+  return null;
+};
+
+export const checkGameOver = (gameState: GameState): boolean => {
+  // The game is over if the player has no money and can't take a loan
+  if (gameState.playerMoney <= 0 && gameState.hasUsedLoanThisRace) {
+    return true;
+  }
+  
+  // The game is over if the player has a large debt they can't repay
+  if (gameState.loanAmount > 0 && 
+      gameState.loanAmount > (gameState.playerMoney * 3) && 
+      gameState.currentRace >= gameState.totalRaces) {
+    return true;
+  }
+  
+  // The game is over if all races are completed
+  if (gameState.currentRace > gameState.totalRaces) {
+    return true;
+  }
+  
+  return false;
+};
+
+export const checkGameWon = (gameState: GameState): boolean => {
+  // Game is won if all races are completed and player has enough money
+  return gameState.currentRace > gameState.totalRaces && 
+         gameState.playerMoney >= gameState.seasonGoal;
+};
