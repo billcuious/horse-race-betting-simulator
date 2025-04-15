@@ -77,6 +77,7 @@ export type RandomEvent = {
   acceptLabel?: string;
   declineLabel?: string;
   acceptEffect?: (gameState: GameState) => { gameState: GameState; message: string };
+  declineEffect?: (gameState: GameState) => { gameState: GameState; message: string };
   moneyEffect?: number;
   moneyRequirement?: number;
 };
@@ -347,8 +348,8 @@ export const initializeGame = (playerName: string, jockeyId: string): GameState 
     competitors.push(generateHorse());
   }
   
-  // Set the season goal to 1200 as requested
-  const seasonGoal = 1200;
+  // Set the season goal to 12000 as requested
+  const seasonGoal = 12000;
   
   return {
     playerMoney: 2000, // Restored original starting money of 2000
@@ -818,6 +819,21 @@ export const updateHorsesAfterRace = (gameState: GameState, raceResults: RaceRes
     }
     
     updatedGameState.playerMoney += prize;
+    
+    // Add a 20% chance of a passive money event after race (win or lose money)
+    // This is the reintroduced random money event system
+    if (Math.random() < 0.20) {
+      const gainMoney = Math.random() < 0.6; // 60% chance to gain money
+      const amount = Math.floor(Math.random() * 300) + 300; // $300-600
+      
+      if (gainMoney) {
+        updatedGameState.playerMoney += amount;
+        toast.success(`You received an unexpected bonus of $${amount}!`);
+      } else {
+        updatedGameState.playerMoney = Math.max(0, updatedGameState.playerMoney - amount);
+        toast.error(`Unexpected expenses cost you $${amount}.`);
+      }
+    }
   }
   
   // Update player horse stats
@@ -985,6 +1001,10 @@ export const getRandomEvent = (): RandomEvent => {
           playerMoney: gameState.playerMoney + 300
         },
         message: "You gained $300 from the sponsorship!"
+      }),
+      declineEffect: (gameState) => ({
+        gameState,
+        message: "You declined the sponsorship offer."
       })
     },
     {
@@ -1016,7 +1036,11 @@ export const getRandomEvent = (): RandomEvent => {
             message: "The tip was worthless. You lost $200."
           };
         }
-      }
+      },
+      declineEffect: (gameState) => ({
+        gameState,
+        message: "You ignored the suspicious character."
+      })
     },
     {
       title: "Equipment Upgrade",
@@ -1038,7 +1062,11 @@ export const getRandomEvent = (): RandomEvent => {
           },
           message: "Your horse's control increased by 5!"
         };
-      }
+      },
+      declineEffect: (gameState) => ({
+        gameState,
+        message: "You decided not to purchase the equipment."
+      })
     },
     {
       title: "Charity Event",
@@ -1079,7 +1107,11 @@ export const getRandomEvent = (): RandomEvent => {
             message: "You feel good about helping the charity, but didn't receive any special luck."
           };
         }
-      }
+      },
+      declineEffect: (gameState) => ({
+        gameState,
+        message: "You declined to participate in the charity event."
+      })
     },
     {
       title: "Horse Whisperer",
@@ -1102,7 +1134,11 @@ export const getRandomEvent = (): RandomEvent => {
           },
           message: "The horse whisperer worked wonders! Control +8, Recovery +5"
         };
-      }
+      },
+      declineEffect: (gameState) => ({
+        gameState,
+        message: "You decided not to hire the horse whisperer."
+      })
     },
     {
       title: "Special Feed",
@@ -1126,7 +1162,11 @@ export const getRandomEvent = (): RandomEvent => {
           },
           message: "The special feed worked well! Speed +5, Endurance +3"
         };
-      }
+      },
+      declineEffect: (gameState) => ({
+        gameState,
+        message: "You decided not to purchase the special feed."
+      })
     },
     {
       title: "Racing Scandal",
@@ -1144,6 +1184,26 @@ export const getRandomEvent = (): RandomEvent => {
           },
           message: "You paid to settle the scandal. Your reputation remains intact."
         };
+      },
+      declineEffect: (gameState) => {
+        // 65% chance of a fine if you don't pay
+        const getFined = Math.random() < 0.65;
+        
+        if (getFined) {
+          const fineAmount = Math.floor(Math.random() * 300) + 500; // $500-800 fine
+          return {
+            gameState: {
+              ...gameState,
+              playerMoney: Math.max(0, gameState.playerMoney - fineAmount)
+            },
+            message: `You were found guilty in the scandal and fined $${fineAmount}!`
+          };
+        } else {
+          return {
+            gameState,
+            message: "You got lucky - the scandal blew over without consequences."
+          };
+        }
       }
     },
     {
@@ -1161,7 +1221,11 @@ export const getRandomEvent = (): RandomEvent => {
           },
           message: "You received $450 from the sponsorship deal!"
         };
-      }
+      },
+      declineEffect: (gameState) => ({
+        gameState,
+        message: "You declined the sponsorship opportunity."
+      })
     }
   ];
   
@@ -1169,7 +1233,7 @@ export const getRandomEvent = (): RandomEvent => {
   return events[Math.floor(Math.random() * events.length)];
 };
 
-// Add the applyRandomEvent function that was missing
+// Enhanced applyRandomEvent function to handle passive events
 export const applyRandomEvent = (gameState: GameState, event: RandomEvent): GameState => {
   // Apply passive event effects
   if (event.type === "passive" && event.moneyEffect) {
@@ -1371,6 +1435,36 @@ export const applyPassiveEvent = (gameState: GameState): {
             };
           }
         }
+      },
+      
+      // New random money event (additional to the ones in updateHorsesAfterRace)
+      {
+        check: () => true,
+        apply: (gameState: GameState) => {
+          const isNegative = Math.random() < 0.4; // 40% chance of losing money
+          const amount = Math.floor(Math.random() * 300) + 300; // $300-600
+          let message = "";
+          
+          if (isNegative) {
+            message = `You need to pay ${amount} for unexpected maintenance costs.`;
+            return {
+              gameState: {
+                ...gameState,
+                playerMoney: Math.max(0, gameState.playerMoney - amount)
+              },
+              message
+            };
+          } else {
+            message = `You received a bonus of ${amount} from a local supporter!`;
+            return {
+              gameState: {
+                ...gameState,
+                playerMoney: gameState.playerMoney + amount
+              },
+              message
+            };
+          }
+        }
       }
     ];
     
@@ -1387,7 +1481,7 @@ export const applyPassiveEvent = (gameState: GameState): {
   return null;
 };
 
-// Add the missing isGameOver and isGameWon functions
+// Add isGameOver and isGameWon functions to check game completion
 export const isGameOver = (gameState: GameState): boolean => {
   // The game is over if the player has no money and can't take a loan
   if (gameState.playerMoney <= 0 && gameState.hasUsedLoanThisRace) {

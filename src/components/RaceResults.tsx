@@ -53,7 +53,7 @@ const RaceResults = ({
   
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-3xl max-h-[90vh]">
+      <AlertDialogContent className="max-w-3xl max-h-[90vh] overflow-hidden">
         <ScrollArea className="h-[calc(90vh-120px)]">
           <AlertDialogHeader>
             <AlertDialogTitle>{t("results.full")}</AlertDialogTitle>
@@ -73,9 +73,9 @@ const RaceResults = ({
                 <TableCaption>{t("results.summary")}</TableCaption>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[80px]">Position</TableHead>
-                    <TableHead>Horse</TableHead>
-                    <TableHead>Commentary</TableHead>
+                    <TableHead className="w-[80px]">{t("position.label")}</TableHead>
+                    <TableHead>{t("results.horse")}</TableHead>
+                    <TableHead>{t("results.commentary")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 
@@ -126,7 +126,7 @@ const RaceResults = ({
         </ScrollArea>
         
         <AlertDialogFooter className="mt-4">
-          <AlertDialogCancel onClick={onClose}>Close</AlertDialogCancel>
+          <AlertDialogCancel onClick={onClose}>{t("actions.close")}</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
