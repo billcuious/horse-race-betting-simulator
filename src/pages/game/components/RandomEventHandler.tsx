@@ -1,7 +1,6 @@
 
 import { RandomEvent } from "@/utils/gameLogic";
 import EventPanel from "@/components/EventPanel";
-import { useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
@@ -44,6 +43,7 @@ const RandomEventHandler = ({
               {' '}{event.moneyEffect > 0 ? `+$${event.moneyEffect}` : `-$${Math.abs(event.moneyEffect)}`}
             </span>
           )}
+          <p className="mt-1 italic text-sm">{t("event.pendingMessage", "This event will be applied after the race.")}</p>
         </AlertDescription>
       </Alert>
     );

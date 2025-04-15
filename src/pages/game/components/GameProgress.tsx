@@ -7,7 +7,7 @@ interface GameProgressProps {
   totalRaces: number;
 }
 
-const GameProgress = ({ currentRace, totalRaces }: GameProgressProps) => {
+const GameProgress = ({ currentRace, totalRaces = 15 }: GameProgressProps) => {
   const { t } = useLanguage();
   
   return (

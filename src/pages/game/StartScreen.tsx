@@ -53,7 +53,7 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl">{t("startScreen.title", "Horse Racing Manager")}</CardTitle>
+            <CardTitle className="text-2xl">{t("game.title", "Horse Racing Manager")}</CardTitle>
             <Button 
               variant="outline" 
               size="icon" 
@@ -64,19 +64,19 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
               <HelpCircleIcon className="h-5 w-5" />
             </Button>
           </div>
-          <CardDescription>{t("startScreen.description", "Build your racing legacy by training horses and winning races")}</CardDescription>
+          <CardDescription>{t("game.subtitle", "Build your racing legacy by training horses and winning races")}</CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium mb-1">
-              {t("startScreen.playerName", "Player Name")}
+              {t("game.nameLabel", "Player Name")}
             </label>
             <Input
               id="name"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
-              placeholder={t("startScreen.enterName", "Enter your name")}
+              placeholder={t("game.namePlaceholder", "Enter your name")}
               className="w-full"
             />
           </div>
@@ -84,7 +84,7 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="block text-sm font-medium">
-                {t("startScreen.jockeySelect", "Choose Your Jockey")}
+                {t("game.chooseJockey", "Choose Your Jockey")}
               </label>
               <LanguageSelector />
             </div>
@@ -98,9 +98,9 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
                   }`}
                   onClick={() => setSelectedJockeyId(jockey.id)}
                 >
-                  <div className="font-medium">{t(`jockey.${jockey.id}.name`, jockey.name)}</div>
+                  <div className="font-medium">{t(`jockey.${jockey.id}.title`, jockey.name)}</div>
                   <div className="text-sm text-muted-foreground">
-                    {t(`jockey.${jockey.id}.description`, jockey.description)}
+                    {t(`jockey.${jockey.id}.desc`, jockey.description)}
                   </div>
                 </div>
               ))}
@@ -114,7 +114,7 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
             className="w-full"
             disabled={!selectedJockeyId}
           >
-            {t("startScreen.startButton", "Start Racing Career")}
+            {t("game.startButton", "Start Racing Career")}
           </Button>
         </CardFooter>
       </Card>
