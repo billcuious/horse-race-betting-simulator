@@ -16,146 +16,146 @@ const TutorialDialog = ({ isOpen, onClose }: TutorialDialogProps) => {
   
   const tutorialSteps = [
     {
-      title: "Welcome to Horse Racing Manager!",
+      title: t("tutorial.welcome.title", "Welcome to Horse Racing Manager!"),
       content: (
         <div className="space-y-4">
-          <p>This tutorial will guide you through the basics of the game.</p>
-          <p>You are a jockey managing your horse through a racing season. Your goal is to earn enough money to meet your seasonal goal.</p>
+          <p>{t("tutorial.welcome.intro", "This tutorial will guide you through the basics of the game.")}</p>
+          <p>{t("tutorial.welcome.role", "You are a jockey managing your horse through a racing season. Your goal is to earn enough money to meet your seasonal goal.")}</p>
           <div className="p-3 bg-muted/30 rounded-md">
-            <p className="font-semibold">Game Objective:</p>
-            <p>Earn money by training your horse, placing bets on races, and finishing in top positions.</p>
+            <p className="font-semibold">{t("tutorial.welcome.objective", "Game Objective:")}</p>
+            <p>{t("tutorial.welcome.objectiveDesc", "Earn money by training your horse, placing bets on races, and finishing in top positions.")}</p>
           </div>
         </div>
       )
     },
     {
-      title: "Your Horse",
+      title: t("tutorial.horse.title", "Your Horse"),
       content: (
         <div className="space-y-4">
-          <p>Your horse has several key stats that affect its performance:</p>
+          <p>{t("tutorial.horse.intro", "Your horse has several key stats that affect its performance:")}</p>
           <ul className="list-disc pl-5 space-y-2">
-            <li><span className="font-medium">Speed:</span> How fast your horse can run.</li>
-            <li><span className="font-medium">Control:</span> How well your horse maintains its position.</li>
-            <li><span className="font-medium">Endurance:</span> How well your horse performs over the course of a race.</li>
-            <li><span className="font-medium">Recovery:</span> How quickly your horse recovers between races.</li>
+            <li><span className="font-medium">{t("stats.speed", "Speed")}:</span> {t("tutorial.horse.speedDesc", "How fast your horse can run.")}</li>
+            <li><span className="font-medium">{t("stats.control", "Control")}:</span> {t("tutorial.horse.controlDesc", "How well your horse maintains its position.")}</li>
+            <li><span className="font-medium">{t("stats.endurance", "Endurance")}:</span> {t("tutorial.horse.enduranceDesc", "How well your horse performs over the course of a race.")}</li>
+            <li><span className="font-medium">{t("stats.recovery", "Recovery")}:</span> {t("tutorial.horse.recoveryDesc", "How quickly your horse recovers between races.")}</li>
           </ul>
-          <p>Each horse also has special traits that can provide unique advantages or disadvantages.</p>
+          <p>{t("tutorial.horse.traits", "Each horse also has special traits that can provide unique advantages or disadvantages.")}</p>
         </div>
       )
     },
     {
-      title: "Training",
+      title: t("tutorial.training.title", "Training"),
       content: (
         <div className="space-y-4">
-          <p>Between races, you can choose one training option for your horse:</p>
+          <p>{t("tutorial.training.intro", "Between races, you can choose one training option for your horse:")}</p>
           <ul className="list-disc pl-5 space-y-2">
-            <li><span className="font-medium">General Training:</span> Balanced improvement across all stats.</li>
-            <li><span className="font-medium">Speed Training:</span> Focus on improving speed at the cost of recovery.</li>
-            <li><span className="font-medium">Rest:</span> Recover 15 points of recovery but no other stat gains.</li>
-            <li><span className="font-medium">Sync Training:</span> Improve control at the cost of recovery.</li>
+            <li><span className="font-medium">{t("training.general", "General Training")}:</span> {t("tutorial.training.generalDesc", "Balanced improvement across all stats.")}</li>
+            <li><span className="font-medium">{t("training.speed", "Speed Training")}:</span> {t("tutorial.training.speedDesc", "Focus on improving speed at the cost of recovery.")}</li>
+            <li><span className="font-medium">{t("training.recovery", "Rest")}:</span> {t("tutorial.training.restDesc", "Recover 15 points of recovery but no other stat gains.")}</li>
+            <li><span className="font-medium">{t("training.control", "Sync Training")}:</span> {t("tutorial.training.syncDesc", "Improve control at the cost of recovery.")}</li>
           </ul>
           <div className="p-3 bg-muted/30 rounded-md">
-            <p className="font-semibold">Tip:</p>
-            <p>Balance your training choices. Pushing your horse too hard without rest can lead to poor performance.</p>
+            <p className="font-semibold">{t("tutorial.training.tip", "Tip:")}:</p>
+            <p>{t("tutorial.training.tipDesc", "Balance your training choices. Pushing your horse too hard without rest can lead to poor performance.")}</p>
           </div>
         </div>
       )
     },
     {
-      title: "Scouting",
+      title: t("tutorial.scouting.title", "Scouting"),
       content: (
         <div className="space-y-4">
-          <p>You can scout your own horse and competitors to learn more about them:</p>
+          <p>{t("tutorial.scouting.intro", "You can scout your own horse and competitors to learn more about them:")}</p>
           <ul className="list-disc pl-5 space-y-2">
-            <li><span className="font-medium">Scout Your Horse:</span> Discover hidden traits.</li>
-            <li><span className="font-medium">Basic Scout:</span> See basic stats of competitors.</li>
-            <li><span className="font-medium">Deep Scout:</span> Reveal a competitor's hidden traits.</li>
+            <li><span className="font-medium">{t("tutorial.scouting.ownHorse", "Scout Your Horse")}:</span> {t("tutorial.scouting.ownHorseDesc", "Discover hidden traits.")}</li>
+            <li><span className="font-medium">{t("tutorial.scouting.basic", "Basic Scout")}:</span> {t("tutorial.scouting.basicDesc", "See basic stats of competitors.")}</li>
+            <li><span className="font-medium">{t("tutorial.scouting.deep", "Deep Scout")}:</span> {t("tutorial.scouting.deepDesc", "Reveal a competitor's hidden traits.")}</li>
           </ul>
-          <p>Scouting costs money but provides valuable information that can help you make better betting decisions.</p>
+          <p>{t("tutorial.scouting.cost", "Scouting costs money but provides valuable information that can help you make better betting decisions.")}</p>
         </div>
       )
     },
     {
-      title: "Placing Bets",
+      title: t("tutorial.betting.title", "Placing Bets"),
       content: (
         <div className="space-y-4">
-          <p>Betting is a key way to earn money in the game:</p>
+          <p>{t("tutorial.betting.intro", "Betting is a key way to earn money in the game:")}</p>
           <ol className="list-decimal pl-5 space-y-2">
-            <li>Select a horse from the dropdown in the betting panel or from the competitors panel.</li>
-            <li>Set your bet amount (minimum $100).</li>
-            <li>Place your bet before the race.</li>
+            <li>{t("tutorial.betting.step1", "Select a horse from the dropdown in the betting panel or from the competitors panel.")}</li>
+            <li>{t("tutorial.betting.step2", "Set your bet amount (minimum $100).")}</li>
+            <li>{t("tutorial.betting.step3", "Place your bet before the race.")}</li>
           </ol>
           <div className="p-3 bg-muted/30 rounded-md">
-            <p className="font-semibold">Important:</p>
-            <p>You can bet on your own horse or any competitor. Winning bets pay out based on the horse's odds.</p>
+            <p className="font-semibold">{t("tutorial.betting.important", "Important:")}:</p>
+            <p>{t("tutorial.betting.importantDesc", "You can bet on your own horse or any competitor. Winning bets pay out based on the horse's odds.")}</p>
           </div>
         </div>
       )
     },
     {
-      title: "Racing",
+      title: t("tutorial.racing.title", "Racing"),
       content: (
         <div className="space-y-4">
-          <p>After training and placing bets, start the race:</p>
+          <p>{t("tutorial.racing.intro", "After training and placing bets, start the race:")}</p>
           <ul className="list-disc pl-5 space-y-2">
-            <li>The race results are determined by each horse's stats, traits, and some randomness.</li>
-            <li>Top positions earn prize money for your horse.</li>
-            <li>Winning bets pay out based on the odds.</li>
+            <li>{t("tutorial.racing.results", "The race results are determined by each horse's stats, traits, and some randomness.")}</li>
+            <li>{t("tutorial.racing.prize", "Top positions earn prize money for your horse.")}</li>
+            <li>{t("tutorial.racing.winnings", "Winning bets pay out based on the odds.")}</li>
           </ul>
-          <p>After each race, your horse's stats will decrease slightly, particularly speed. The recovery stat affects how much other stats decrease.</p>
+          <p>{t("tutorial.racing.decrease", "After each race, your horse's stats will decrease slightly, particularly speed. The recovery stat affects how much other stats decrease.")}</p>
         </div>
       )
     },
     {
-      title: "Random Events",
+      title: t("tutorial.events.title", "Random Events"),
       content: (
         <div className="space-y-4">
-          <p>Throughout the season, random events will occur:</p>
+          <p>{t("tutorial.events.intro", "Throughout the season, random events will occur:")}</p>
           <ul className="list-disc pl-5 space-y-2">
-            <li><span className="font-medium">Passive Events:</span> Happen automatically after a race.</li>
-            <li><span className="font-medium">Choice Events:</span> Require you to make a decision.</li>
+            <li><span className="font-medium">{t("tutorial.events.passive", "Passive Events")}:</span> {t("tutorial.events.passiveDesc", "Happen automatically after a race.")}</li>
+            <li><span className="font-medium">{t("tutorial.events.choice", "Choice Events")}:</span> {t("tutorial.events.choiceDesc", "Require you to make a decision.")}</li>
           </ul>
-          <p>These events can have positive or negative effects on your money, horse stats, or race performance.</p>
+          <p>{t("tutorial.events.effects", "These events can have positive or negative effects on your money, horse stats, or race performance.")}</p>
           <div className="p-3 bg-muted/30 rounded-md">
-            <p className="font-semibold">Strategy:</p>
-            <p>Consider your current situation when deciding how to respond to events.</p>
+            <p className="font-semibold">{t("tutorial.events.strategy", "Strategy:")}:</p>
+            <p>{t("tutorial.events.strategyDesc", "Consider your current situation when deciding how to respond to events.")}</p>
           </div>
         </div>
       )
     },
     {
-      title: "Financial Management",
+      title: t("tutorial.finance.title", "Financial Management"),
       content: (
         <div className="space-y-4">
-          <p>Managing your money is crucial for success:</p>
+          <p>{t("tutorial.finance.intro", "Managing your money is crucial for success:")}</p>
           <ul className="list-disc pl-5 space-y-2">
-            <li>You earn money from race placements and winning bets.</li>
-            <li>You spend money on scouting and betting.</li>
-            <li>If you run low on funds, you can take a loan (with interest).</li>
+            <li>{t("tutorial.finance.earn", "You earn money from race placements and winning bets.")}</li>
+            <li>{t("tutorial.finance.spend", "You spend money on scouting and betting.")}</li>
+            <li>{t("tutorial.finance.loan", "If you run low on funds, you can take a loan (with interest).")}</li>
           </ul>
           <div className="p-3 bg-muted/30 rounded-md">
-            <p className="font-semibold">Warning:</p>
-            <p>If your money falls below $100, you will go bankrupt and lose the game. Plan your finances carefully!</p>
+            <p className="font-semibold">{t("tutorial.finance.warning", "Warning:")}:</p>
+            <p>{t("tutorial.finance.warningDesc", "If your money falls below $100, you will go bankrupt and lose the game. Plan your finances carefully!")}</p>
           </div>
         </div>
       )
     },
     {
-      title: "Season Goal",
+      title: t("tutorial.goal.title", "Season Goal"),
       content: (
         <div className="space-y-4">
-          <p>Your ultimate goal is to earn enough money to meet or exceed your season goal.</p>
-          <p>The season consists of multiple races. Your goal is displayed at the top of the screen.</p>
+          <p>{t("tutorial.goal.intro", "Your ultimate goal is to earn enough money to meet or exceed your season goal.")}</p>
+          <p>{t("tutorial.goal.season", "The season consists of multiple races. Your goal is displayed at the top of the screen.")}</p>
           <div className="p-3 bg-muted/30 rounded-md">
-            <p className="font-semibold">Success Factors:</p>
+            <p className="font-semibold">{t("tutorial.goal.factors", "Success Factors:")}:</p>
             <ul className="list-disc pl-5">
-              <li>Strategic training</li>
-              <li>Smart betting</li>
-              <li>Effective scouting</li>
-              <li>Good financial management</li>
+              <li>{t("tutorial.goal.factor1", "Strategic training")}</li>
+              <li>{t("tutorial.goal.factor2", "Smart betting")}</li>
+              <li>{t("tutorial.goal.factor3", "Effective scouting")}</li>
+              <li>{t("tutorial.goal.factor4", "Good financial management")}</li>
             </ul>
           </div>
-          <p className="mt-4 font-medium">Good luck with your racing season!</p>
+          <p className="mt-4 font-medium">{t("tutorial.goal.goodLuck", "Good luck with your racing season!")}</p>
         </div>
       )
     }
@@ -185,7 +185,7 @@ const TutorialDialog = ({ isOpen, onClose }: TutorialDialogProps) => {
         <DialogHeader>
           <DialogTitle className="text-xl">{tutorialSteps[currentStep].title}</DialogTitle>
           <DialogDescription>
-            Step {currentStep + 1} of {tutorialSteps.length}
+            {t("tutorial.step", "Step")} {currentStep + 1} {t("tutorial.of", "of")} {tutorialSteps.length}
           </DialogDescription>
         </DialogHeader>
         
@@ -202,7 +202,7 @@ const TutorialDialog = ({ isOpen, onClose }: TutorialDialogProps) => {
               disabled={currentStep === 0}
             >
               <ChevronLeftIcon className="h-4 w-4 mr-1" />
-              Previous
+              {t("tutorial.previous", "Previous")}
             </Button>
             
             <Button 
@@ -210,7 +210,7 @@ const TutorialDialog = ({ isOpen, onClose }: TutorialDialogProps) => {
               variant="default" 
               onClick={handleNext}
             >
-              {currentStep === tutorialSteps.length - 1 ? "Finish" : "Next"}
+              {currentStep === tutorialSteps.length - 1 ? t("tutorial.finish", "Finish") : t("tutorial.next", "Next")}
               {currentStep < tutorialSteps.length - 1 && <ChevronRightIcon className="h-4 w-4 ml-1" />}
             </Button>
           </div>
@@ -221,7 +221,7 @@ const TutorialDialog = ({ isOpen, onClose }: TutorialDialogProps) => {
               variant="secondary"
               onClick={handleSkip}
             >
-              Skip Tutorial
+              {t("tutorial.skip", "Skip Tutorial")}
             </Button>
           )}
         </DialogFooter>

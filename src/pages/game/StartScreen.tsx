@@ -18,7 +18,7 @@ const StartScreen = ({ onStartGame }: StartScreenProps) => {
   const [randomJockeys, setRandomJockeys] = useState<typeof jockeys>([]);
   const [selectedJockeyId, setSelectedJockeyId] = useState("");
   const [showTutorial, setShowTutorial] = useState(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   // Randomly select 4 jockeys on component mount
   useEffect(() => {
