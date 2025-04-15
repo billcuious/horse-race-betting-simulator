@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 // Types
@@ -355,7 +354,7 @@ export const initializeGame = (playerName: string, jockeyId: string): GameState 
     playerMoney: 2000, // Restored original starting money of 2000
     seasonGoal,
     currentRace: 1,
-    totalRaces: 10,
+    totalRaces: 15, // Updated to 15 races from 10
     playerHorse,
     competitors,
     raceResults: [],
@@ -987,7 +986,60 @@ export const updateHorsesAfterRace = (gameState: GameState, raceResults: RaceRes
 };
 
 export const getRandomEvent = (): RandomEvent => {
-  const events: RandomEvent[] = [
+  // 60% chance to get a passive event (as requested: 50-70%)
+  const isPassiveEvent = Math.random() < 0.6;
+  
+  if (isPassiveEvent) {
+    const passiveEvents: RandomEvent[] = [
+      {
+        title: "Unexpected Maintenance",
+        description: "Your horse needs some unexpected maintenance.",
+        type: "passive",
+        moneyEffect: -Math.floor(Math.random() * 300 + 300) // -300 to -600
+      },
+      {
+        title: "Fan Donation",
+        description: "A fan has donated to your racing career!",
+        type: "passive",
+        moneyEffect: Math.floor(Math.random() * 300 + 300) // 300 to 600
+      },
+      {
+        title: "Equipment Wear",
+        description: "Some of your racing equipment needs replacement.",
+        type: "passive",
+        moneyEffect: -Math.floor(Math.random() * 200 + 200) // -200 to -400
+      },
+      {
+        title: "Media Appearance",
+        description: "You were invited to a media show that paid for your appearance.",
+        type: "passive",
+        moneyEffect: Math.floor(Math.random() * 250 + 250) // 250 to 500
+      },
+      {
+        title: "Veterinary Costs",
+        description: "Routine veterinary checkup incurred some costs.",
+        type: "passive",
+        moneyEffect: -Math.floor(Math.random() * 250 + 250) // -250 to -500
+      },
+      {
+        title: "Local Support",
+        description: "Local community raised funds to support your racing career.",
+        type: "passive",
+        moneyEffect: Math.floor(Math.random() * 200 + 300) // 300 to 500
+      },
+      {
+        title: "Training Expenses",
+        description: "Extra training sessions cost more than expected.",
+        type: "passive",
+        moneyEffect: -Math.floor(Math.random() * 200 + 250) // -250 to -450
+      }
+    ];
+    
+    return passiveEvents[Math.floor(Math.random() * passiveEvents.length)];
+  }
+  
+  // The active events (40% chance)
+  const activeEvents: RandomEvent[] = [
     {
       title: "Fan Promotion",
       description: "A local sponsor offers you $300 for wearing their logo during the next race.",
@@ -1069,6 +1121,44 @@ export const getRandomEvent = (): RandomEvent => {
       })
     },
     {
+      title: "Racing Scandal",
+      description: "You've been implicated in a minor racing scandal. Pay $400 to settle the matter quietly.",
+      type: "choice",
+      choicePrompt: "Pay to settle the matter?",
+      acceptLabel: "Pay $400",
+      declineLabel: "Refuse",
+      moneyRequirement: 400,
+      acceptEffect: (gameState) => {
+        return {
+          gameState: {
+            ...gameState,
+            playerMoney: gameState.playerMoney - 400
+          },
+          message: "You paid to settle the scandal. Your reputation remains intact."
+        };
+      },
+      declineEffect: (gameState) => {
+        // 65% chance of a fine if you don't pay
+        const getFined = Math.random() < 0.65;
+        
+        if (getFined) {
+          const fineAmount = Math.floor(Math.random() * 300) + 500; // $500-800 fine
+          return {
+            gameState: {
+              ...gameState,
+              playerMoney: Math.max(0, gameState.playerMoney - fineAmount)
+            },
+            message: `You were found guilty in the scandal and fined $${fineAmount}!`
+          };
+        } else {
+          return {
+            gameState,
+            message: "You got lucky - the scandal blew over without consequences."
+          };
+        }
+      }
+    },
+    {
       title: "Charity Event",
       description: "A local charity asks you to participate in their event. It will cost $150 but might bring good luck.",
       type: "choice",
@@ -1112,125 +1202,10 @@ export const getRandomEvent = (): RandomEvent => {
         gameState,
         message: "You declined to participate in the charity event."
       })
-    },
-    {
-      title: "Horse Whisperer",
-      description: "A renowned horse whisperer offers to work with your horse for $300. They claim they can improve your horse's control.",
-      type: "choice",
-      choicePrompt: "Hire the horse whisperer?",
-      acceptLabel: "Hire",
-      declineLabel: "Decline",
-      moneyRequirement: 300,
-      acceptEffect: (gameState) => {
-        const updatedHorse = { ...gameState.playerHorse };
-        updatedHorse.control += 8;
-        updatedHorse.recovery += 5;
-        
-        return {
-          gameState: {
-            ...gameState,
-            playerMoney: gameState.playerMoney - 300,
-            playerHorse: updatedHorse
-          },
-          message: "The horse whisperer worked wonders! Control +8, Recovery +5"
-        };
-      },
-      declineEffect: (gameState) => ({
-        gameState,
-        message: "You decided not to hire the horse whisperer."
-      })
-    },
-    {
-      title: "Special Feed",
-      description: "A nutrition expert offers special feed that could boost your horse's performance for $250.",
-      type: "choice",
-      choicePrompt: "Purchase the special feed?",
-      acceptLabel: "Buy Feed",
-      declineLabel: "Decline",
-      moneyRequirement: 250,
-      acceptEffect: (gameState) => {
-        const updatedHorse = { ...gameState.playerHorse };
-        updatedHorse.displayedSpeed += 5;
-        updatedHorse.actualSpeed += 5;
-        updatedHorse.endurance += 3;
-        
-        return {
-          gameState: {
-            ...gameState,
-            playerMoney: gameState.playerMoney - 250,
-            playerHorse: updatedHorse
-          },
-          message: "The special feed worked well! Speed +5, Endurance +3"
-        };
-      },
-      declineEffect: (gameState) => ({
-        gameState,
-        message: "You decided not to purchase the special feed."
-      })
-    },
-    {
-      title: "Racing Scandal",
-      description: "You've been implicated in a minor racing scandal. Pay $400 to settle the matter quietly.",
-      type: "choice",
-      choicePrompt: "Pay to settle the matter?",
-      acceptLabel: "Pay $400",
-      declineLabel: "Refuse",
-      moneyRequirement: 400,
-      acceptEffect: (gameState) => {
-        return {
-          gameState: {
-            ...gameState,
-            playerMoney: gameState.playerMoney - 400
-          },
-          message: "You paid to settle the scandal. Your reputation remains intact."
-        };
-      },
-      declineEffect: (gameState) => {
-        // 65% chance of a fine if you don't pay
-        const getFined = Math.random() < 0.65;
-        
-        if (getFined) {
-          const fineAmount = Math.floor(Math.random() * 300) + 500; // $500-800 fine
-          return {
-            gameState: {
-              ...gameState,
-              playerMoney: Math.max(0, gameState.playerMoney - fineAmount)
-            },
-            message: `You were found guilty in the scandal and fined $${fineAmount}!`
-          };
-        } else {
-          return {
-            gameState,
-            message: "You got lucky - the scandal blew over without consequences."
-          };
-        }
-      }
-    },
-    {
-      title: "Sponsor Opportunity",
-      description: "A major brand wants to sponsor your horse in the next race for $450.",
-      type: "choice",
-      choicePrompt: "Accept the sponsorship?",
-      acceptLabel: "Accept",
-      declineLabel: "Decline",
-      acceptEffect: (gameState) => {
-        return {
-          gameState: {
-            ...gameState,
-            playerMoney: gameState.playerMoney + 450
-          },
-          message: "You received $450 from the sponsorship deal!"
-        };
-      },
-      declineEffect: (gameState) => ({
-        gameState,
-        message: "You declined the sponsorship opportunity."
-      })
     }
   ];
   
-  // Choose a random event
-  return events[Math.floor(Math.random() * events.length)];
+  return activeEvents[Math.floor(Math.random() * activeEvents.length)];
 };
 
 // Enhanced applyRandomEvent function to handle passive events
